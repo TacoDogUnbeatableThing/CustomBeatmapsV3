@@ -1,0 +1,122 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <GenerateAssemblyInfo>False</GenerateAssemblyInfo>
+        <TargetFramework>netstandard2.1</TargetFramework>
+        <PackageId>CustomBeatmaps</PackageId>
+        <RootNamespace>CustomBeatmaps</RootNamespace>
+        <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <LangVersion>8</LangVersion>
+        <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <Reference Include="BepInEx">
+            <HintPath>..\BepInEx\core\BepInEx.dll</HintPath>
+        </Reference>
+        <Reference Include="0Harmony">
+            <HintPath>..\BepInEx\core\0Harmony.dll</HintPath>
+        </Reference>
+        <Reference Include="UnityEngine">
+            <HintPath>..\UNBEATABLE [white label]_Data\Managed\UnityEngine.dll</HintPath>
+        </Reference>
+        <Reference Include="FMODUnity">
+            <HintPath>..\UNBEATABLE [white label]_Data\Managed\FMODUnity.dll</HintPath>
+        </Reference>
+        <Reference Include="UnityEngine.CoreModule">
+            <HintPath>..\UNBEATABLE [white label]_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
+        </Reference>
+        <Reference Include="UnityEngine.ParticleSystemModule">
+            <HintPath>..\UNBEATABLE [white label]_Data\Managed\UnityEngine.ParticleSystemModule.dll</HintPath>
+        </Reference>
+        <Reference Include="UnityEngine.UnityWebRequestWWWModule.dll">
+            <HintPath>..\UNBEATABLE [white label]_Data\Managed\UnityEngine.UnityWebRequestWWWModule.dll</HintPath>
+        </Reference>
+        <Reference Include="Assembly-CSharp">
+            <HintPath>..\UNBEATABLE [white label]_Data\Managed\Assembly-CSharp.dll</HintPath>
+        </Reference>
+        <Reference Include="Assembly-CSharp-firstpass">
+            <HintPath>..\UNBEATABLE [white label]_Data\Managed\Assembly-CSharp-firstpass.dll</HintPath>
+        </Reference>
+        <Reference Include="Rewired_Core">
+            <HintPath>..\UNBEATABLE [white label]_Data\Managed\Rewired_Core.dll</HintPath>
+        </Reference>
+        <Reference Include="Unity.TextMeshPro">
+            <HintPath>..\UNBEATABLE [white label]_Data\Managed\Unity.TextMeshPro.dll</HintPath>
+        </Reference>
+        <Reference Include="UnityEngine.PhysicsModule">
+            <HintPath>..\UNBEATABLE [white label]_Data\Managed\UnityEngine.PhysicsModule.dll</HintPath>
+        </Reference>
+        <Reference Include="Cinemachine">
+            <HintPath>..\UNBEATABLE [white label]_Data\Managed\Cinemachine.dll</HintPath>
+        </Reference>
+        <Reference Include="UnityEngine.AnimationModule">
+            <HintPath>..\UNBEATABLE [white label]_Data\Managed\UnityEngine.AnimationModule.dll</HintPath>
+        </Reference>
+        <Reference Include="YarnSpinner.Unity">
+            <HintPath>..\UNBEATABLE [white label]_Data\Managed\YarnSpinner.Unity.dll</HintPath>
+        </Reference>
+        <Reference Include="UnityEngine.AudioModule">
+            <HintPath>..\UNBEATABLE [white label]_Data\Managed\UnityEngine.AudioModule.dll</HintPath>
+        </Reference>
+        <Reference Include="YarnSpinner">
+            <HintPath>..\UNBEATABLE [white label]_Data\Managed\YarnSpinner.dll</HintPath>
+        </Reference>
+        <Reference Include="UnityEngine.UI">
+            <HintPath>..\UNBEATABLE [white label]_Data\Managed\UnityEngine.UI.dll</HintPath>
+        </Reference>
+        <Reference Include="UnityEngine.UIModule">
+            <HintPath>..\UNBEATABLE [white label]_Data\Managed\UnityEngine.UIModule.dll</HintPath>
+        </Reference>
+        <Reference Include="UnityEngine.Physics2DModule">
+            <HintPath>..\UNBEATABLE [white label]_Data\Managed\UnityEngine.Physics2DModule.dll</HintPath>
+        </Reference>
+        <Reference Include="Unity.Postprocessing.Runtime">
+            <HintPath>..\UNBEATABLE [white label]_Data\Managed\Unity.Postprocessing.Runtime.dll</HintPath>
+        </Reference>
+        <Reference Include="UnityEngine.VideoModule">
+            <HintPath>..\UNBEATABLE [white label]_Data\Managed\UnityEngine.VideoModule.dll</HintPath>
+        </Reference>
+        <Reference Include="VisualDesignCafe.Rendering.Nature">
+            <HintPath>..\UNBEATABLE [white label]_Data\Managed\VisualDesignCafe.Rendering.Nature.dll</HintPath>
+        </Reference>
+        <Reference Include="DOTween">
+            <HintPath>..\UNBEATABLE [white label]_Data\Managed\DOTween.dll</HintPath>
+        </Reference>
+        <Reference Include="UnityEngine.AIModule">
+            <HintPath>..\UNBEATABLE [white label]_Data\Managed\UnityEngine.AIModule.dll</HintPath>
+        </Reference>
+        <Reference Include="UnityEngine.InputLegacyModule">
+            <HintPath>..\UNBEATABLE [white label]_Data\Managed\UnityEngine.InputLegacyModule.dll</HintPath>
+        </Reference>
+        <Reference Include="UnityEngine.IMGUIModule">
+            <HintPath>..\UNBEATABLE [white label]_Data\Managed\UnityEngine.IMGUIModule.dll</HintPath>
+        </Reference>
+        <Reference Include="UnityEngine.TerrainModule">
+            <HintPath>..\UNBEATABLE [white label]_Data\Managed\UnityEngine.TerrainModule.dll</HintPath>
+        </Reference>
+        <Reference Include="UnityEngine.WindModule">
+            <HintPath>..\UNBEATABLE [white label]_Data\Managed\UnityEngine.WindModule.dll</HintPath>
+        </Reference>
+        <Reference Include="UnityEngine.ScreenCaptureModule">
+            <HintPath>..\UNBEATABLE [white label]_Data\Managed\UnityEngine.ScreenCaptureModule.dll</HintPath>
+        </Reference>
+        <Reference Include="UnityEngine.JSONSerializeModule">
+            <HintPath>..\UNBEATABLE [white label]_Data\Managed\UnityEngine.JSONSerializeModule.dll</HintPath>
+        </Reference>
+        <Reference Include="Rewired_Windows">
+            <HintPath>..\UNBEATABLE [white label]_Data\Managed\Rewired_Windows.dll</HintPath>
+        </Reference>
+        <Reference Include="UnityEngine.TextRenderingModule">
+            <HintPath>..\UNBEATABLE [white label]_Data\Managed\UnityEngine.TextRenderingModule.dll</HintPath>
+        </Reference>
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+      <PackageReference Include="YamlDotNet" Version="11.2.1" />
+    </ItemGroup>
+</Project>

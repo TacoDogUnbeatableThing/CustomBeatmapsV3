@@ -1,0 +1,26 @@
+﻿
+UI:
+    Should be similar to before but simpler, with an ambiguous interface for displaying a package list and package info (works for local + server + verify)
+
+SUBMISSION TESTER:
+    Lists submissions and Automatically downloads + plays in a folder and deletes when it finishes
+
+LOCAL BEATMAPS:
+    Should be trivial.
+
+PACKAGE INFO:
+    Once that's all done, add a description field and a background color.
+
+CREATE MODE (OSU mode):
+    Similar to before but clean it up a bit.
+    At the top: To make a beatmap, follow this guide (with a link)
+    Pick an OSU file from a list and either EDIT or EXPORT
+    When EXPORTING, a dialogue prompt pops up with some options (description, CD color)
+
+HIGH SCORES:
+    On beating a level, send your user ID and score data (the server does the mapping so the id's aren't exposed)
+
+DISCORD CLEANUP:
+    Archive channels and add a simplified guide for mods and creators
+    Everyone: How to download the mod, how to play and use it, etc.
+    Beatmap Creators: Creating a new OSU file
