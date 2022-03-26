@@ -6,6 +6,9 @@
         <PackageId>CustomBeatmaps</PackageId>
         <RootNamespace>CustomBeatmaps</RootNamespace>
         <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+
+        <!-- The project rests in the Unbeatable Directory, this copies the DLL to the BepinEx CustomBeatmaps plugin directory -->
+        <PostBuildEvent>copy CustomBeatmapsV3.dll $(OutDir)..\..\..\..\BepInEx\plugins\CustomBeatmaps\CustomBeatmapsV3.dll</PostBuildEvent>
     </PropertyGroup>
 
     <PropertyGroup>

@@ -1,0 +1,22 @@
+﻿namespace CustomBeatmaps
+{
+    /// <summary>
+    /// Backend config file, not for users to mess with unless they're testing their own backend.
+    /// </summary>
+    public class BackendConfig
+    {
+        /// Grabs list of all package files
+        public string ServerPackageList = "http://64.225.60.116:8080/packages.json";
+        /// Grabs list of all submissions currently pending
+        public string ServerSubmissionList = "http://64.225.60.116:8080/submissions.json";
+        /// The directory for all server data
+        public string ServerStorageURL = "http://64.225.60.116:8080";
+        /// The root folder within the server directory
+        public string ServerPackageRoot = "packages";
+        /// Where we grab user data from
+        public string ServerUserURL = "http://64.225.60.116:8081";
+        // Grabs the latest project tag from GitHub
+        // TODO: Once repo goes public, switch this to CustomBeatmapsV3
+        public string RepoLatestTagsURL = "https://api.github.com/repos/TacoDogUnbeatableThing/CustomBeatmapsV2/tags?per_page=1";
+    }
+}

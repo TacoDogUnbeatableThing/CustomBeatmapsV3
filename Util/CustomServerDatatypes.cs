@@ -43,6 +43,9 @@ namespace CustomBeatmaps.Util
         public string Creator;
         [JsonProperty("difficulty")]
         public string Difficulty;
+        [JsonProperty("audioFileName")]
+        public string AudioFileName;
+
         public override string ToString()
         {
             return $"{{{Name} ({Difficulty}) by {Artist}: mapped by {Creator}}}";

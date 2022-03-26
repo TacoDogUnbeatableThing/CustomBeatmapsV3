@@ -55,40 +55,43 @@ namespace CustomBeatmaps.Util
         
         public static async Task<NewUserInfo> RegisterUser(string userServerURL, string username)
         {
-            return await ServerHelper.PostJSON<NewUserInfo>(userServerURL + "/newuser", new RegisterUserRequest(username));
+            return await FetchHelper.PostJSON<NewUserInfo>(userServerURL + "/newuser", new RegisterUserRequest(username));
         }
 
         public static async Task<UserInfo> GetUserInfo(string userServerURL, string uniqueUserId)
         {
-            return await ServerHelper.PostJSON<UserInfo>(userServerURL + "/user", new RegisterUserRequest(uniqueUserId));
+            return await FetchHelper.PostJSON<UserInfo>(userServerURL + "/user", new GetUserDataRequest(uniqueUserId));
         }
 
         public static async Task<bool> PostScore(string userServerURL, PostScoreRequest request)
         {
-            var response = await ServerHelper.PostJSON<ReceiveScoreData>(userServerURL + "/score", request);
+            var response = await FetchHelper.PostJSON<ReceiveScoreData>(userServerURL + "/score", request);
             return response.GotNewHighscore;
         }
 
         public static async Task<HighscoreTable> GetHighscores(
             string url)
         {
-            var scoreTable = await ServerHelper.GetJSON<Dictionary<string, Dictionary<string, Dictionary<string, HighscoreTable.UserScore>>>>(url);
+            var scoreTable = await FetchHelper.GetJSON<Dictionary<string, Dictionary<string, Dictionary<string, HighscoreTable.UserScore>>>>(url);
             return new HighscoreTable(scoreTable);
         }
 
-        public static bool TryLoadUserUniqueId(string path, out string uniqueUserId)
+        public static string LoadUserSession(string path)
         {
-            try
-            {
-                uniqueUserId = File.ReadAllText(path);
-                return true;
-            }
-            catch (Exception e)
-            {
-                Debug.LogException(e);
-                uniqueUserId = null;
-                return false;
-            }
+            // Huh...
+            return File.ReadAllText(path);
+        }
+
+        public static bool LocalUserSessionExists(string path)
+        {
+            // Huh...
+            return File.Exists(path);
+        }
+
+        public static void SaveUserSession(string path, string uniqueUserId)
+        {
+            // Huh...
+            File.WriteAllText(path, uniqueUserId);
         }
     }
 

@@ -20,5 +20,10 @@ namespace CustomBeatmaps.CustomPackages
             Difficulty = difficulty;
             BeatmapCreator = beatmapCreator;
         }
+        
+        public override string ToString()
+        {
+            return $"{{{SongName} by {Artist} ({Difficulty}) mapped {BeatmapCreator} ({RealAudioKey})}}";
+        }
     }
 }

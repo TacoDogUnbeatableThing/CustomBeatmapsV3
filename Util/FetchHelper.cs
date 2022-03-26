@@ -1,5 +1,7 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
 using System.Net.Http;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace CustomBeatmaps.Util
@@ -7,7 +9,7 @@ namespace CustomBeatmaps.Util
     /// <summary>
     /// Simple means to asynchronously fetch/get server queries
     /// </summary>
-    public static class ServerHelper
+    public static class FetchHelper
     {
         private static readonly HttpClient HttpClient = new HttpClient();
 
@@ -24,7 +26,8 @@ namespace CustomBeatmaps.Util
 
         public static async Task<T> PostJSON<T>(string url, object data)
         {
-            HttpContent content = new StringContent(SerializeHelper.SerializeJSON(data));
+            string serialized = SerializeHelper.SerializeJSON(data);
+            HttpContent content = new StringContent(serialized, Encoding.UTF8, "application/json");
             var response = await HttpClient.PostAsync(url, content);
 
             if (response.Content.Headers.ContentType?.MediaType == "application/json")
@@ -34,10 +37,22 @@ namespace CustomBeatmaps.Util
             throw new HttpRequestException(await response.Content.ReadAsStringAsync());
         }
 
+        public static async Task<bool> GetAvailable(string url)
+        {
+            var response = await HttpClient.GetAsync(url);
+            return response.IsSuccessStatusCode;
+        }
+
         public static async Task DownloadFile(string url, string downloadPath)
         {
-            var stream = await HttpClient.GetStreamAsync(url);
+            var response = await HttpClient.GetAsync(url);
 
+            using (var fs = new FileStream(downloadPath, FileMode.Create))
+            {
+                await response.Content.CopyToAsync(fs);
+            }
+
+            /*
             // Define buffer and buffer size
             int bufferSize = 1024;
             byte[] buffer = new byte[bufferSize];
@@ -49,6 +64,7 @@ namespace CustomBeatmaps.Util
             {
                 fileStream.Write(buffer, 0, bytesRead);
             } // end while
+            */
         }
     }
 }

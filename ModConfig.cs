@@ -18,15 +18,5 @@
         public string TemporarySubmissionPackageFolder = ".SUBMISSION_PACKAGE.temp";
         /// The local user "key" for high score submissions
         public string UserUniqueIdFile = ".USER_ID";
-        /// Grabs list of all package files
-        public string ServerPackageList = "http://64.225.60.116:8080/packages.json";
-        /// Grabs list of all submissions currently pending
-        public string ServerSubmissionList = "http://64.225.60.116:8080/submissions.json";
-        /// The directory for all server data
-        public string ServerStorageURL = "http://64.225.60.116:8080";
-        /// The root folder within the server directory
-        public string ServerPackageRoot = "packages";
-        /// Where we grab user data from
-        public string ServerUserURL = "http://64.225.60.116:8081";
     }
 }

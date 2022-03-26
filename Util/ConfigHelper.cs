@@ -72,7 +72,7 @@ namespace CustomBeatmaps.Util
                     throw new NullReferenceException();
                 return configToLoad;
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 T defaultConfig = getDefaultConfig();
                 SerializeHelper.SaveYAML(filePath, defaultConfig);

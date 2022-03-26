@@ -2,15 +2,18 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using CustomBeatmaps.CustomPackages;
+using HarmonyLib;
 using UnityEngine;
+using Debug = FMOD.Debug;
 
 namespace CustomBeatmaps.Util
 {
     public static class CustomPackageHelper
     {
-        public static CustomBeatmapInfo LoadLocalBeatmap(string bmapPath)
+        private static CustomBeatmapInfo LoadLocalBeatmap(string bmapPath)
         {
             string text = File.ReadAllText(bmapPath);
             string songName = GetBeatmapProp(text, "Title", bmapPath);
@@ -18,6 +21,10 @@ namespace CustomBeatmaps.Util
             string artist = GetBeatmapProp(text, "Artist", bmapPath);
             string beatmapCreator = GetBeatmapProp(text, "Creator", bmapPath);
             string audioFile = GetBeatmapProp(text, "AudioFilename", bmapPath);
+
+            // Remove "USER_BEATMAPS/" (V1 compatability)
+            if (audioFile.StartsWith("USER_BEATMAPS/"))
+                audioFile = audioFile.Substring("USER_BEATMAPS/".Length);
 
             var audioFolder = Path.GetDirectoryName(bmapPath);
             var trueAudioPath = Path.Combine(audioFolder,  audioFile); // Path.Join fails.
@@ -36,18 +43,79 @@ namespace CustomBeatmaps.Util
             throw new BeatmapException($"{prop} property not found.", beatmapPath);
         }
 
-        public static CustomBeatmapInfo[] LoadLocalBeatmaps(string folderPath, Action<ModError> onError)
+        private static bool IsBeatmapFile(string beatmapPath)
         {
-            List<CustomBeatmapInfo> result = new List<CustomBeatmapInfo>();
+            return beatmapPath.ToLower().EndsWith(".osu");
+        }
 
-            foreach (string subPath in Directory.EnumerateFiles(folderPath))
+        public static CustomLocalPackage[] LoadLocalPackages(string folderPath, Action<BeatmapException> onBeatmapFail=null)
+        {
+            folderPath = Path.GetFullPath(folderPath);
+            ScheduleHelper.SafeLog($"LOADING PACKAGES FROM {folderPath}");
+
+            List<CustomLocalPackage> result = new List<CustomLocalPackage>();
+
+            // Folders = packages
+            foreach (string subDir in Directory.EnumerateDirectories(folderPath, "*.*", SearchOption.AllDirectories))
             {
-                if (Directory.Exists(subPath))
+                CustomLocalPackage potentialNewPackage = new CustomLocalPackage();
+
+                // We can't do Path.GetRelativePath, Path.GetPathRoot, or string.Split so this works instead.
+                string relative = Path.GetFullPath(subDir).Substring(folderPath.Length + 1); // + 1 removes the start slash
+                // We also only want the stub (lowest directory)
+                string rootSubFolder = Path.Combine(folderPath, StupidMissingTypesHelper.GetPathRoot(relative));
+                potentialNewPackage.FolderName = rootSubFolder;
+                ScheduleHelper.SafeLog($"DIR: {subDir} -> {rootSubFolder}");
+
+                List<CustomBeatmapInfo> bmaps = new List<CustomBeatmapInfo>();
+                foreach (string packageSubFile in Directory.GetFiles(subDir))
                 {
-                    // Parse directory with beatmaps
+                    ScheduleHelper.SafeLog($"    inner: {packageSubFile}");
+                    if (IsBeatmapFile(packageSubFile))
+                    {
+                        try
+                        {
+                            var customBmap = LoadLocalBeatmap(packageSubFile);
+                            bmaps.Add(customBmap);
+                            ScheduleHelper.SafeLog("          (OSU!)");
+                        }
+                        catch (BeatmapException e)
+                        {
+                            ScheduleHelper.SafeLog($"    BEATMAP FAIL: {e.Message}");
+                            onBeatmapFail?.Invoke(e);
+                        }
+                    }
+                }
+
+                // This folder has some beatmaps!
+                if (bmaps.Count != 0)
+                {
+                    potentialNewPackage.Beatmaps = bmaps.ToArray();
+                    result.Add(potentialNewPackage);
                 }
             }
 
+            // Files = packages too! For compatibility with V1 (cause why not)
+            foreach (string subFile in Directory.GetFiles(folderPath))
+            {
+                if (IsBeatmapFile(subFile))
+                {
+                    try
+                    {
+                        var customBmap = LoadLocalBeatmap(subFile);
+                        var newPackage = new CustomLocalPackage();
+                        newPackage.Beatmaps = new[] {customBmap};
+                        result.Add(newPackage);
+                    }
+                    catch (BeatmapException e)
+                    {
+                        onBeatmapFail?.Invoke(e);
+                    }
+                }
+            }
+
+            ScheduleHelper.SafeLog($"####### FULL PACKAGES LIST: #######\n{result.Join(delimiter:"\n")}");
+            
             return result.ToArray();
         }
 
@@ -67,7 +135,7 @@ namespace CustomBeatmaps.Util
 
         public static async Task<CustomServerPackageList> FetchServerPackageList(string url)
         {
-            return await ServerHelper.GetJSON<CustomServerPackageList>(url);
+            return await FetchHelper.GetJSON<CustomServerPackageList>(url);
         }
 
         private static string GetURLFromServerPackageURL(string serverDirectory, string serverPackageRoot, string serverPackageURL)
@@ -81,6 +149,8 @@ namespace CustomBeatmaps.Util
             return serverPackageURL;
         }
 
+        private static bool _dealingWithTempFile;
+        
         /// <summary>
         /// Downloads a package from a server URL locally
         /// </summary>
@@ -97,12 +167,23 @@ namespace CustomBeatmaps.Util
 
             string tempDownloadFilePath = ".TEMP.zip";
 
-            await ServerHelper.DownloadFile(serverDownloadURL, tempDownloadFilePath);
-            
+            // Impromptu mutex, as per usual.
+            // Only let one download handle the temporary file at a time.
+            while (_dealingWithTempFile)
+            {
+                Thread.Sleep(200);
+            }
+
+            _dealingWithTempFile = true;
+
+            await FetchHelper.DownloadFile(serverDownloadURL, tempDownloadFilePath);
+
             // Extract
             System.IO.Compression.ZipFile.ExtractToDirectory(tempDownloadFilePath, localDownloadExtractPath);
             // Delete old
             File.Delete(tempDownloadFilePath);
+
+            _dealingWithTempFile = false;
 
             return localDownloadExtractPath;
         }

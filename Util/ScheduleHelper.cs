@@ -9,51 +9,58 @@ namespace CustomBeatmaps.Util
     /// <summary>
     /// Lets us schedule asynchronous things in Unity
     /// </summary>
-    public class ScheduleHelper
+    public static class ScheduleHelper
     {
-        private static readonly List<Action> _toInvoke = new List<Action>();
+        private static readonly List<Action> ToInvoke = new List<Action>();
         private static GlobalScheduleUpdater _updater;
+        private static bool _iterating;
 
         public static void SafeLog(object log)
         {
             SafeInvoke(() => Debug.Log(log));
         }
         /// <summary>
-        /// Invokes on the next Unity update call
+        /// Invokes when it is safe to do so within Unity's single thread.
         /// </summary>
         public static void SafeInvoke(Action toInvoke)
         {
-            // Make sure we have an updater
-            if (_updater == null)
+            lock (ToInvoke)
             {
-                GameObject updaterObject = new GameObject("Global Updater (BepinEx Mod)");
-                _updater = updaterObject.AddComponent<GlobalScheduleUpdater>();
-                Object.DontDestroyOnLoad(updaterObject);
-                // Hook up to receive static logging, to make invoking SYNC UP with Debug.Log
-                DebugLogPatch.SomethingLogged += RunSafeInvokes;
-            }
+                // Make sure we have an updater
+                if (_updater == null)
+                {
+                    GameObject updaterObject = new GameObject("Global Updater (BepinEx Mod)");
+                    _updater = updaterObject.AddComponent<GlobalScheduleUpdater>();
+                    Object.DontDestroyOnLoad(updaterObject);
+                    // Hook up to receive static logging, to make invoking SYNC UP with Debug.Log
+                    DebugLogPatch.SomethingLogged += RunSafeInvokes;
+                }
 
-            // Kinda redundant but whatever
-            if (!_updater.enabled)
-                _updater.enabled = true;
-            if (!_updater.gameObject.activeSelf)
-                _updater.gameObject.SetActive(true);
+                // Kinda redundant but whatever
+                if (!_updater.enabled)
+                    _updater.enabled = true;
+                if (!_updater.gameObject.activeSelf)
+                    _updater.gameObject.SetActive(true);
 
-            lock (_toInvoke)
-            {
-                _toInvoke.Add(toInvoke);
+                ToInvoke.Add(toInvoke);
             }
         }
 
         private static void RunSafeInvokes()
         {
-            lock (_toInvoke)
+            // Skip over, this is being taken care of elsewhere.
+            if (_iterating)
+                return;
+
+            lock (ToInvoke)
             {
-                foreach (var toInvoke in _toInvoke)
+                _iterating = true;
+                foreach (var toInvoke in ToInvoke)
                 {
                     toInvoke?.Invoke();
                 }
-                _toInvoke.Clear();
+                ToInvoke.Clear();
+                _iterating = false;
             }
         }
 

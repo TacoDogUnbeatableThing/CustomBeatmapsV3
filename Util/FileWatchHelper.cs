@@ -37,7 +37,7 @@ namespace CustomBeatmaps.Util
             return fileWatcher;
         }
 
-        public static void WatchFolder(string dirPath, bool recursive, Action onChange)
+        public static FileSystemWatcher WatchFolder(string dirPath, bool recursive, Action onChange)
         {
             var fileWatcher = new FileSystemWatcher
             {
@@ -53,6 +53,8 @@ namespace CustomBeatmaps.Util
             fileWatcher.Created += (sender, args) => onChange.Invoke();
             fileWatcher.Deleted += (sender, args) => onChange.Invoke();
             fileWatcher.Renamed += (sender, args) => onChange.Invoke();
+
+            return fileWatcher;
         }
 
         public static void WatchFileForModifications(string fpath, Action onWriteChange)

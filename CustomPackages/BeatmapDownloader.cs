@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Threading.Tasks;
 using CustomBeatmaps.Util;
 
 namespace CustomBeatmaps.CustomPackages
@@ -13,10 +12,11 @@ namespace CustomBeatmaps.CustomPackages
 
         public Action<string> PackageDownloaded;
 
-        public BeatmapDownloadStatus GetDownloadStatus(string serverPackageDirectory, string serverPackageURL)
+        public BeatmapDownloadStatus GetDownloadStatus(string serverPackageURL)
         {
             // Check the local package folder, if it exists then we've downloaded it
-            string packageFolder = CustomPackageHelper.GetLocalFolderFromServerPackageURL(serverPackageDirectory, serverPackageURL);
+            string packageFolder = CustomPackageHelper.GetLocalFolderFromServerPackageURL(Config.Mod.ServerPackagesDir, serverPackageURL);
+
             if (Directory.Exists(packageFolder))
                 return BeatmapDownloadStatus.Downloaded;
 
@@ -36,13 +36,11 @@ namespace CustomBeatmaps.CustomPackages
         {
             _currentlyDownloading = serverPackageURL;
 
-            ModConfig config = CustomBeatmaps.ModConfig;
-            string localURL = await CustomPackageHelper.DownloadPackage(config.ServerStorageURL, config.ServerPackageRoot,
-                config.ServerPackagesDir, serverPackageURL);
-
+            string localURL = await CustomPackageHelper.DownloadPackage(Config.Backend.ServerStorageURL, Config.Backend.ServerPackageRoot,
+                Config.Mod.ServerPackagesDir, serverPackageURL);
             PackageDownloaded?.Invoke(localURL);
 
-            // After we're done, grab the next one.
+            // We downloaded one, grab the next one.
             lock (_queuedIdsToDownload)
             {
                 if (_queuedIdsToDownload.TryDequeue(out var upNext))
@@ -55,10 +53,9 @@ namespace CustomBeatmaps.CustomPackages
                     _currentlyDownloading = null;
                 }
             }
-            
         }
 
-        public void DownloadPackage(string serverPackageURL)
+        public void QueueDownloadPackage(string serverPackageURL)
         {
             lock (_queuedIdsToDownload)
             {
