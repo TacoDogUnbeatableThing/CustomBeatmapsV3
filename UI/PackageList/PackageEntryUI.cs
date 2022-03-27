@@ -10,6 +10,7 @@ namespace CustomBeatmaps.UI.PackageList
         private static readonly float SongCountRightPad = 128;
         private static readonly float NewTextRightPad = 128 + 64;
         private static readonly float DownloadStatusRightPad = 128 + 128 + 32;
+        private static readonly float CreatorRightPad = 128 + 128 + 128 + 128;
 
         private static string GetCount(int count, string unitSingular)
         {
@@ -24,8 +25,6 @@ namespace CustomBeatmaps.UI.PackageList
             {
                 label = $"<b><color=#fbff8fff>{label}</color></b>";
             }
-
-            label += $" <i>by {header.Creator}</i>";
 
             /*
             GUIStyle withRichText = GUI.skin.button;
@@ -49,6 +48,7 @@ namespace CustomBeatmaps.UI.PackageList
             {
                 GUI.Label(new Rect(br.xMax - NewTextRightPad, br.y, NewTextRightPad, br.height), "<color=#ffff00ff><i>NEW!</i></color>");
             }
+            GUI.Label(new Rect(br.xMax - CreatorRightPad, br.y, NewTextRightPad, br.height),$"by {header.Creator}");
 
             if (status != BeatmapDownloadStatus.Downloaded)
             {

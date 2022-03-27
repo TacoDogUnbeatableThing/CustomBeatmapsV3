@@ -9,6 +9,11 @@ namespace CustomBeatmaps.UI
         Online, Local, Submissions, Osu
     }
 
+    public enum SortMode
+    {
+        New, Old, Title, Artist, Creator, Downloaded
+    }
+
     public struct PackageHeader
     {
         public string Name;

@@ -2,13 +2,12 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net.Sockets;
-using System.Timers;
 using CustomBeatmaps.CustomPackages;
 using CustomBeatmaps.Patches;
 using CustomBeatmaps.UI.PackageList;
 using CustomBeatmaps.UISystem;
 using CustomBeatmaps.Util;
+using HarmonyLib;
 using UnityEngine;
 
 namespace CustomBeatmaps.UI
@@ -23,27 +22,31 @@ namespace CustomBeatmaps.UI
         {
             var (selectedPackageIndex, setSelectedPackageIndex) = Reacc.UseState(0);
             var (selectedBeatmapIndex, setSelectedBeatmapIndex) = Reacc.UseState(0);
+            var (sortMode, setSortMode) = Reacc.UseState(SortMode.New);
 
             // Load packages from server the first time we open this
-            Reacc.UseEffect(ReloadPackageList);
+            Reacc.UseEffect(() => ReloadPackageList(sortMode));
+            
+            // Change sort mode: sort our results.
+            Reacc.UseEffect(() => SortResults(sortMode), new object[]{sortMode});
 
             onRenderAboveList();
 
             if (_failure != null)
             {
-                RenderReloadButton($"Failed to grab packages from server: {_failure}");
+                RenderReloadHeader($"Failed to grab packages from server: {_failure}");
                 return;
             }
 
             if (!_loaded)
             {
-                RenderReloadButton("Loading...");
+                RenderReloadHeader("Loading...");
                 return;
             }
 
             if (_list.Packages.Length == 0)
             {
-                RenderReloadButton("No packages found!");
+                RenderReloadHeader("No packages found!");
                 return;
             }
 
@@ -92,7 +95,10 @@ namespace CustomBeatmaps.UI
             GUILayout.BeginHorizontal();
                 // Render list
                 GUILayout.BeginVertical(GUILayout.ExpandWidth(true));
-                    RenderReloadButton($"Got {_list.Packages.Length} Packages");
+                    RenderReloadHeader($"Got {_list.Packages.Length} Packages", () =>
+                    {
+                        SortModePickerUI.Render(sortMode, setSortMode);
+                    }, sortMode);
                     PackageListUI.Render($"Server Packages", headers, selectedPackageIndex, setSelectedPackageIndex);
                 GUILayout.EndVertical();
 
@@ -167,6 +173,7 @@ namespace CustomBeatmaps.UI
                                     }
                                     break;
                                 case BeatmapDownloadStatus.NotDownloaded:
+                                    WhiteLabelMainMenuPatch.StopSongPreview();
                                     if (buttonPressed)
                                     {
                                         CustomBeatmaps.Downloader.QueueDownloadPackage(selectedPackage.ServerURL);
@@ -180,19 +187,32 @@ namespace CustomBeatmaps.UI
             GUILayout.EndHorizontal();
         }
 
-        private static void RenderReloadButton(string label)
+        private static void RenderReloadHeader(string label, Action renderHeaderSortPicker = null, SortMode sortMode = SortMode.New) // ok this part is jank but that's all I need
         {
             GUILayout.BeginHorizontal();
                 if (GUILayout.Button("Reload", GUILayout.ExpandWidth(false)))
                 {
-                    ReloadPackageList();
+                    ReloadPackageList(sortMode);
                 }
+                
+                renderHeaderSortPicker?.Invoke();
+                
                 GUILayout.Label(label, GUILayout.ExpandWidth(false));
             GUILayout.EndHorizontal();
             GUILayout.Space(20);
         }
 
-        private static void ReloadPackageList()
+        private static void SortResults(SortMode sortMode)
+        {
+            if (_list.Packages == null) // forgor guard
+                return;
+
+            var l = _list.Packages.ToList();
+            UIConversionHelper.SortServerPackages(l, sortMode);
+            _list.Packages = l.ToArray();
+        }
+        
+        private static void ReloadPackageList(SortMode sortMode)
         {
             ScheduleHelper.SafeLog("RELOADING Packages from Server...");
             CustomPackageHelper.FetchServerPackageList(CustomBeatmaps.BackendConfig.ServerPackageList).ContinueWith(result =>
@@ -208,6 +228,7 @@ namespace CustomBeatmaps.UI
                 _failure = null;
                 _loaded = false; // Impromptu mutex :P
                 _list = result.Result;
+                SortResults(sortMode);
                 _loaded = true;
             });
         }

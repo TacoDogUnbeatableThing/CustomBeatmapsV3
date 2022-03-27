@@ -19,7 +19,12 @@ namespace CustomBeatmaps.UI
             var (selectedPackageIndex, setSelectedPackageIndex) = Reacc.UseState(0);
             var (selectedBeatmapIndex, setSelectedBeatmapIndex) = Reacc.UseState(0);
 
+            var (sortMode, setSortMode) = Reacc.UseState(SortMode.New);
+
             var localPackages = CustomBeatmaps.LocalUserPackages.Packages;
+
+            // This is... kinda highly inefficient but whatever?
+            UIConversionHelper.SortLocalPackages(localPackages, sortMode);
 
             // No packages?
 
@@ -31,14 +36,14 @@ namespace CustomBeatmaps.UI
             }
 
             // Clamp packages to fit in the event of package list changing while the UI is open
-            if (selectedBeatmapIndex > localPackages.Count)
+            if (selectedPackageIndex > localPackages.Count)
             {
-                selectedBeatmapIndex = localPackages.Count - 1;
+                selectedPackageIndex = localPackages.Count - 1;
             }
 
             // Map local packages -> package header
 
-            var selectedPackage = localPackages[selectedBeatmapIndex];
+            var selectedPackage = localPackages[selectedPackageIndex];
 
             List<PackageHeader> headers = new List<PackageHeader>(localPackages.Count);
             foreach (var p in localPackages)
@@ -62,14 +67,16 @@ namespace CustomBeatmaps.UI
 
             var selectedBeatmap = selectedPackage.Beatmaps[selectedBeatmapIndex];
 
+            // Preview audio
             WhiteLabelMainMenuPatch.PlaySongPreview(selectedBeatmap.RealAudioKey);
 
             // Render
+            onRenderAboveList();
 
             GUILayout.BeginHorizontal();
                 // Render list
                 GUILayout.BeginVertical(GUILayout.ExpandWidth(true));
-                    onRenderAboveList();
+                    SortModePickerUI.Render(sortMode, setSortMode);
                     PackageListUI.Render($"Local Packages in {Config.Mod.UserPackagesDir}", headers, selectedPackageIndex, setSelectedPackageIndex);
                 GUILayout.EndVertical();
 
@@ -94,6 +101,6 @@ namespace CustomBeatmaps.UI
                     }
                 );
             GUILayout.EndHorizontal();
-        } 
+        }
     }
 }
