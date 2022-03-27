@@ -57,29 +57,29 @@ namespace CustomBeatmaps.CustomPackages
 
         /// <summary>
         /// Given a server package URL and a beatmap info from the server, find our local beatmap.
-        /// This is the most fragile point of this system, as modifying the server files breaks the system.
         /// </summary>
-        public (CustomLocalPackage, CustomBeatmapInfo) FindCustomBeatmapInfoFromServer(string serverPackageURL, CustomServerBeatmap beatmapInfo)
+        public (CustomLocalPackage, CustomBeatmapInfo) FindCustomBeatmapInfoFromServer(string serverPackageURL, string beatmapRelativeKeyPath)
         {
-            string targetFullPath = CustomPackageHelper.GetLocalFolderFromServerPackageURL(
+            beatmapRelativeKeyPath = beatmapRelativeKeyPath.Replace('/', '\\');
+
+            string targetPackageFullPath = CustomPackageHelper.GetLocalFolderFromServerPackageURL(
                 Config.Mod.ServerPackagesDir, serverPackageURL);
-            targetFullPath = Path.GetFullPath(targetFullPath);
+            targetPackageFullPath = Path.GetFullPath(targetPackageFullPath);
+
             bool foundPackage = false;
             foreach (var package in Packages)
             {
                 string currentFullPath = Path.GetFullPath(package.FolderName); 
-                bool samePackage = currentFullPath == targetFullPath;
+                bool samePackage = currentFullPath == targetPackageFullPath;
                 //Debug.Log($"{currentFullPath} compared to {targetFullPath}");
                 if (samePackage)
                 {
                     foundPackage = true;
                     foreach (var cbinfo in package.Beatmaps)
                     {
-                        //Debug.Log($"    {cbinfo} compared to {beatmapInfo.Artist}, {beatmapInfo.Difficulty}, {beatmapInfo.Creator}, {beatmapInfo.Name}");
-                        if (cbinfo.Artist == beatmapInfo.Artist &&
-                            cbinfo.Difficulty == beatmapInfo.Difficulty &&
-                            cbinfo.BeatmapCreator == beatmapInfo.Creator &&
-                            cbinfo.SongName == beatmapInfo.Name)
+                        string fullOSUPath = Path.GetFullPath(cbinfo.OsuPath);
+                        string relativeOSUPath = fullOSUPath.Substring(targetPackageFullPath.Length + 1);
+                        if (beatmapRelativeKeyPath == relativeOSUPath)
                         {
                             return (package, cbinfo);
                         }
@@ -89,10 +89,10 @@ namespace CustomBeatmaps.CustomPackages
 
             if (!foundPackage)
             {
-                throw new InvalidOperationException($"Can't find package at {targetFullPath}");
+                throw new InvalidOperationException($"Can't find package at {targetPackageFullPath}");
             }
             throw new InvalidOperationException(
-                $"Can't find beatmap {beatmapInfo} at folder {targetFullPath}");
+                $"Can't find beatmap {beatmapRelativeKeyPath} at folder {targetPackageFullPath}");
         }
 
         public void SetFolder(string folder)

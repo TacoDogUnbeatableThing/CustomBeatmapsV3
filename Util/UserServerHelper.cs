@@ -31,20 +31,18 @@ namespace CustomBeatmaps.Util
         public struct PostScoreRequest
         {
             [JsonProperty("uniqueUserId")] public string UniqueUserId;
-            [JsonProperty("serverPackageURL")] public string ServerPackageURL;
-            [JsonProperty("beatmapIndex")] public int BeatmapIndex;
+            [JsonProperty("beatmapKey")] public string BeatmapKey;
             [JsonProperty("score")] public int Score;
             [JsonProperty("accuracy")] public float Accuracy;
-            [JsonProperty("fc")] public bool Fc;
+            [JsonProperty("fc")] public int FullComboMode;
 
-            public PostScoreRequest(string uniqueUserId, string serverPackageURL, int beatmapIndex, int score, float accuracy, bool fc)
+            public PostScoreRequest(string uniqueUserId, string beatmapKey, int score, float accuracy, int fullComboMode)
             {
                 UniqueUserId = uniqueUserId;
-                ServerPackageURL = serverPackageURL;
-                BeatmapIndex = beatmapIndex;
+                BeatmapKey = beatmapKey;
                 Score = score;
                 Accuracy = accuracy;
-                Fc = fc;
+                FullComboMode = fullComboMode;
             }
         }
 
@@ -52,7 +50,20 @@ namespace CustomBeatmaps.Util
         {
             [JsonProperty("highscore")] public bool GotNewHighscore;
         }
-        
+
+        public static string GetHighScoreBeatmapKeyFromServerBeatmap(string serverPackageURL, string beatmapRelativePath)
+        {
+            string packageName = Path.GetFileName(serverPackageURL);
+            return $"online/{packageName}/{beatmapRelativePath}";
+        }
+
+        public static string GetHighScoreBeatmapKeyFromLocalBeatmap(string packageDir, string beatmapOSUPath)
+        {
+            string fullPath = Path.GetFullPath(beatmapOSUPath);
+            string packageFullPath = Path.GetFullPath(packageDir);
+            return $"online/{fullPath.Substring(packageFullPath.Length + 1)}";
+        }
+
         public static async Task<NewUserInfo> RegisterUser(string userServerURL, string username)
         {
             return await FetchHelper.PostJSON<NewUserInfo>(userServerURL + "/newuser", new RegisterUserRequest(username));
@@ -63,17 +74,20 @@ namespace CustomBeatmaps.Util
             return await FetchHelper.PostJSON<UserInfo>(userServerURL + "/user", new GetUserDataRequest(uniqueUserId));
         }
 
+        public static async Task<UserHighScores> GetUserScores(string highScoreURL)
+        {
+            Dictionary<string, Dictionary<string, BeatmapHighScoreEntry>> scores =
+                await FetchHelper.GetJSON<Dictionary<string, Dictionary<string, BeatmapHighScoreEntry>>>(highScoreURL);
+            return new UserHighScores
+            {
+                Scores = scores
+            };
+        }
+
         public static async Task<bool> PostScore(string userServerURL, PostScoreRequest request)
         {
             var response = await FetchHelper.PostJSON<ReceiveScoreData>(userServerURL + "/score", request);
             return response.GotNewHighscore;
-        }
-
-        public static async Task<HighscoreTable> GetHighscores(
-            string url)
-        {
-            var scoreTable = await FetchHelper.GetJSON<Dictionary<string, Dictionary<string, Dictionary<string, HighscoreTable.UserScore>>>>(url);
-            return new HighscoreTable(scoreTable);
         }
 
         public static string LoadUserSession(string path)
@@ -95,31 +109,4 @@ namespace CustomBeatmaps.Util
         }
     }
 
-    public class HighscoreTable
-    {
-        public struct UserScore
-        {
-            [JsonProperty("score")] public int Score;
-            [JsonProperty("accuracy")] public float Accuracy;
-            [JsonProperty("fc")] public bool FullClear;
-        }
-
-        private readonly Dictionary<string, Dictionary<string, Dictionary<string, UserScore>>> _scores;
-
-        public HighscoreTable(Dictionary<string, Dictionary<string, Dictionary<string, UserScore>>> scores)
-        {
-            _scores = scores;
-        }
-
-        [CanBeNull]
-        public Dictionary<string, UserScore> GetUserScores(string serverPackageURL, int beatmapIndex)
-        {
-            if (_scores.TryGetValue(serverPackageURL, out var beatmapScores) &&
-                beatmapScores.TryGetValue(beatmapIndex.ToString(), out Dictionary<string, UserScore> userScores))
-            {
-                return userScores;
-            }
-            return null;
-        }
-    }
 }

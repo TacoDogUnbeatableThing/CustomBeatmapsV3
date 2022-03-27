@@ -9,6 +9,9 @@
         public string ServerPackageList = "http://64.225.60.116:8080/packages.json";
         /// Grabs list of all submissions currently pending
         public string ServerSubmissionList = "http://64.225.60.116:8080/submissions.json";
+        /// Grabs all high scores
+        public string ServerHighScores = "http://64.225.60.116:8080/highscores.json";
+        public string ServerLowScores = "http://64.225.60.116:8080/lowscores.json";
         /// The directory for all server data
         public string ServerStorageURL = "http://64.225.60.116:8080";
         /// The root folder within the server directory

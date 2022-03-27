@@ -79,6 +79,7 @@ namespace CustomBeatmaps.UI
                 GUILayout.BeginVertical(GUILayout.ExpandWidth(true));
                     SortModePickerUI.Render(sortMode, setSortMode);
                     PackageListUI.Render($"Local Packages in {Config.Mod.UserPackagesDir}", headers, selectedPackageIndex, setSelectedPackageIndex);
+                    AssistAreaUI.Render();
                 GUILayout.EndVertical();
 
                 // Render Right Info
@@ -98,7 +99,7 @@ namespace CustomBeatmaps.UI
                             // Play a local beatmap
                             var package = localPackages[selectedPackageIndex];
                             var customBeatmapInfo = package.Beatmaps[selectedBeatmapIndex];
-                            UnbeatableHelper.PlayBeatmap(customBeatmapInfo);
+                            UnbeatableHelper.PlayBeatmap(customBeatmapInfo, false);
                             CustomBeatmaps.PlayedPackageManager.RegisterPlay(package.FolderName);
                         }
                     }

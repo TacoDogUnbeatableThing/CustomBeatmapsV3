@@ -65,7 +65,13 @@ namespace CustomBeatmaps.UI
                 {
                     BeatmapInfoCardUI.Render(UIConversionHelper.CustomBeatmapInfoToBeatmapHeader(selectedBeatmap));
                 },
-                () => { },
+                () =>
+                {
+                    GUILayout.TextArea("GUIDE:\n" +
+                                       "1) Create a beatmap in OSU following this tutorial: https://github.com/Ratismal/CustomBeats/blob/master/creation.md\n" +
+                                       "2) It should appear in this screen at the top. Open to test it." +
+                                       "3) While testing, the beatmap should automatically reload when you make changes and save in OSU");
+                },
                 () =>
                 {
                     _overrideCountdown = GUILayout.Toggle(_overrideCountdown, "Do Countdown?");

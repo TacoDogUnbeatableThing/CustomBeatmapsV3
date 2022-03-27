@@ -25,7 +25,7 @@ namespace CustomBeatmaps
         public static SubmissionPackageManager SubmissionPackageManager { get; private set; }
         public static OSUBeatmapManager OSUBeatmapManager { get; private set; }
         public static PlayedPackageManager PlayedPackageManager { get; private set; }
-
+        public static ServerHighScoreManager ServerHighScoreManager { get; private set; }
         public static BeatmapDownloader Downloader { get; private set; }
 
         // Check for config reload every 2 seconds
@@ -41,6 +41,7 @@ namespace CustomBeatmaps
             LocalServerPackages = new LocalPackageManager(OnError);
             SubmissionPackageManager = new SubmissionPackageManager(OnError);
             OSUBeatmapManager = new OSUBeatmapManager();
+            ServerHighScoreManager = new ServerHighScoreManager();
 
             ConfigHelper.LoadConfig("custombeatmaps_config.json",() => new ModConfig(), config =>
             {
@@ -79,6 +80,7 @@ namespace CustomBeatmaps
             Harmony.CreateAndPatchAll(typeof(WhiteLabelMainMenuPatch));
             Harmony.CreateAndPatchAll(typeof(CustomBeatmapLoadingOverridePatch));
             Harmony.CreateAndPatchAll(typeof(OsuEditorPatch));
+            Harmony.CreateAndPatchAll(typeof(HighScoreScreenPatch));
 
             /*
             // Test fetching our package list

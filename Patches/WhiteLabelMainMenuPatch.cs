@@ -98,6 +98,8 @@ namespace CustomBeatmaps.Patches
         {
             // Don't have custom beatmaps here
             CustomBeatmapLoadingOverridePatch.ResetOverrideBeatmap();
+            // Also reset server high score key so we don't interfere with vanilla beatmaps 
+            CustomBeatmaps.ServerHighScoreManager.ResetCurrentBeatmapKey();
             _current = __instance;
 
             // Create custom option button

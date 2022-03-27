@@ -17,11 +17,18 @@ namespace CustomBeatmaps.Util
         {
             var response = await HttpClient.GetAsync(url);
 
-            if (response.Content.Headers.ContentType?.MediaType == "application/json")
+            string mediaType = response.Content.Headers.ContentType?.MediaType;
+            if (mediaType == "application/json")
             {
                 return await SerializeHelper.DeserializeJSONAsync<T>(await response.Content.ReadAsStreamAsync());
             }
-            throw new HttpRequestException(await response.Content.ReadAsStringAsync());
+            string error = await response.Content.ReadAsStringAsync();
+            if (string.IsNullOrEmpty(error))
+            {
+                // emptyy
+                return default;
+            }
+            throw new HttpRequestException(error);
         }
 
         public static async Task<T> PostJSON<T>(string url, object data)

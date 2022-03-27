@@ -16,6 +16,7 @@ namespace CustomBeatmaps.Util
             Action reload = () =>
             {
                 var toSet = GetConfig(filePath, getDefaultConfig);
+                SerializeHelper.SaveJSON(filePath, toSet);
                 onReload(toSet);
             };
             LoadedConfigs.Add(Path.GetFullPath(filePath), reload);

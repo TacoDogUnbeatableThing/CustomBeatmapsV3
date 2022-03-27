@@ -1,22 +1,11 @@
 ﻿
-CREATE MODE (OSU mode):
-    Before opening: To make a beatmap, follow this guide (with a link)
-
-ASSIST AREA
-    Present below the beatmap view for local/online
-
-HIGH SCORES:
-    Have a brief warning next to the "play" button for online mode if we aren't logged in (Not logged in! Can't post highscore.)
-    On entering the "high score" section and if we aren't using any assists, send user ID and score data to the server
-    Read high scores from the server (another manager lol) and refresh every time the CustomBeatmapsUI is opened.
-
 MIS-INDEXED ONLINE PACKAGES:
     Have a warning if there are mis-labeled online packages and an option to move to the local/user packages folder?
-
-PACKAGE INFO (Extras):
-    Once that's all done, add a description field and a background color.
 
 DISCORD CLEANUP:
     Archive channels and add a simplified guide for mods and creators
     Everyone: How to download the mod, how to play and use it, etc.
     Beatmap Creators: Creating a new OSU file
+
+PACKAGE INFO (Extras):
+    Once that's all done, add a description field and a background color.

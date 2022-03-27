@@ -47,12 +47,12 @@ namespace CustomBeatmaps.Util
                             nameR = Path.GetFileName(right.ServerURL);
                         return String.CompareOrdinal(nameL, nameR);
                     case SortMode.Artist:
-                        string artistLeft = left.Beatmaps.Select(map => map.Artist).OrderBy(x => x).Join();
-                        string artistRight = right.Beatmaps.Select(map => map.Artist).OrderBy(x => x).Join();
+                        string artistLeft = left.Beatmaps.Values.Select(map => map.Artist).OrderBy(x => x).Join();
+                        string artistRight = right.Beatmaps.Values.Select(map => map.Artist).OrderBy(x => x).Join();
                         return String.CompareOrdinal(artistLeft, artistRight);
                     case SortMode.Creator:
-                        string creatorLeft = left.Beatmaps.Select(map => map.Creator).OrderBy(x => x).Join();
-                        string creatorRight = right.Beatmaps.Select(map => map.Creator).OrderBy(x => x).Join();
+                        string creatorLeft = left.Beatmaps.Values.Select(map => map.Creator).OrderBy(x => x).Join();
+                        string creatorRight = right.Beatmaps.Values.Select(map => map.Creator).OrderBy(x => x).Join();
                         return String.CompareOrdinal(creatorLeft, creatorRight);
                     case SortMode.Downloaded:
                         bool downloadedLeft = CustomBeatmaps.LocalServerPackages.PackageExists(

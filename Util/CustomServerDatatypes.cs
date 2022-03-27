@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Newtonsoft.Json;
 
 namespace CustomBeatmaps.Util
@@ -21,7 +22,7 @@ namespace CustomBeatmaps.Util
         [JsonProperty("time")]
         public DateTime UploadTime;
         [JsonProperty("beatmaps")]
-        public CustomServerBeatmap[] Beatmaps;
+        public Dictionary<string, CustomServerBeatmap> Beatmaps;
         public override string ToString()
         {
             return $"{{[{string.Join(", ", Beatmaps)}] at {ServerURL} on {UploadTime}}}";
@@ -71,5 +72,24 @@ namespace CustomBeatmaps.Util
     {
         [JsonProperty("id")]
         public string UniqueId;
+    }
+
+    public struct BeatmapHighScoreEntry
+    {
+        [JsonProperty("score")]
+        public int Score;
+        [JsonProperty("accuracy")]
+        public float Accuracy;
+        // TODO: just use an enum for gods sake
+        // 0: None
+        // 1: No misses
+        // 2: Full clear
+        [JsonProperty("fc")]
+        public int FullComboMode;
+    }
+    public struct UserHighScores
+    {
+        // scores["beatmap key"]["Username"] = score
+        public Dictionary<string, Dictionary<string, BeatmapHighScoreEntry>> Scores;
     }
 }

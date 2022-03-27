@@ -38,6 +38,9 @@ namespace CustomBeatmaps.UI
                 .SetId(this);
 
             WhiteLabelMainMenuPatch.DisableBGM();
+
+            // Reload our high scores just to be clean/up to date
+            CustomBeatmaps.ServerHighScoreManager.Reload();
         }
         public void Close()
         {
