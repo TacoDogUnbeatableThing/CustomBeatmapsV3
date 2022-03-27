@@ -10,7 +10,8 @@ namespace CustomBeatmaps.UI.PackageList
         {
             var (scrollPos, setScrollPos) = Reacc.UseState(Vector2.zero);
 
-            GUILayout.BeginVertical(GUILayout.MinWidth(400));
+            int w = Math.Min((int)(Screen.width / 2.5), 600);
+            GUILayout.BeginVertical(GUILayout.MinWidth(w));
                 onRenderTop();
                 var newScrollPos = GUILayout.BeginScrollView(scrollPos, GUILayout.ExpandHeight(true));
                     onRenderScroll();

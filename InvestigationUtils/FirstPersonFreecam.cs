@@ -3,7 +3,6 @@ using System.Globalization;
 using System.Linq;
 using Cinemachine;
 using UnityEngine;
-using YamlDotNet.Core.Tokens;
 
 namespace CustomBeatmaps.InvestigationUtils
 {

@@ -39,8 +39,7 @@ namespace CustomBeatmaps.UI
                     SubmissionPackageListUI.Render(() => RenderListTop(tab, setTab));
                     break;
                 case Tab.Osu:
-                    RenderListTop(tab, setTab);
-                    GUILayout.Label("Not implemented yet");
+                    OSUPackageListUI.Render(() => RenderListTop(tab, setTab));
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -51,7 +50,7 @@ namespace CustomBeatmaps.UI
             {
                 int count = Enum.GetValues(typeof(Tab)).Length;
                 int ind = (int)tab;
-                if (Input.GetKeyDown(KeyCode.PageDown))
+                if (Input.GetKeyDown(KeyCode.PageUp))
                 {
                     ind -= 1;
                     if (ind < 0)
@@ -60,7 +59,7 @@ namespace CustomBeatmaps.UI
                     WhiteLabelMainMenuPatch.StopSongPreview();
                     setTab((Tab) ind);
                 }
-                else if (Input.GetKeyDown(KeyCode.PageUp))
+                else if (Input.GetKeyDown(KeyCode.PageDown))
                 {
                     ind += 1;
                     ind %= count;

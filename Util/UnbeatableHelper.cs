@@ -10,6 +10,7 @@ namespace CustomBeatmaps.Util
 
         public static void PlayBeatmap(CustomBeatmapInfo beatmap, string onlinePackageUrl=null)
         {
+            OsuEditorPatch.SetEditMode(false);
             CustomBeatmapLoadingOverridePatch.SetOverrideBeatmap(beatmap);
             //OsuEditorPatch.SetEditMode(false);
             LevelManager.LoadLevel(PLAY_SCENE_NAME);
@@ -17,8 +18,10 @@ namespace CustomBeatmaps.Util
             JeffBezosController.rhythmProgression = (IProgression) new DefaultProgression(beatmap.OsuPath, PLAY_SCENE_NAME);
         }
 
-        public static void PlayBeatmapEdit(CustomBeatmapInfo beatmap, string path)
+        public static void PlayBeatmapEdit(CustomBeatmapInfo beatmap)
         {
+            OsuEditorPatch.SetEditMode(true, beatmap.OsuPath);
+            PlayBeatmap(beatmap);
             /*
             CustomBeatmapLoadingOverridePatch.SetOverrideBeatmap(beatmap);
             OsuEditorPatch.SetEditMode(true, path);

@@ -10,8 +10,7 @@
         /// Directory for server/downloaded packages
         public string ServerPackagesDir = "SERVER_PACKAGES";
         /// Songs directory for your OSU install for the mod to access & test
-        // TODO: General means of getting the user directory so we have a good default for OSU
-        public string OsuSongsDirectory = null;
+        public string OsuSongsOverrideDirectory = null;
         /// Directory (relative to UNBEATABLE) where your OSU file packages will export
         public string OsuExportDirectory = ".";
         /// Temporary folder used to load + play a user submission

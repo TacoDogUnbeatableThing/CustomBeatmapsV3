@@ -27,23 +27,22 @@ namespace CustomBeatmaps.UI
             // Load packages from server the first time we open this
             Reacc.UseEffect(ReloadPackageList);
 
+            onRenderAboveList();
+
             if (_failure != null)
             {
-                onRenderAboveList();
                 RenderReloadButton($"Failed to grab packages from server: {_failure}");
                 return;
             }
 
             if (!_loaded)
             {
-                onRenderAboveList();
                 RenderReloadButton("Loading...");
                 return;
             }
 
             if (_list.Packages.Length == 0)
             {
-                onRenderAboveList();
                 RenderReloadButton("No packages found!");
                 return;
             }
@@ -93,7 +92,6 @@ namespace CustomBeatmaps.UI
             GUILayout.BeginHorizontal();
                 // Render list
                 GUILayout.BeginVertical(GUILayout.ExpandWidth(true));
-                    onRenderAboveList();
                     RenderReloadButton($"Got {_list.Packages.Length} Packages");
                     PackageListUI.Render($"Server Packages", headers, selectedPackageIndex, setSelectedPackageIndex);
                 GUILayout.EndVertical();

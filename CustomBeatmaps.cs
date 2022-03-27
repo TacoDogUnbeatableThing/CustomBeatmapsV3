@@ -22,6 +22,7 @@ namespace CustomBeatmaps
         public static LocalPackageManager LocalUserPackages { get; private set; }
         public static LocalPackageManager LocalServerPackages { get; private set; }
         public static SubmissionPackageManager SubmissionPackageManager { get; private set; }
+        public static OSUBeatmapManager OSUBeatmapManager { get; private set; }
 
         public static BeatmapDownloader Downloader { get; private set; }
 
@@ -37,15 +38,17 @@ namespace CustomBeatmaps
             LocalUserPackages = new LocalPackageManager(OnError);
             LocalServerPackages = new LocalPackageManager(OnError);
             SubmissionPackageManager = new SubmissionPackageManager(OnError);
+            OSUBeatmapManager = new OSUBeatmapManager();
 
-            ConfigHelper.LoadConfig("custombeatmaps_config.yaml",() => new ModConfig(), config =>
+            ConfigHelper.LoadConfig("custombeatmaps_config.json",() => new ModConfig(), config =>
             {
                 ModConfig = config;
                 // Local package folders
                 LocalUserPackages.SetFolder(config.UserPackagesDir);
                 LocalServerPackages.SetFolder(config.ServerPackagesDir);
+                OSUBeatmapManager.SetOverride(config.OsuSongsOverrideDirectory);
             });
-            ConfigHelper.LoadConfig("custombeatmaps_backend.yaml", () => new BackendConfig(), config => BackendConfig = config);
+            ConfigHelper.LoadConfig("custombeatmaps_backend.json", () => new BackendConfig(), config => BackendConfig = config);
 
             UserSession = new UserSession();
 

@@ -13,7 +13,7 @@ namespace CustomBeatmaps.Util
 {
     public static class CustomPackageHelper
     {
-        private static CustomBeatmapInfo LoadLocalBeatmap(string bmapPath)
+        public static CustomBeatmapInfo LoadLocalBeatmap(string bmapPath)
         {
             string text = File.ReadAllText(bmapPath);
             string songName = GetBeatmapProp(text, "Title", bmapPath);
@@ -33,7 +33,7 @@ namespace CustomBeatmaps.Util
                 songName, difficulty, trueAudioPath, bmapPath);
         }
 
-        private static string GetBeatmapProp(string beatmapText, string prop, string beatmapPath)
+        public static string GetBeatmapProp(string beatmapText, string prop, string beatmapPath)
         {
             var match = Regex.Match(beatmapText, $"{prop}: *(.+?)\r?\n");
             if (match.Groups.Count > 1)

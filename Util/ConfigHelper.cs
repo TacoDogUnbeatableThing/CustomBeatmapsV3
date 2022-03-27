@@ -7,8 +7,8 @@ namespace CustomBeatmaps.Util
 {
     public static class ConfigHelper
     {
-        private static readonly Dictionary<string, Action> _loadedConfigs = new Dictionary<string, Action>();
-        private static readonly HashSet<string> _filesChanged = new HashSet<string>();
+        private static readonly Dictionary<string, Action> LoadedConfigs = new Dictionary<string, Action>();
+        private static readonly HashSet<string> FilesChanged = new HashSet<string>();
 
         public static void LoadConfig<T>(string filePath, Func<T> getDefaultConfig, Action<T> onReload)
         {
@@ -16,19 +16,16 @@ namespace CustomBeatmaps.Util
             Action reload = () =>
             {
                 var toSet = GetConfig(filePath, getDefaultConfig);
-                ScheduleHelper.SafeLog("RELOADING: ");
-                ScheduleHelper.SafeLog(toSet);
                 onReload(toSet);
             };
-            _loadedConfigs.Add(Path.GetFullPath(filePath), reload);
-            ScheduleHelper.SafeLog("doing the reload");
+            LoadedConfigs.Add(Path.GetFullPath(filePath), reload);
             reload.Invoke();
             // Listen for file changes
             FileWatchHelper.WatchFileForModifications(filePath, () =>
             {
-                lock (_filesChanged)
+                lock (FilesChanged)
                 {
-                    _filesChanged.Add(Path.GetFullPath(filePath));
+                    FilesChanged.Add(Path.GetFullPath(filePath));
                 }
             });
         }
@@ -38,7 +35,7 @@ namespace CustomBeatmaps.Util
         /// </summary>
         public static void ReloadAllConfigs()
         {
-            foreach (var onReload in _loadedConfigs.Values)
+            foreach (var onReload in LoadedConfigs.Values)
             {
                 onReload?.Invoke();
             }
@@ -49,17 +46,17 @@ namespace CustomBeatmaps.Util
         /// </summary>
         public static void ReloadChangedConfigs()
         {
-            lock (_filesChanged)
+            lock (FilesChanged)
             {
-                foreach (var filePath in _filesChanged)
+                foreach (var filePath in FilesChanged)
                 {
-                    if (_loadedConfigs.ContainsKey(filePath))
+                    if (LoadedConfigs.ContainsKey(filePath))
                     {
                         Debug.Log($"Config Changed Reload: {filePath}");
-                        _loadedConfigs[filePath]?.Invoke();
+                        LoadedConfigs[filePath]?.Invoke();
                     }
                 }
-                _filesChanged.Clear();
+                FilesChanged.Clear();
             }
         }
 
@@ -67,15 +64,16 @@ namespace CustomBeatmaps.Util
         {
             try
             {
-                T configToLoad = SerializeHelper.LoadYAML<T>(filePath);
+                T configToLoad = SerializeHelper.LoadJSON<T>(filePath);
                 if (configToLoad == null)
                     throw new NullReferenceException();
                 return configToLoad;
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                ScheduleHelper.SafeLog($"FAILED CONFIG: {e}");
                 T defaultConfig = getDefaultConfig();
-                SerializeHelper.SaveYAML(filePath, defaultConfig);
+                SerializeHelper.SaveJSON(filePath, defaultConfig);
                 return defaultConfig;
             }
         }

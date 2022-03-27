@@ -2,8 +2,6 @@
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
-using YamlDotNet.Serialization;
-using YamlDotNet.Serialization.NamingConventions;
 
 namespace CustomBeatmaps.Util
 {
@@ -12,31 +10,15 @@ namespace CustomBeatmaps.Util
     /// </summary>
     public static class SerializeHelper
     {
-        private static ISerializer _serializer = new SerializerBuilder()
-            .WithNamingConvention(CamelCaseNamingConvention.Instance)
-            .Build();
-        private static IDeserializer _deserializer = new DeserializerBuilder()
-            .WithNamingConvention(CamelCaseNamingConvention.Instance)
-            .Build();
 
-        public static string SerializeYAML<T>(T data)
+        public static void SaveJSON<T>(string filePath, T data)
         {
-            return _serializer.Serialize(data);
+            File.WriteAllText(filePath, SerializeJSON(data, true));
         }
 
-        public static T DeserializeYAML<T>(string serialized)
+        public static T LoadJSON<T>(string filePath)
         {
-            return _deserializer.Deserialize<T>(serialized);
-        }
-
-        public static void SaveYAML<T>(string filePath, T data)
-        {
-            File.WriteAllText(filePath, SerializeYAML(data));
-        }
-
-        public static T LoadYAML<T>(string filePath)
-        {
-            return DeserializeYAML<T>(File.ReadAllText(filePath));
+            return DeserializeJSON<T>(File.ReadAllText(filePath));
         }
 
         private static async Task<T> DeserializeJSONAsync<T>(TextReader reader)
@@ -59,12 +41,16 @@ namespace CustomBeatmaps.Util
         public static T DeserializeJSON<T>(Stream stream) => DeserializeJSON<T>(new StreamReader(stream));
         public static T DeserializeJSON<T>(string serialized) => DeserializeJSON<T>(new StringReader(serialized));
 
-        public static string SerializeJSON<T>(T obj)
+        public static string SerializeJSON<T>(T obj, bool prettyPrint=false)
         {
             StringWriter sw = new StringWriter();
             JsonWriter jwriter = new JsonTextWriter(sw);
 
             JsonSerializer serializer = new JsonSerializer();
+            if (prettyPrint)
+            {
+                serializer.Formatting = Formatting.Indented;
+            }
             serializer.Converters.Add(new JavaScriptDateTimeConverter());
 
             serializer.Serialize(jwriter, obj);
