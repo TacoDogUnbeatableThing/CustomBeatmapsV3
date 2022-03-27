@@ -1,5 +1,4 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace CustomBeatmaps.Util
 {
@@ -28,7 +27,9 @@ namespace CustomBeatmaps.Util
 
         public static bool CanDoInput(bool forceSelected = false)
         {
-            return Event.current.type == EventType.KeyUp || Event.current.type == EventType.KeyDown || (_canDoInputThisFrame && !forceSelected && Event.current.type == EventType.Repaint);
+            return forceSelected
+                ? (Event.current.type == EventType.KeyUp || Event.current.type == EventType.KeyDown)
+                : (_canDoInputThisFrame && Event.current.type == EventType.Repaint);
         }
     }
 }

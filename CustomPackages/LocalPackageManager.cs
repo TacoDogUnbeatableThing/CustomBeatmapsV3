@@ -43,6 +43,18 @@ namespace CustomBeatmaps.CustomPackages
             }
         }
 
+        public bool PackageExists(string folder)
+        {
+            string targetFullPath = Path.GetFullPath(folder);
+            foreach (var package in Packages)
+            {
+                if (Path.GetFullPath(package.FolderName) == targetFullPath)
+                    return true;
+            }
+
+            return false;
+        }
+
         /// <summary>
         /// Given a server package URL and a beatmap info from the server, find our local beatmap.
         /// This is the most fragile point of this system, as modifying the server files breaks the system.

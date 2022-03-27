@@ -10,14 +10,13 @@ namespace CustomBeatmaps.CustomPackages
         private readonly Queue<string> _queuedIdsToDownload = new Queue<string>();
         private string _currentlyDownloading;
 
-        public Action<string> PackageDownloaded;
-
         public BeatmapDownloadStatus GetDownloadStatus(string serverPackageURL)
         {
             // Check the local package folder, if it exists then we've downloaded it
             string packageFolder = CustomPackageHelper.GetLocalFolderFromServerPackageURL(Config.Mod.ServerPackagesDir, serverPackageURL);
 
-            if (Directory.Exists(packageFolder))
+            if (Directory.Exists(packageFolder) && CustomBeatmaps.LocalServerPackages.PackageExists(CustomPackageHelper.GetLocalFolderFromServerPackageURL(
+                    Config.Mod.ServerPackagesDir, serverPackageURL)))
                 return BeatmapDownloadStatus.Downloaded;
 
             // Check if we're downloading/are queued to download this file...
@@ -36,10 +35,9 @@ namespace CustomBeatmaps.CustomPackages
         {
             _currentlyDownloading = serverPackageURL;
 
-            string localURL = await CustomPackageHelper.DownloadPackage(Config.Backend.ServerStorageURL, Config.Backend.ServerPackageRoot,
+            await CustomPackageHelper.DownloadPackage(Config.Backend.ServerStorageURL, Config.Backend.ServerPackageRoot,
                 Config.Mod.ServerPackagesDir, serverPackageURL);
-            PackageDownloaded?.Invoke(localURL);
-
+            
             // We downloaded one, grab the next one.
             lock (_queuedIdsToDownload)
             {

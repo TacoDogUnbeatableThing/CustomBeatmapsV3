@@ -1,9 +1,14 @@
 ﻿using System;
+using System.Reflection;
 using Cinemachine;
 using CustomBeatmaps.UI;
+using DG.Tweening;
+using DG.Tweening.Core;
+using FMOD.Studio;
 using FMODUnity;
 using HarmonyLib;
 using Rewired;
+using Rhythm;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -34,15 +39,32 @@ namespace CustomBeatmaps.Patches
         private static CustomBeatmapsUIBehaviour _customBeatmapsUIBehaviour;
 
         private static string _currentSongPreview;
+
+        private static readonly FieldInfo SongPreviewInstanceInfo = typeof(WhiteLabelMainMenu).GetField("songPreviewInstance", BindingFlags.Instance | BindingFlags.NonPublic);
         // Song Preview Access
-        public static void PlaySongPreview(string songName)
+        public static void PlaySongPreview(string audioFile)
         {
-            if (_currentSongPreview == songName)
+            if (_currentSongPreview == audioFile)
                 return;
             if (_current != null)
             {
-                _currentSongPreview = songName;
-                PlaySongPreview(_current, songName);
+                _currentSongPreview = audioFile;
+
+                // MANUAL REWRITE replacing PlaySource.FromTable to PlaySource.FromFile
+
+                var songPreviewInstance = (EventInstance) SongPreviewInstanceInfo.GetValue(_current);
+                songPreviewInstance.setVolume(1.0f);
+
+                if (songPreviewInstance.isValid())
+                {
+                    int num1 = (int) songPreviewInstance.stop(FMOD.Studio.STOP_MODE.ALLOWFADEOUT);
+                    int num2 = (int) songPreviewInstance.release();
+                }
+                songPreviewInstance = RuntimeManager.CreateInstance(_current.songPreviewEvent);
+                SongPreviewInstanceInfo.SetValue(_current, songPreviewInstance);
+                RhythmTracker.PrepareInstance(songPreviewInstance, PlaySource.FromFile, audioFile);
+                int num3 = (int) songPreviewInstance.setPitch(JeffBezosController.songSpeed);
+                int num4 = (int) songPreviewInstance.start();
             }
         }
         public static void StopSongPreview()
@@ -52,6 +74,22 @@ namespace CustomBeatmaps.Patches
                 StopSongPreview(_current);
                 _currentSongPreview = null;
             }
+        }
+
+        public static void DisableBGM()
+        {
+            if (_current == null)
+                return;
+            DOTween.To(() => GetMenuMusicVolume(_current), val => SetMenuMusicVolume(_current, val), 0.0f, 1f);
+            DOTween.To(() => GetTrainLoopVolume(_current), val => SetTrainLoopVolume(_current, val), 0.1f, 1f);
+        }
+
+        public static void EnableBGM()
+        {
+            if (_current == null)
+                return;
+            DOTween.To(() => GetMenuMusicVolume(_current), val => SetMenuMusicVolume(_current, val), 1f, 1f);
+            DOTween.To(() => GetTrainLoopVolume(_current), val => SetTrainLoopVolume(_current, val), 1f, 1f);
         }
 
         [HarmonyPatch(typeof(WhiteLabelMainMenu), "Start")]
@@ -137,19 +175,6 @@ namespace CustomBeatmaps.Patches
             }
         }
 
-        [HarmonyReversePatch]
-        [HarmonyPatch(typeof(WhiteLabelMainMenu), "ChooseCamera")]
-        private static void ChooseCamera(object instance, CinemachineVirtualCamera camera) => throw new InvalidOperationException("Stub Function");
-
-        [HarmonyReversePatch]
-        [HarmonyPatch(typeof(WhiteLabelMainMenu), "PlaySongPreview", typeof(string))]
-        private static void PlaySongPreview(object instance, string audioPath) =>
-            throw new InvalidOperationException("Stub Function");
-        [HarmonyReversePatch]
-        [HarmonyPatch(typeof(WhiteLabelMainMenu), "StopSongPreview")]
-        private static void StopSongPreview(object instance) =>
-            throw new InvalidOperationException("Stub Function");
-        
         [HarmonyPatch(typeof(WhiteLabelMainMenu), "ChooseCamera")]
         [HarmonyPrefix]
         static void ExtraChooseCamera(CinemachineVirtualCamera camera)
@@ -157,5 +182,42 @@ namespace CustomBeatmaps.Patches
             // Include custom cameras
             _customMenuCam.Priority = 10;
         }
+
+        /*
+        [HarmonyPatch(typeof(WhiteLabelMainMenu), "PlaySongPreview", typeof(string))]
+        [HarmonyPrefix]
+        static void Test(string audioPath)
+        {
+            Debug.Log($"SONG: {audioPath}");
+        }
+        */
+        
+        // REVERSE PATCHES
+        
+        [HarmonyReversePatch]
+        [HarmonyPatch(typeof(WhiteLabelMainMenu), "ChooseCamera")]
+        private static void ChooseCamera(object instance, CinemachineVirtualCamera camera) => throw new InvalidOperationException("Stub Function");
+
+        [HarmonyReversePatch]
+        [HarmonyPatch(typeof(WhiteLabelMainMenu), "StopSongPreview")]
+        private static void StopSongPreview(object instance) =>
+            throw new InvalidOperationException("Stub Function");
+
+        private static readonly MethodInfo GetMenuMusicInfo = typeof(WhiteLabelMainMenu).GetMethod("GetMenuMusicVolume", BindingFlags.NonPublic | BindingFlags.Instance);
+        private static float GetMenuMusicVolume(object instance)
+        {
+            return (float) GetMenuMusicInfo.Invoke(instance, Array.Empty<object>());
+        }
+        [HarmonyReversePatch]
+        [HarmonyPatch(typeof(WhiteLabelMainMenu), "SetMenuMusicVolume")]
+        private static void SetMenuMusicVolume(object instance, float volume) => throw new InvalidOperationException("Stub Function");
+        private static readonly MethodInfo GetTrainLoopInfo = typeof(WhiteLabelMainMenu).GetMethod("GetTrainLoopVolume", BindingFlags.NonPublic | BindingFlags.Instance);
+        private static float GetTrainLoopVolume(object instance)
+        {
+            return (float) GetTrainLoopInfo.Invoke(instance, Array.Empty<object>());
+        }
+        [HarmonyReversePatch]
+        [HarmonyPatch(typeof(WhiteLabelMainMenu), "SetTrainLoopVolume")]
+        private static void SetTrainLoopVolume(object instance, float volume) => throw new InvalidOperationException("Stub Function");
     }
 }

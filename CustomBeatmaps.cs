@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using System.Timers;
 using BepInEx;
 using CustomBeatmaps.CustomPackages;
@@ -20,8 +21,12 @@ namespace CustomBeatmaps
 
         public static LocalPackageManager LocalUserPackages { get; private set; }
         public static LocalPackageManager LocalServerPackages { get; private set; }
+        public static SubmissionPackageManager SubmissionPackageManager { get; private set; }
 
         public static BeatmapDownloader Downloader { get; private set; }
+
+        // Check for config reload every 2 seconds
+        private readonly Timer _checkConfigReload = new Timer(2000);
 
         static CustomBeatmaps()
         {
@@ -29,8 +34,9 @@ namespace CustomBeatmaps
             EventBus.ExceptionThrown += ex => ScheduleHelper.SafeInvoke(() => Debug.LogException(ex));
             
             // Anything with Static access should be ALWAYS present.
-            LocalUserPackages = new LocalPackageManager(ex => EventBus.ExceptionThrown?.Invoke(ex));
-            LocalServerPackages = new LocalPackageManager(ex => EventBus.ExceptionThrown?.Invoke(ex));
+            LocalUserPackages = new LocalPackageManager(OnError);
+            LocalServerPackages = new LocalPackageManager(OnError);
+            SubmissionPackageManager = new SubmissionPackageManager(OnError);
 
             ConfigHelper.LoadConfig("custombeatmaps_config.yaml",() => new ModConfig(), config =>
             {
@@ -46,10 +52,10 @@ namespace CustomBeatmaps
             Downloader = new BeatmapDownloader();
         }
 
-        // Check for config reload every 2 seconds
-        private readonly Timer _checkConfigReload = new Timer(2000);
-        // Check for server connection every 5 seconds IF it's down
-        private readonly Timer _serverCheckReload = new Timer(5000);
+        private static void OnError(Exception ex)
+        {
+            EventBus.ExceptionThrown?.Invoke(ex);
+        }
 
         private void Awake()
         {

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using CustomBeatmaps.CustomPackages;
 using CustomBeatmaps.Patches;
 using CustomBeatmaps.UI.PackageList;
@@ -56,17 +57,8 @@ namespace CustomBeatmaps.UI
 
             // Beatmaps of selected package
 
-            List<BeatmapHeader> selectedBeatmaps = new List<BeatmapHeader>(selectedPackage.Beatmaps.Length);
-            foreach (var bmap in selectedPackage.Beatmaps)
-            {
-                selectedBeatmaps.Add(new BeatmapHeader(
-                    bmap.SongName,
-                    bmap.Artist,
-                    bmap.BeatmapCreator,
-                    bmap.Difficulty,
-                    null
-                ));
-            }
+            List<BeatmapHeader> selectedBeatmaps =
+                UIConversionHelper.CustomBeatmapInfosToBeatmapHeaders(selectedPackage.Beatmaps.ToList());
 
             var selectedBeatmap = selectedPackage.Beatmaps[selectedBeatmapIndex];
 

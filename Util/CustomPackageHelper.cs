@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Compression;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using CustomBeatmaps.CustomPackages;
 using HarmonyLib;
 using UnityEngine;
-using Debug = FMOD.Debug;
 
 namespace CustomBeatmaps.Util
 {
@@ -48,6 +48,51 @@ namespace CustomBeatmaps.Util
             return beatmapPath.ToLower().EndsWith(".osu");
         }
 
+        public static bool TryLoadLocalPackage(string packageFolder, string outerFolderPath, out CustomLocalPackage package, bool recursive = false,
+            Action<BeatmapException> onBeatmapFail = null)
+        {
+            packageFolder = Path.GetFullPath(packageFolder);
+            outerFolderPath = Path.GetFullPath(outerFolderPath);
+
+            // We can't do Path.GetRelativePath, Path.GetPathRoot, or string.Split so this works instead.
+            string relative = Path.GetFullPath(packageFolder).Substring(outerFolderPath.Length + 1); // + 1 removes the start slash
+            // We also only want the stub (lowest directory)
+            string rootSubFolder = Path.Combine(outerFolderPath, StupidMissingTypesHelper.GetPathRoot(relative));
+            package.FolderName = rootSubFolder;
+            ScheduleHelper.SafeLog($"DIR: {packageFolder} -> {rootSubFolder}");
+
+            List<CustomBeatmapInfo> bmaps = new List<CustomBeatmapInfo>();
+            foreach (string packageSubFile in recursive? Directory.EnumerateFiles(packageFolder, "*.*", SearchOption.AllDirectories) : Directory.EnumerateFiles(packageFolder))
+            {
+                ScheduleHelper.SafeLog($"    inner: {packageSubFile}");
+                if (IsBeatmapFile(packageSubFile))
+                {
+                    try
+                    {
+                        var customBmap = LoadLocalBeatmap(packageSubFile);
+                        bmaps.Add(customBmap);
+                        ScheduleHelper.SafeLog("          (OSU!)");
+                    }
+                    catch (BeatmapException e)
+                    {
+                        ScheduleHelper.SafeLog($"    BEATMAP FAIL: {e.Message}");
+                        onBeatmapFail?.Invoke(e);
+                    }
+                }
+            }
+
+            // This folder has some beatmaps!
+            if (bmaps.Count != 0)
+            {
+                package.Beatmaps = bmaps.ToArray();
+                return true;
+            }
+
+            // Empty
+            package = new CustomLocalPackage();
+            return false;
+        }
+
         public static CustomLocalPackage[] LoadLocalPackages(string folderPath, Action<BeatmapException> onBeatmapFail=null)
         {
             folderPath = Path.GetFullPath(folderPath);
@@ -58,41 +103,12 @@ namespace CustomBeatmaps.Util
             // Folders = packages
             foreach (string subDir in Directory.EnumerateDirectories(folderPath, "*.*", SearchOption.AllDirectories))
             {
-                CustomLocalPackage potentialNewPackage = new CustomLocalPackage();
-
-                // We can't do Path.GetRelativePath, Path.GetPathRoot, or string.Split so this works instead.
-                string relative = Path.GetFullPath(subDir).Substring(folderPath.Length + 1); // + 1 removes the start slash
-                // We also only want the stub (lowest directory)
-                string rootSubFolder = Path.Combine(folderPath, StupidMissingTypesHelper.GetPathRoot(relative));
-                potentialNewPackage.FolderName = rootSubFolder;
-                ScheduleHelper.SafeLog($"DIR: {subDir} -> {rootSubFolder}");
-
-                List<CustomBeatmapInfo> bmaps = new List<CustomBeatmapInfo>();
-                foreach (string packageSubFile in Directory.GetFiles(subDir))
+                CustomLocalPackage potentialNewPackage;
+                if (TryLoadLocalPackage(subDir, folderPath, out potentialNewPackage, false, onBeatmapFail))
                 {
-                    ScheduleHelper.SafeLog($"    inner: {packageSubFile}");
-                    if (IsBeatmapFile(packageSubFile))
-                    {
-                        try
-                        {
-                            var customBmap = LoadLocalBeatmap(packageSubFile);
-                            bmaps.Add(customBmap);
-                            ScheduleHelper.SafeLog("          (OSU!)");
-                        }
-                        catch (BeatmapException e)
-                        {
-                            ScheduleHelper.SafeLog($"    BEATMAP FAIL: {e.Message}");
-                            onBeatmapFail?.Invoke(e);
-                        }
-                    }
-                }
-
-                // This folder has some beatmaps!
-                if (bmaps.Count != 0)
-                {
-                    potentialNewPackage.Beatmaps = bmaps.ToArray();
                     result.Add(potentialNewPackage);
                 }
+
             }
 
             // Files = packages too! For compatibility with V1 (cause why not)
@@ -138,6 +154,11 @@ namespace CustomBeatmaps.Util
             return await FetchHelper.GetJSON<CustomServerPackageList>(url);
         }
 
+        public static async Task<Dictionary<string, ServerSubmissionPackage>> FetchServerSubmissions(string url)
+        {
+            return await FetchHelper.GetJSON<Dictionary<string, ServerSubmissionPackage>>(url);
+        }
+
         private static string GetURLFromServerPackageURL(string serverDirectory, string serverPackageRoot, string serverPackageURL)
         {
             // In the form "packages/<something>/zip"
@@ -150,21 +171,9 @@ namespace CustomBeatmaps.Util
         }
 
         private static bool _dealingWithTempFile;
-        
-        /// <summary>
-        /// Downloads a package from a server URL locally
-        /// </summary>
-        /// <param name="serverDirectory"> Hosted Directory above the package location ex. http://64.225.60.116:8080  </param>
-        /// <param name="serverPackageRoot"> Hosted Directory within above directory ex. packages, creating http://64.225.60.116:8080/packages) </param>
-        /// <param name="localServerPackageDirectory"> Local directory to save packages ex. SERVER_PACKAGES </param>
-        /// <param name="serverPackageURL">The url from the server (https or "packages/{something}.zip"</param>
-        /// <param name="callback"> Returns the local path of the downloaded file </param>
-        public static async Task<string> DownloadPackage(string serverDirectory, string serverPackageRoot, string localServerPackageDirectory, string serverPackageURL)
-        {
-            string serverDownloadURL = GetURLFromServerPackageURL(serverDirectory, serverPackageRoot, serverPackageURL);
-            string localDownloadExtractPath =
-                GetLocalFolderFromServerPackageURL(localServerPackageDirectory, serverPackageURL);
 
+        private static async Task DownloadPackageInner(string downloadURL, string targetFolder)
+        {
             string tempDownloadFilePath = ".TEMP.zip";
 
             // Impromptu mutex, as per usual.
@@ -176,16 +185,36 @@ namespace CustomBeatmaps.Util
 
             _dealingWithTempFile = true;
 
-            await FetchHelper.DownloadFile(serverDownloadURL, tempDownloadFilePath);
+            await FetchHelper.DownloadFile(downloadURL, tempDownloadFilePath);
 
             // Extract
-            System.IO.Compression.ZipFile.ExtractToDirectory(tempDownloadFilePath, localDownloadExtractPath);
+            System.IO.Compression.ZipFile.ExtractToDirectory(tempDownloadFilePath, targetFolder, true);
             // Delete old
             File.Delete(tempDownloadFilePath);
 
             _dealingWithTempFile = false;
+        }
+        
+        /// <summary>
+        /// Downloads a package from a server URL locally
+        /// </summary>
+        /// <param name="packageDownloadURL"> Hosted Directory above the package location ex. http://64.225.60.116:8080  </param>
+        /// <param name="serverPackageRoot"> Hosted Directory within above directory ex. packages, creating http://64.225.60.116:8080/packages) </param>
+        /// <param name="localServerPackageDirectory"> Local directory to save packages ex. SERVER_PACKAGES </param>
+        /// <param name="serverPackageURL">The url from the server (https or "packages/{something}.zip"</param>
+        /// <param name="callback"> Returns the local path of the downloaded file </param>
+        public static async Task DownloadPackage(string packageDownloadURL, string serverPackageRoot, string localServerPackageDirectory, string serverPackageURL)
+        {
+            string serverDownloadURL = GetURLFromServerPackageURL(packageDownloadURL, serverPackageRoot, serverPackageURL);
+            string localDownloadExtractPath =
+                GetLocalFolderFromServerPackageURL(localServerPackageDirectory, serverPackageURL);
 
-            return localDownloadExtractPath;
+            await DownloadPackageInner(serverDownloadURL, localDownloadExtractPath);
+        }
+
+        public static async Task DownloadTemporarySubmissionPackage(string downloadURL, string tempSubmissionFolder)
+        {
+            await DownloadPackageInner(downloadURL, tempSubmissionFolder);
         }
     }
 }

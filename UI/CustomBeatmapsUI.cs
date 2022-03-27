@@ -1,5 +1,6 @@
 ﻿
 using System;
+using CustomBeatmaps.Patches;
 using CustomBeatmaps.UISystem;
 using CustomBeatmaps.Util;
 using UnityEngine;
@@ -35,8 +36,7 @@ namespace CustomBeatmaps.UI
                     LocalPackageListUI.Render(() => RenderListTop(tab, setTab));
                     break;
                 case Tab.Submissions:
-                    RenderListTop(tab, setTab);
-                    GUILayout.Label("Not implemented yet");
+                    SubmissionPackageListUI.Render(() => RenderListTop(tab, setTab));
                     break;
                 case Tab.Osu:
                     RenderListTop(tab, setTab);
@@ -56,12 +56,16 @@ namespace CustomBeatmaps.UI
                     ind -= 1;
                     if (ind < 0)
                         ind = count - 1;
+                    // Net for Bugs
+                    WhiteLabelMainMenuPatch.StopSongPreview();
                     setTab((Tab) ind);
                 }
                 else if (Input.GetKeyDown(KeyCode.PageUp))
                 {
                     ind += 1;
                     ind %= count;
+                    // Net for Bugs
+                    WhiteLabelMainMenuPatch.StopSongPreview();
                     setTab((Tab) ind);
                 }
             }

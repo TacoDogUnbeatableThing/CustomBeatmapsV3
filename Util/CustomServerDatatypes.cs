@@ -52,6 +52,15 @@ namespace CustomBeatmaps.Util
         }
     }
 
+    public struct ServerSubmissionPackage
+    {
+        [JsonProperty("username")]
+        public string Username;
+        [JsonProperty("avatarURL")]
+        public string AvatarURL;
+        [JsonProperty("downloadURL")]
+        public string DownloadURL;
+    }
     public struct UserInfo
     {
         [JsonProperty("name")]

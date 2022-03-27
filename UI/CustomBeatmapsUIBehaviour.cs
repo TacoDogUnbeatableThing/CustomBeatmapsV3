@@ -36,6 +36,8 @@ namespace CustomBeatmaps.UI
             DOTween.To(() => _windowOffset, value => _windowOffset = value, Vector2.zero, 0.2f)
                 .SetEase(Ease.OutBounce)
                 .SetId(this);
+
+            WhiteLabelMainMenuPatch.DisableBGM();
         }
         public void Close()
         {
@@ -49,10 +51,11 @@ namespace CustomBeatmaps.UI
                 .OnComplete(() =>
                 {
                     _open = false;
+                    WhiteLabelMainMenuPatch.EnableBGM();
+                    WhiteLabelMainMenuPatch.StopSongPreview();
                     _windowOffset = new Vector2(-1 * Screen.width, -1 * Screen.height);
                 });
 
-            WhiteLabelMainMenuPatch.StopSongPreview();
         }
 
         private void Update()
