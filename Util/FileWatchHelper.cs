@@ -8,7 +8,7 @@ namespace CustomBeatmaps.Util
     /// </summary>
     public static class FileWatchHelper
     {
-        public static FileSystemWatcher WatchFile(string filePath, Action<string> onChange)
+        public static FileSystemWatcher WatchFile(string filePath, Action onChange)
         {
             var fileWatcher = new FileSystemWatcher
             {
@@ -25,7 +25,7 @@ namespace CustomBeatmaps.Util
             {
                 if (Path.GetFullPath(filePath) == Path.GetFullPath(args.FullPath))
                 {
-                    onChange.Invoke(Path.GetFullPath(filePath));
+                    onChange.Invoke();
                 }
             };
 
@@ -59,9 +59,9 @@ namespace CustomBeatmaps.Util
 
         public static void WatchFileForModifications(string fpath, Action onWriteChange)
         {
-            WatchFile(fpath, path =>
+            WatchFile(fpath, () =>
             {
-                if (File.Exists(path))
+                if (File.Exists(fpath))
                 {
                     onWriteChange.Invoke();
                 }

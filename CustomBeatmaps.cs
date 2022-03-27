@@ -78,6 +78,7 @@ namespace CustomBeatmaps
             Harmony.CreateAndPatchAll(typeof(DebugLogPatch));
             Harmony.CreateAndPatchAll(typeof(WhiteLabelMainMenuPatch));
             Harmony.CreateAndPatchAll(typeof(CustomBeatmapLoadingOverridePatch));
+            Harmony.CreateAndPatchAll(typeof(OsuEditorPatch));
 
             /*
             // Test fetching our package list

@@ -11,6 +11,8 @@ namespace CustomBeatmaps.UI
 {
     public static class OSUPackageListUI
     {
+        private static bool _overrideCountdown = false;
+
         public static void Render(Action onRenderAboveList)
         {
             var (selectedBeatmapIndex, setSelectedBeatmapIndex) = Reacc.UseState(0);
@@ -66,6 +68,7 @@ namespace CustomBeatmaps.UI
                 () => { },
                 () =>
                 {
+                    _overrideCountdown = GUILayout.Toggle(_overrideCountdown, "Do Countdown?");
                     if (GUILayout.Button($"EXPORT"))
                     {
                         string exportFolder = Config.Mod.OsuExportDirectory;
@@ -74,7 +77,7 @@ namespace CustomBeatmaps.UI
                     }
                     if (PlayButtonUI.Render($"EDIT: {selectedBeatmap.SongName}"))
                     {
-                        UnbeatableHelper.PlayBeatmapEdit(selectedBeatmap);
+                        UnbeatableHelper.PlayBeatmapEdit(selectedBeatmap, _overrideCountdown);
                     }
                 }
             );

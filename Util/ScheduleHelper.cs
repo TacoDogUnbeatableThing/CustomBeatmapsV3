@@ -12,6 +12,10 @@ namespace CustomBeatmaps.Util
     public static class ScheduleHelper
     {
         private static readonly List<Action> ToInvoke = new List<Action>();
+        private static readonly List<Action> ToInvokeAfter = new List<Action>();
+
+        private static bool _performingNormalInvokes;
+
         private static GlobalScheduleUpdater _updater;
         private static bool _iterating;
 
@@ -24,6 +28,16 @@ namespace CustomBeatmaps.Util
         /// </summary>
         public static void SafeInvoke(Action toInvoke)
         {
+            // If we're iterating through safe invokes, that means we must invoke after our iteration is done.
+            if (_performingNormalInvokes)
+            {
+                lock (ToInvokeAfter)
+                {
+                    ToInvokeAfter.Add(toInvoke);
+                }
+                return;
+            }
+
             lock (ToInvoke)
             {
                 // Make sure we have an updater
@@ -55,11 +69,20 @@ namespace CustomBeatmaps.Util
             lock (ToInvoke)
             {
                 _iterating = true;
+
+                _performingNormalInvokes = true;
                 foreach (var toInvoke in ToInvoke)
-                {
                     toInvoke?.Invoke();
-                }
                 ToInvoke.Clear();
+                _performingNormalInvokes = false;
+            }
+
+            lock (ToInvokeAfter)
+            {
+                foreach (var toInvoke in ToInvokeAfter)
+                    toInvoke?.Invoke();
+                ToInvokeAfter.Clear();
+
                 _iterating = false;
             }
         }

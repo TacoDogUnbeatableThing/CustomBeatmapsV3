@@ -1,5 +1,6 @@
 ﻿using System;
 using CustomBeatmaps.CustomPackages;
+using CustomBeatmaps.Util;
 using HarmonyLib;
 using Rhythm;
 using UnityEngine;
@@ -28,6 +29,7 @@ namespace CustomBeatmaps.Patches
         // Inject this into our beatmap parsing to replace our beatmap with the override beatmap
         private static void OverrideBeatmapParsing(out BeatmapInfo beatmapInfo, out Beatmap beatmap, out string audioKey, out string songName)
         {
+            ScheduleHelper.SafeLog($"PARSING BEATMAP {_override.OsuPath}");
             BeatmapParserEngine beatmapParserEngine = new BeatmapParserEngine();
             beatmap = ScriptableObject.CreateInstance<Beatmap>();
             beatmapInfo = _override;
