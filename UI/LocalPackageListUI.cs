@@ -81,8 +81,7 @@ namespace CustomBeatmaps.UI
                     },
                     () =>
                     {
-                        // TODO: Local High Score
-                        GUILayout.Label("High Scores go here");
+                        PersonalHighScoreUI.Render(selectedBeatmap.OsuPath);
                     },
                     () =>
                     {

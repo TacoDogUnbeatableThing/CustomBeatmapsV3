@@ -14,7 +14,7 @@ namespace CustomBeatmaps.Util
             //OsuEditorPatch.SetEditMode(false);
             LevelManager.LoadLevel(PLAY_SCENE_NAME);
             // We can kind of leave this empty
-            JeffBezosController.rhythmProgression = (IProgression) new DefaultProgression("", PLAY_SCENE_NAME);
+            JeffBezosController.rhythmProgression = (IProgression) new DefaultProgression(beatmap.OsuPath, PLAY_SCENE_NAME);
         }
 
         public static void PlayBeatmapEdit(CustomBeatmapInfo beatmap, string path)

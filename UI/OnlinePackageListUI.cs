@@ -72,6 +72,12 @@ namespace CustomBeatmaps.UI
             }
             // Beatmaps
             var selectedPackage = _list.Packages[selectedPackageIndex];
+            // Jank overflow fix between packages with varying beatmap sizes
+            if (selectedBeatmapIndex >= selectedPackage.Beatmaps.Length)
+            {
+                selectedBeatmapIndex = selectedPackage.Beatmaps.Length - 1;
+                setSelectedBeatmapIndex(selectedBeatmapIndex);
+            }
             List<BeatmapHeader> selectedBeatmaps = new List<BeatmapHeader>(selectedPackage.Beatmaps.Length);
             foreach (var bmap in selectedPackage.Beatmaps)
             {
@@ -100,8 +106,20 @@ namespace CustomBeatmaps.UI
                     },
                     () =>
                     {
-                        // TODO: SERVER High Score
-                        GUILayout.Label("High Scores go here");
+                        if (selectedPackage.Beatmaps.Length != 0)
+                        {
+                            // LOCAL high score
+                            var downloadStatus = CustomBeatmaps.Downloader.GetDownloadStatus(selectedPackage.ServerURL);
+                            if (downloadStatus == BeatmapDownloadStatus.Downloaded)
+                            {
+                                var selectedBeatmap = selectedPackage.Beatmaps[selectedBeatmapIndex];
+                                var localPackages = CustomBeatmaps.LocalServerPackages;
+                                var customBeatmapInfo = localPackages.FindCustomBeatmapInfoFromServer(selectedPackage.ServerURL, selectedBeatmap);
+                                PersonalHighScoreUI.Render(customBeatmapInfo.OsuPath);
+                            }
+                            // SERVER high scores
+                            GUILayout.Label("SERVER High Scores go here");
+                        }
                     },
                     () =>
                     {

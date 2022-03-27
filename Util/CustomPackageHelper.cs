@@ -30,7 +30,7 @@ namespace CustomBeatmaps.Util
             var trueAudioPath = Path.Combine(audioFolder,  audioFile); // Path.Join fails.
 
             return new CustomBeatmapInfo(new TextAsset(text), artist, beatmapCreator,
-                songName, difficulty, trueAudioPath);
+                songName, difficulty, trueAudioPath, bmapPath);
         }
 
         private static string GetBeatmapProp(string beatmapText, string prop, string beatmapPath)

@@ -18,6 +18,11 @@ namespace CustomBeatmaps.UI.PackageList
 
             // Construct list of unique map names and our currently selected map's difficulties
 
+            if (selectedBeatmapIndex >= packageBeatmaps.Count)
+            {
+                selectedBeatmapIndex = packageBeatmaps.Count - 1;
+            }
+
             var selected = packageBeatmaps[selectedBeatmapIndex];
             string selectedName = selected.Name;
             int selectedNameIndex = 0;
