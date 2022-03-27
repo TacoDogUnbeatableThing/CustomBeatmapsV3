@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Threading.Tasks;
 using System.Timers;
 using BepInEx;
@@ -23,6 +24,7 @@ namespace CustomBeatmaps
         public static LocalPackageManager LocalServerPackages { get; private set; }
         public static SubmissionPackageManager SubmissionPackageManager { get; private set; }
         public static OSUBeatmapManager OSUBeatmapManager { get; private set; }
+        public static PlayedPackageManager PlayedPackageManager { get; private set; }
 
         public static BeatmapDownloader Downloader { get; private set; }
 
@@ -47,6 +49,7 @@ namespace CustomBeatmaps
                 LocalUserPackages.SetFolder(config.UserPackagesDir);
                 LocalServerPackages.SetFolder(config.ServerPackagesDir);
                 OSUBeatmapManager.SetOverride(config.OsuSongsOverrideDirectory);
+                PlayedPackageManager = new PlayedPackageManager(config.PlayedBeatmapList);
             });
             ConfigHelper.LoadConfig("custombeatmaps_backend.json", () => new BackendConfig(), config => BackendConfig = config);
 

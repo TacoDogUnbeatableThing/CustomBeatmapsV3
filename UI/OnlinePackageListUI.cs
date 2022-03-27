@@ -70,7 +70,9 @@ namespace CustomBeatmaps.UI
                 string serverUrl = serverPackage.ServerURL;
                 string name = Path.GetFileName(serverUrl);
                 var downloadStatus = CustomBeatmaps.Downloader.GetDownloadStatus(serverUrl);
-                headers.Add(new PackageHeader(name, songs.Count, serverPackage.Beatmaps.Length, creator, true, downloadStatus));
+                bool isNew = !CustomBeatmaps.PlayedPackageManager.HasPlayed(
+                    CustomPackageHelper.GetLocalFolderFromServerPackageURL(Config.Mod.ServerPackagesDir, serverUrl));
+                headers.Add(new PackageHeader(name, songs.Count, serverPackage.Beatmaps.Length, creator, isNew, downloadStatus));
             }
             // Beatmaps
             var selectedPackage = _list.Packages[selectedPackageIndex];
@@ -118,7 +120,7 @@ namespace CustomBeatmaps.UI
                             {
                                 var selectedBeatmap = selectedPackage.Beatmaps[selectedBeatmapIndex];
                                 var localPackages = CustomBeatmaps.LocalServerPackages;
-                                var customBeatmapInfo = localPackages.FindCustomBeatmapInfoFromServer(selectedPackage.ServerURL, selectedBeatmap);
+                                var (_, customBeatmapInfo) = localPackages.FindCustomBeatmapInfoFromServer(selectedPackage.ServerURL, selectedBeatmap);
                                 PersonalHighScoreUI.Render(customBeatmapInfo.OsuPath);
                             }
                             // SERVER high scores
@@ -164,12 +166,13 @@ namespace CustomBeatmaps.UI
                                 case BeatmapDownloadStatus.Downloaded:
                                     var localPackages = CustomBeatmaps.LocalServerPackages;
                                     // Play a local beatmap
-                                    var customBeatmapInfo = localPackages.FindCustomBeatmapInfoFromServer(selectedPackage.ServerURL, selectedBeatmap);
+                                    var (localPackage, customBeatmapInfo) = localPackages.FindCustomBeatmapInfoFromServer(selectedPackage.ServerURL, selectedBeatmap);
                                     // Preview, cause we can!
                                     WhiteLabelMainMenuPatch.PlaySongPreview(customBeatmapInfo.RealAudioKey);
                                     if (buttonPressed)
                                     {
                                         UnbeatableHelper.PlayBeatmap(customBeatmapInfo, selectedPackage.ServerURL);
+                                        CustomBeatmaps.PlayedPackageManager.RegisterPlay(localPackage.FolderName);
                                     }
                                     break;
                                 case BeatmapDownloadStatus.NotDownloaded:

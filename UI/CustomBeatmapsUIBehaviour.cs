@@ -96,9 +96,9 @@ namespace CustomBeatmaps.UI
                     }
                 }
 
-                // Extra Error UI
-                ErrorUI.Render(_errors);
             }, "Custom Beatmaps v3");
+            // Extra Error UI
+            ErrorUI.Render(_errors);
         }
     }
 }

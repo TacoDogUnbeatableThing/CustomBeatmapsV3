@@ -59,7 +59,7 @@ namespace CustomBeatmaps.CustomPackages
         /// Given a server package URL and a beatmap info from the server, find our local beatmap.
         /// This is the most fragile point of this system, as modifying the server files breaks the system.
         /// </summary>
-        public CustomBeatmapInfo FindCustomBeatmapInfoFromServer(string serverPackageURL, CustomServerBeatmap beatmapInfo)
+        public (CustomLocalPackage, CustomBeatmapInfo) FindCustomBeatmapInfoFromServer(string serverPackageURL, CustomServerBeatmap beatmapInfo)
         {
             string targetFullPath = CustomPackageHelper.GetLocalFolderFromServerPackageURL(
                 Config.Mod.ServerPackagesDir, serverPackageURL);
@@ -81,7 +81,7 @@ namespace CustomBeatmaps.CustomPackages
                             cbinfo.BeatmapCreator == beatmapInfo.Creator &&
                             cbinfo.SongName == beatmapInfo.Name)
                         {
-                            return cbinfo;
+                            return (package, cbinfo);
                         }
                     }
                 }

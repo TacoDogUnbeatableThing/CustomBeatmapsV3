@@ -57,7 +57,8 @@ namespace CustomBeatmaps.UI
 
                 string name = p.Beatmaps.Length == 1 ? p.Beatmaps[0].SongName : Path.GetFileName(p.FolderName);
                 string creator = p.Beatmaps.Join(binfo => binfo.BeatmapCreator, ",");
-                headers.Add(new PackageHeader(name, songs.Count, p.Beatmaps.Length, creator, true, BeatmapDownloadStatus.Downloaded));
+                bool isNew = !CustomBeatmaps.PlayedPackageManager.HasPlayed(p.FolderName);
+                headers.Add(new PackageHeader(name, songs.Count, p.Beatmaps.Length, creator, isNew, BeatmapDownloadStatus.Downloaded));
             }
 
             // Beatmaps of selected package
@@ -95,8 +96,10 @@ namespace CustomBeatmaps.UI
                         if (PlayButtonUI.Render("PLAY", $"{selectedBeatmap.SongName}: {selectedBeatmap.Difficulty}"))
                         {
                             // Play a local beatmap
-                            var customBeatmapInfo = localPackages[selectedPackageIndex].Beatmaps[selectedBeatmapIndex];
+                            var package = localPackages[selectedPackageIndex];
+                            var customBeatmapInfo = package.Beatmaps[selectedBeatmapIndex];
                             UnbeatableHelper.PlayBeatmap(customBeatmapInfo);
+                            CustomBeatmaps.PlayedPackageManager.RegisterPlay(package.FolderName);
                         }
                     }
                 );

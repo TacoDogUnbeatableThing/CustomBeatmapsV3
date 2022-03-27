@@ -1,25 +1,20 @@
 ﻿
-SORT BY system
-    Sort by
-        - Date (New)
-        - Date (Old)
-        - Alphabetical
-        - Creator
-
-NEW check
-    - For now: check for high score
-
 CREATE MODE (OSU mode):
-    Similar to before but clean it up a bit.
-    At the top: To make a beatmap, follow this guide (with a link)
-    Pick an OSU file from a list and either EDIT or EXPORT
-    When EXPORTING, a dialogue prompt pops up with some options (description, CD color)
+    Before opening: To make a beatmap, follow this guide (with a link)
+
+ASSIST AREA
+    Present below the beatmap view for local/online
+
+HIGH SCORES:
+    Have a brief warning next to the "play" button for online mode if we aren't logged in (Not logged in! Can't post highscore.)
+    On entering the "high score" section and if we aren't using any assists, send user ID and score data to the server
+    Read high scores from the server (another manager lol) and refresh every time the CustomBeatmapsUI is opened.
+
+MIS-INDEXED ONLINE PACKAGES:
+    Have a warning if there are mis-labeled online packages and an option to move to the local/user packages folder?
 
 PACKAGE INFO (Extras):
     Once that's all done, add a description field and a background color.
-
-HIGH SCORES:
-    On beating a level, send your user ID and score data (the server does the mapping so the id's aren't exposed)
 
 DISCORD CLEANUP:
     Archive channels and add a simplified guide for mods and creators
