@@ -21,7 +21,7 @@ namespace CustomBeatmaps.Patches
             _override = null;
         }
 
-        private static bool ShouldOverride()
+        public static bool CustomBeatmapSet()
         {
             return _override != null;
         }
@@ -42,7 +42,7 @@ namespace CustomBeatmaps.Patches
         [HarmonyPrefix]
         private static void ParseBeatmapInstance(BeatmapParser __instance, ref bool __runOriginal)
         {
-            if (ShouldOverride())
+            if (CustomBeatmapSet())
             {
                 __runOriginal = false;
                 OverrideBeatmapParsing(out _, out __instance.beatmap, out __instance.audioKey, out _);
@@ -57,7 +57,7 @@ namespace CustomBeatmaps.Patches
         [HarmonyPrefix]
         private static void ParseBeatmapStatic(BeatmapIndex beatmapIndex, string beatmapPath, out BeatmapInfo beatmapInfo, out Beatmap beatmap, out string songName, ref bool __runOriginal)
         {
-            if (ShouldOverride())
+            if (CustomBeatmapSet())
             {
                 __runOriginal = false;
                 OverrideBeatmapParsing(out beatmapInfo, out beatmap, out _, out songName);

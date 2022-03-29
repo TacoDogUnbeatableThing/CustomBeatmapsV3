@@ -1,12 +1,10 @@
 ﻿using System;
-using System.IO;
 using System.Threading.Tasks;
 using System.Timers;
 using BepInEx;
 using CustomBeatmaps.CustomPackages;
 using CustomBeatmaps.Patches;
 using CustomBeatmaps.Util;
-using FMOD;
 using HarmonyLib;
 using Debug = UnityEngine.Debug;
 

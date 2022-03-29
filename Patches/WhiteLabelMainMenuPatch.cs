@@ -96,11 +96,8 @@ namespace CustomBeatmaps.Patches
         [HarmonyPrefix]
         static void PreStart(WhiteLabelMainMenu __instance)
         {
-            // Don't have custom beatmaps here
-            CustomBeatmapLoadingOverridePatch.ResetOverrideBeatmap();
-            // Also reset server high score key so we don't interfere with vanilla beatmaps 
-            CustomBeatmaps.ServerHighScoreManager.ResetCurrentBeatmapKey();
-            _current = __instance;
+            // Create custom beatmaps UI
+            _customBeatmapsUIBehaviour = new GameObject().AddComponent<CustomBeatmapsUIBehaviour>();
 
             // Create custom option button
             UISelectionButton toCopy = __instance.PlayOption;
@@ -109,20 +106,38 @@ namespace CustomBeatmaps.Patches
             copy.z = 11.5527f; // Eh just move it
             _customOption.transform.position = copy;
             _customOption.setting.text = "CUSTOM\n<size=50%>   BEATMAPS</size>";
+            
+            // Custom menu camera
+            _customMenuCam = new GameObject().AddComponent<CinemachineVirtualCamera>();
+            _customMenuCam.transform.position = CustomMenuCamPos;
+            _customMenuCam.transform.rotation = CustomMenuCamRot;
+
 
             __instance.TopLayerOptions.Add(_customOption);
 
-            // Create custom beatmaps UI
-            _customBeatmapsUIBehaviour = new GameObject().AddComponent<CustomBeatmapsUIBehaviour>();
+            // Post-Custom Beatmap Play
+            if (CustomBeatmapLoadingOverridePatch.CustomBeatmapSet())
+            {
+                // Avoid going to regular beatmap view
+                JeffBezosController.returnFromArcade = false;
+                // Load our custombeatmaps menu
+                ChooseCamera(__instance, _customMenuCam);
+                __instance.menuState = _customMenuState;
+                _customBeatmapsUIBehaviour.Open();
+            }
+
+            // Reset custom beatmap playing
+            CustomBeatmapLoadingOverridePatch.ResetOverrideBeatmap();
+            // Also reset server high score key so we don't interfere with vanilla beatmaps 
+            CustomBeatmaps.ServerHighScoreManager.ResetCurrentBeatmapKey();
+
+            _current = __instance;
         }
 
         [HarmonyPatch(typeof(WhiteLabelMainMenu), "Start")]
         [HarmonyPostfix]
         static void PostStart(WhiteLabelMainMenu __instance, ref WrapCounter ___selectionInc)
         {
-            _customMenuCam = new GameObject().AddComponent<CinemachineVirtualCamera>();
-            _customMenuCam.transform.position = CustomMenuCamPos;
-            _customMenuCam.transform.rotation = CustomMenuCamRot;
 
             // Add one more option (our own!)
             _mainMenuWrapCount = ___selectionInc.count + 1;
