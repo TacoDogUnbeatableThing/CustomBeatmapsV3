@@ -79,6 +79,7 @@ namespace CustomBeatmaps
             Harmony.CreateAndPatchAll(typeof(CustomBeatmapLoadingOverridePatch));
             Harmony.CreateAndPatchAll(typeof(OsuEditorPatch));
             Harmony.CreateAndPatchAll(typeof(HighScoreScreenPatch));
+            Harmony.CreateAndPatchAll(typeof(SimpleJankHighScoreSongReplacementPatch));
 
             /*
             // Test fetching our package list

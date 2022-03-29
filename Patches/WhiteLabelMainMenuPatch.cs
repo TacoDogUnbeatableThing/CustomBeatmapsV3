@@ -18,6 +18,8 @@ namespace CustomBeatmaps.Patches
     {
         private static WhiteLabelMainMenu _current;
 
+        public static bool IsOpen => _current != null;
+
         /// <summary>
         /// TODO:
         /// - Find a camera angle that works (move camera around w/ wasd + rotate?)
@@ -92,6 +94,7 @@ namespace CustomBeatmaps.Patches
             DOTween.To(() => GetTrainLoopVolume(_current), val => SetTrainLoopVolume(_current, val), 1f, 1f);
         }
 
+
         [HarmonyPatch(typeof(WhiteLabelMainMenu), "Start")]
         [HarmonyPrefix]
         static void PreStart(WhiteLabelMainMenu __instance)
@@ -124,6 +127,7 @@ namespace CustomBeatmaps.Patches
                 ChooseCamera(__instance, _customMenuCam);
                 __instance.menuState = _customMenuState;
                 _customBeatmapsUIBehaviour.Open();
+                DisableBGM();
             }
 
             // Reset custom beatmap playing

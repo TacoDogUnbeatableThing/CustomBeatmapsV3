@@ -36,7 +36,19 @@ namespace CustomBeatmaps.UI
             var session = CustomBeatmaps.UserSession;
             if (session.LoggedIn)
             {
+                GUILayout.BeginHorizontal(GUILayout.ExpandWidth(false));
                 GUILayout.Label($"Logged in as {session.Username}");
+                // Option to sync high scores to server lel
+                var desyncedScores = CustomBeatmaps.ServerHighScoreManager.DesyncedHighScores;
+                if (desyncedScores.Length != 0)
+                {
+                    GUILayout.Label($"(<b>{desyncedScores.Length} high scores not synced with server!</b>)");
+                    if (GUILayout.Button($"Sync Scores!"))
+                    {
+                        CustomBeatmaps.ServerHighScoreManager.SyncUpHighScoresFromLocal();
+                    }
+                }
+                GUILayout.EndHorizontal();
             }
             else
             {

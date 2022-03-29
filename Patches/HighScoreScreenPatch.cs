@@ -22,7 +22,9 @@ namespace CustomBeatmaps.Patches
                 bool noMiss = JeffBezosController.prevMiss == 0;
                 bool fc = noMiss && JeffBezosController.prevBarely == 0;
 
-                CustomBeatmaps.ServerHighScoreManager.SendScore(score, accuracy, noMiss, fc);
+                // beatmap key is set in UnbeatableHelper, from the server UI
+                // this is a _bit_ of spaghetti, but I'm nearing the limit of how complex this project will be so it's good enough.
+                CustomBeatmaps.ServerHighScoreManager.SendScore(CustomBeatmaps.ServerHighScoreManager.CurrentBeatmapKey, score, accuracy, noMiss, fc);
             }
             else
             {

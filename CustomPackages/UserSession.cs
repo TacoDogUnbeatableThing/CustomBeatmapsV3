@@ -27,6 +27,9 @@ namespace CustomBeatmaps.CustomPackages
                     UserInfo info = await UserServerHelper.GetUserInfo(Config.Backend.ServerUserURL, UniqueId);
                     Username = info.Name;
                     LoginStatus = "logged in!";
+
+                    // High scores will want to know about this.
+                    CustomBeatmaps.ServerHighScoreManager.CheckDesyncedHighScores(Username);
                 }
                 catch (Exception e)
                 {
@@ -58,6 +61,9 @@ namespace CustomBeatmaps.CustomPackages
                 UniqueId = newUserInfo.UniqueId;
                 UserServerHelper.SaveUserSession(Config.Mod.UserUniqueIdFile, UniqueId);
                 LoginStatus = "registered!";
+                
+                // We registered, so check for unregistered high scores
+                CustomBeatmaps.ServerHighScoreManager.CheckDesyncedHighScores(Username);
             }
             catch (Exception e)
             {

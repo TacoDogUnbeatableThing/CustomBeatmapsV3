@@ -1,5 +1,4 @@
-﻿using System.IO;
-using CustomBeatmaps.CustomPackages;
+﻿using CustomBeatmaps.CustomPackages;
 using CustomBeatmaps.Patches;
 using Rhythm;
 
@@ -41,5 +40,11 @@ namespace CustomBeatmaps.Util
         {
             return JeffBezosController.useAssistMode || JeffBezosController.songSpeed < 1 || JeffBezosController.noFail;
         }
+
+        public static HighScoreList LoadWhiteLabelHighscores()
+        {
+           return HighScoreScreen.LoadHighScores("wl-highscores");
+        }
+
     }
 }

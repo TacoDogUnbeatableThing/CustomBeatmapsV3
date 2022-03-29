@@ -57,11 +57,16 @@ namespace CustomBeatmaps.Util
             return $"online/{packageName}/{beatmapRelativePath}";
         }
 
-        public static string GetHighScoreBeatmapKeyFromLocalBeatmap(string packageDir, string beatmapOSUPath)
+        public static string GetHighScoreBeatmapKeyFromLocalBeatmap(string packageListDir, string beatmapOSUPath)
         {
             string fullPath = Path.GetFullPath(beatmapOSUPath);
-            string packageFullPath = Path.GetFullPath(packageDir);
-            return $"online/{fullPath.Substring(packageFullPath.Length + 1)}";
+            string packageFullPath = Path.GetFullPath(packageListDir);
+            return $"online/{fullPath.Substring(packageFullPath.Length + 1).Replace("\\", "/")}";
+        }
+
+        public static string GetHighScoreBeatmapKeyFromUnbeatableBeatmap(string beatmapPath)
+        {
+            return $"game/{beatmapPath}";
         }
 
         public static async Task<NewUserInfo> RegisterUser(string userServerURL, string username)
@@ -107,6 +112,56 @@ namespace CustomBeatmaps.Util
             // Huh...
             File.WriteAllText(path, uniqueUserId);
         }
+
+        /// <summary>
+        /// We could have a variety of high scores, but we really only care about two types:
+        ///
+        /// CUSTOMBEATMAPS_SERVER::[BEATMAP PATH relative to SERVER_PACKAGES].osu
+        /// [WHITE LABEL SONG]/[DIFFICULTY]
+        ///
+        /// Everything else should be filtered out, as I've probably generated it by accident during testing lel
+        /// </summary>
+        public static (List<HighScoreItem> whiteLabelScores, List<HighScoreItem> serverScores) FilterValidHighScores(
+            HighScoreList list)
+        {
+            List<HighScoreItem> whiteLabelScores = new List<HighScoreItem>();
+            List<HighScoreItem> serverScores = new List<HighScoreItem>();
+
+            var beatmapIndex = Rhythm.BeatmapIndex.defaultIndex;
+            var whiteLabelSongs = new HashSet<string>(beatmapIndex.SongNames);
+
+            string serverPackagePrefix = "CUSTOMBEATMAPS_SERVER::";
+
+            foreach (var score in list._highScores.Values)
+            {
+                string songPath = score.song;
+                // Try to parse as server?
+                // CUSTOMBEATMAPS_SERVER:: ...
+                if (songPath.StartsWith(serverPackagePrefix))
+                {
+                    //string beatmapRelativeToServerPackages = key.Substring(serverPackagePrefix.Length);
+                    serverScores.Add(score);
+                    continue;
+                }
+                // Try to parse as white label?
+                // [Song]/[Difficulty]
+                int lastDashIndex = songPath.LastIndexOf("/", StringComparison.Ordinal);
+                if (lastDashIndex != -1)
+                {
+                    // Also check to make sure it's a valid UNBEATABLE song
+                    string songName = songPath.Substring(0, lastDashIndex);
+                    if (whiteLabelSongs.Contains(songName))
+                    {
+                        whiteLabelScores.Add(score);
+                        continue;
+                    }
+                }
+                ScheduleHelper.SafeLog($"    (filtered out score: {score.song}");
+            }
+
+            return (whiteLabelScores, serverScores);
+        }
+
     }
 
 }
