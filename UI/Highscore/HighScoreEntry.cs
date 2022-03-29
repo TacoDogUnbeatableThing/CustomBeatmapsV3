@@ -7,8 +7,8 @@ namespace CustomBeatmaps.UI.Highscore
 {
     public static class HighScoreEntry
     {
-        private static readonly int AccuracyRightPad = 64;
-        private static readonly int ScoreRightPad = 64 + 128;
+        private static readonly int AccuracyRightPad = 64 + 128;
+        private static readonly int ScoreRightPad = 64;
         private static readonly int RankLeftPad = 16;
         private static readonly int GradeLeftPad = 32;
         private static readonly int NameLeftPad = 48 + 16;
@@ -36,19 +36,48 @@ namespace CustomBeatmaps.UI.Highscore
                     break;
             }
 
+            // Read state
             var pfail = JeffBezosController.prevFail;
             JeffBezosController.prevFail = false; // This messes with score. I love imperative programming.
             string grade = CleanUpGrade(HighScoreScreen.GetLetterGrade(entry.Accuracy, entry.FullComboMode > 0));
             string gradeWithColor = $"<color={GradeToColor(grade)}>{grade}</color>";
             JeffBezosController.prevFail = pfail;
+            if (CustomBeatmaps.UserSession.LoggedIn && CustomBeatmaps.UserSession.Username == player)
+            {
+                // Highlight ourselves
+                player = $"<color=yellow><b>{player}</b></color>";
+            }
+
+            int minL = FcModeLeftPad + 16;
+            bool tooSmall = r.width - AccuracyRightPad < minL;
+
+
+            // I love manual adjustment of padding
+            // (note: GUILayout.BeginArea wasn't working)
+
+            int fcModeLeftPad = FcModeLeftPad;
+            if (tooSmall)
+            {
+                fcModeLeftPad = NameLeftPad + 128;
+            }
 
             GUI.Label(new Rect(r.x, r.y - 2, RankLeftPad, r.height), $"<b>{rank.ToString()}</b>", rightPadStyle);
-            GUI.Label(Oxl(r, NameLeftPad), player, lastLabelStyle);
             GUI.Label(Oxl(r, GradeLeftPad), gradeWithColor, lastLabelStyle);
-            GUI.Label(Oxl(r, FcModeLeftPad), fcModeLabel, lastLabelStyle);
+            GUI.Label(Oxl(r, NameLeftPad), player, lastLabelStyle);
+            GUI.Label(Oxl(r, fcModeLeftPad), fcModeLabel, lastLabelStyle);
 
-            GUI.Label(Oxr(r, AccuracyRightPad), entry.Score.ToString(), lastLabelStyle);
-            GUI.Label(Oxr(r, ScoreRightPad), $"{entry.Accuracy * 100:0.00}%", lastLabelStyle);
+
+            // Make sure the stuff on the right isn't overlapping...
+            int accuracyRightPad = AccuracyRightPad;
+            int scoreRightPad = ScoreRightPad;
+            if (tooSmall)
+            {
+                scoreRightPad = 64;
+                accuracyRightPad = (int)r.width - minL;
+            }
+
+            GUI.Label(Oxr(r, accuracyRightPad), $"{entry.Accuracy * 100:0.00}%", lastLabelStyle);
+            GUI.Label(Oxr(r, scoreRightPad), entry.Score.ToString(), lastLabelStyle);
 
             GUI.skin.label = lastLabelStyle;
         }

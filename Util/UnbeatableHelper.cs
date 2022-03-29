@@ -1,4 +1,6 @@
-﻿using CustomBeatmaps.CustomPackages;
+﻿using System;
+using System.Linq;
+using CustomBeatmaps.CustomPackages;
 using CustomBeatmaps.Patches;
 using Rhythm;
 
@@ -44,6 +46,23 @@ namespace CustomBeatmaps.Util
         public static HighScoreList LoadWhiteLabelHighscores()
         {
            return HighScoreScreen.LoadHighScores("wl-highscores");
+        }
+
+        /// <returns> whether <code>potentialSongPath</code> is in the format "[UNBEATABLE Song]/[DIFFICULTY] </returns>
+        public static bool IsValidSongPath(string potentialSongPath)
+        {
+            var beatmapIndex = Rhythm.BeatmapIndex.defaultIndex;
+            var whiteLabelSongs = beatmapIndex.SongNames;
+
+            int lastDashIndex = potentialSongPath.LastIndexOf("/", StringComparison.Ordinal);
+            if (lastDashIndex != -1)
+            {
+                // Also check to make sure it's a valid UNBEATABLE song
+                string songName = potentialSongPath.Substring(0, lastDashIndex);
+                return whiteLabelSongs.Contains(songName);
+            }
+
+            return false;
         }
 
     }

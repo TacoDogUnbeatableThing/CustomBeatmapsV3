@@ -66,6 +66,8 @@ namespace CustomBeatmaps.Util
 
         public static string GetHighScoreBeatmapKeyFromUnbeatableBeatmap(string beatmapPath)
         {
+            if (beatmapPath == null)
+                return null;
             return $"game/{beatmapPath}";
         }
 
@@ -127,8 +129,6 @@ namespace CustomBeatmaps.Util
             List<HighScoreItem> whiteLabelScores = new List<HighScoreItem>();
             List<HighScoreItem> serverScores = new List<HighScoreItem>();
 
-            var beatmapIndex = Rhythm.BeatmapIndex.defaultIndex;
-            var whiteLabelSongs = new HashSet<string>(beatmapIndex.SongNames);
 
             string serverPackagePrefix = "CUSTOMBEATMAPS_SERVER::";
 
@@ -145,16 +145,10 @@ namespace CustomBeatmaps.Util
                 }
                 // Try to parse as white label?
                 // [Song]/[Difficulty]
-                int lastDashIndex = songPath.LastIndexOf("/", StringComparison.Ordinal);
-                if (lastDashIndex != -1)
+                if (UnbeatableHelper.IsValidSongPath(score.song))
                 {
-                    // Also check to make sure it's a valid UNBEATABLE song
-                    string songName = songPath.Substring(0, lastDashIndex);
-                    if (whiteLabelSongs.Contains(songName))
-                    {
-                        whiteLabelScores.Add(score);
-                        continue;
-                    }
+                    whiteLabelScores.Add(score);
+                    continue;
                 }
                 ScheduleHelper.SafeLog($"    (filtered out score: {score.song}");
             }

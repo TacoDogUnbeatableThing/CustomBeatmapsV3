@@ -2,6 +2,8 @@
 using System.Reflection;
 using Cinemachine;
 using CustomBeatmaps.UI;
+using CustomBeatmaps.UI.Highscore;
+using CustomBeatmaps.Util;
 using DG.Tweening;
 using DG.Tweening.Core;
 using FMOD.Studio;
@@ -18,7 +20,7 @@ namespace CustomBeatmaps.Patches
     {
         private static WhiteLabelMainMenu _current;
 
-        public static bool IsOpen => _current != null;
+        private static string SelectedSong => _current != null? (string)SelectedWhiteLabelBeatmapInfo.GetValue(_current) : null;
 
         /// <summary>
         /// TODO:
@@ -41,8 +43,13 @@ namespace CustomBeatmaps.Patches
         private static CustomBeatmapsUIBehaviour _customBeatmapsUIBehaviour;
 
         private static string _currentSongPreview;
+        
+        // Walkman High Score
+        private static HighScoreUIBehaviour _walkmanHighScoreUI;
 
         private static readonly FieldInfo SongPreviewInstanceInfo = typeof(WhiteLabelMainMenu).GetField("songPreviewInstance", BindingFlags.Instance | BindingFlags.NonPublic);
+        private static readonly PropertyInfo SelectedWhiteLabelBeatmapInfo = typeof(WhiteLabelMainMenu).GetProperty("selectedBeatmapPath", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.GetProperty);
+
         // Song Preview Access
         public static void PlaySongPreview(string audioFile)
         {
@@ -99,8 +106,13 @@ namespace CustomBeatmaps.Patches
         [HarmonyPrefix]
         static void PreStart(WhiteLabelMainMenu __instance)
         {
-            // Create custom beatmaps UI
+            _current = __instance;
+
+            // Create custom UI
             _customBeatmapsUIBehaviour = new GameObject().AddComponent<CustomBeatmapsUIBehaviour>();
+            _walkmanHighScoreUI = new GameObject().AddComponent<HighScoreUIBehaviour>();
+            // For our walkman, get our high score from the selected beatmap
+            _walkmanHighScoreUI.Init(true, () => UserServerHelper.GetHighScoreBeatmapKeyFromUnbeatableBeatmap(SelectedSong));
 
             // Create custom option button
             UISelectionButton toCopy = __instance.PlayOption;
@@ -109,12 +121,11 @@ namespace CustomBeatmaps.Patches
             copy.z = 11.5527f; // Eh just move it
             _customOption.transform.position = copy;
             _customOption.setting.text = "CUSTOM\n<size=50%>   BEATMAPS</size>";
-            
+
             // Custom menu camera
             _customMenuCam = new GameObject().AddComponent<CinemachineVirtualCamera>();
             _customMenuCam.transform.position = CustomMenuCamPos;
             _customMenuCam.transform.rotation = CustomMenuCamRot;
-
 
             __instance.TopLayerOptions.Add(_customOption);
 
@@ -135,7 +146,8 @@ namespace CustomBeatmaps.Patches
             // Also reset server high score key so we don't interfere with vanilla beatmaps 
             CustomBeatmaps.ServerHighScoreManager.ResetCurrentBeatmapKey();
 
-            _current = __instance;
+            // Load our high scores just to be clean/up to date
+            CustomBeatmaps.ServerHighScoreManager.Reload();
         }
 
         [HarmonyPatch(typeof(WhiteLabelMainMenu), "Start")]
@@ -150,7 +162,7 @@ namespace CustomBeatmaps.Patches
 
         [HarmonyPatch(typeof(WhiteLabelMainMenu), "Update")]
         [HarmonyPostfix]
-        static void PostUpdate(WhiteLabelMainMenu __instance, Player ___rewired)
+        static void PostUpdateCustomMenuEscape(WhiteLabelMainMenu __instance, Player ___rewired)
         {
             // Escape our menu
             if (__instance.menuState == _customMenuState)
@@ -167,6 +179,21 @@ namespace CustomBeatmaps.Patches
                 // For some reason it's hidden by default?
                 Cursor.visible = true;
             }
+        }
+
+        [HarmonyPatch(typeof(WhiteLabelMainMenu), "Update")]
+        [HarmonyPostfix]
+        static void PostUpdateCustomHighScore(WhiteLabelMainMenu __instance)
+        {
+            if (__instance.menuState == WhiteLabelMainMenu.MenuState.LEVELSELECT)
+            {
+                _walkmanHighScoreUI.Open();
+                // Let us move the high score UI around.
+                Cursor.visible = true;
+            }
+            else
+                _walkmanHighScoreUI.Close();
+            
         }
 
         [HarmonyPatch(typeof(WhiteLabelMainMenu), "MenuDefaultUpdate")]

@@ -21,5 +21,6 @@
         // Grabs the latest project tag from GitHub
         // TODO: Once repo goes public, switch this to CustomBeatmapsV3
         public string RepoLatestTagsURL = "https://api.github.com/repos/TacoDogUnbeatableThing/CustomBeatmapsV2/tags?per_page=1";
+        public string DiscordInviteLink = "https://discord.gg/TfZF7Vxv8S";
     }
 }

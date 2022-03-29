@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using CustomBeatmaps.UI.Highscore;
 using CustomBeatmaps.Util;
 using JetBrains.Annotations;
+using UnityEngine;
 
 namespace CustomBeatmaps.CustomPackages
 {
@@ -67,13 +68,21 @@ namespace CustomBeatmaps.CustomPackages
 
         public async void SendScore(string beatmapKey, int score, float accuracy, bool noMiss, bool fullCombo)
         {
+            ScheduleHelper.SafeLog($"SENDING SCORE: {beatmapKey}: {score}");
             if (!CustomBeatmaps.UserSession.LoggedIn)
                 throw new InvalidOperationException("Can't send high score because user is not logged in!");
             string uniqueId = CustomBeatmaps.UserSession.UniqueId;
             int fullComboMode = fullCombo ? 2 : (noMiss ? 1 : 0);
             await UserServerHelper.PostScore(Config.Backend.ServerUserURL, new UserServerHelper.PostScoreRequest(
                 uniqueId, beatmapKey, score, accuracy, fullComboMode
-            ));
+            )).ContinueWith(t =>
+            {
+                // Reload after submitting to include our score.
+                if (t.IsCompletedSuccessfully)
+                {
+                    Reload();
+                }
+            });
         }
 
         [CanBeNull]
@@ -106,6 +115,16 @@ namespace CustomBeatmaps.CustomPackages
         {
             DesyncedHighScores = GetDesyncedHighScoresInternal(UnbeatableHelper.LoadWhiteLabelHighscores(), username,
                 HighScoreManager);
+
+            // Log
+            if (DesyncedHighScores.Length != 0)
+            {
+                ScheduleHelper.SafeLog("UNSAVED SCORES:");
+                foreach (var desyncedHighScore in DesyncedHighScores)
+                {
+                    Debug.Log($"    {desyncedHighScore.ServerBeatmapKey}, {desyncedHighScore.LocalHighScore.score}");
+                }
+            }
         }
 
         /// <summary>
