@@ -5,6 +5,8 @@
     /// </summary>
     public class ModConfig
     {
+        // :sunglasses:
+        public bool DarkMode = true;
         // Directory for user (local) packages
         public string UserPackagesDir = "USER_PACKAGES";
         /// Directory for server/downloaded packages

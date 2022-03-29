@@ -48,6 +48,11 @@ namespace CustomBeatmaps.UI
                         CustomBeatmaps.ServerHighScoreManager.SyncUpHighScoresFromLocal();
                     }
                 }
+                GUILayout.FlexibleSpace();
+                if (GUILayout.Button("Check out our Discord!", GUILayout.ExpandWidth(false)))
+                {
+                    Application.OpenURL(Config.Backend.DiscordInviteLink);
+                }
                 GUILayout.EndHorizontal();
             }
             else

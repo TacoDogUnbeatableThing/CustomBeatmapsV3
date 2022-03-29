@@ -7,6 +7,18 @@ namespace CustomBeatmaps.Util
 
         private static bool _canDoInputThisFrame;
 
+        private static Color _defaultBackground;
+
+        static GUIHelper()
+        {
+            _defaultBackground = GUI.backgroundColor;
+        }
+
+        public static void SetDarkMode(bool darkMode)
+        {
+            GUI.backgroundColor = darkMode? Color.black : _defaultBackground;
+        }
+        
         public static void AvoidInputOneFrame()
         {
             _canDoInputThisFrame = false;

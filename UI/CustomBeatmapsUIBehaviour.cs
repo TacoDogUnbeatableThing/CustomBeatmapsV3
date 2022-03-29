@@ -77,6 +77,9 @@ namespace CustomBeatmaps.UI
             if (!_open)
                 return;
 
+            // Dark mode
+            GUIHelper.SetDarkMode(Config.Mod.DarkMode);
+
             Reacc.SetStore(_store);
 
             float p = WindowPadding;
