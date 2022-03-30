@@ -24,9 +24,10 @@ namespace CustomBeatmaps.UI
 
         public static void Render(Action onRenderAboveList)
         {
-            var (selectedPackageIndex, setSelectedPackageIndex) = Reacc.UseState(0);
-            (int selectedBeatmapIndex, Action<int>setSelectedBeatmapIndex) =
+            (int selectedPackageIndex, Action<int>setSelectedPackageIndex) =
                 (_selectedPackageIndex, val => _selectedPackageIndex = val);
+            var (selectedBeatmapIndex, setSelectedBeatmapIndex) = Reacc.UseState(0);
+
             var (sortMode, setSortMode) = Reacc.UseState(SortMode.New);
 
             // Load packages from server the first time we open this

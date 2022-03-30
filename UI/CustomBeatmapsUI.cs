@@ -1,7 +1,6 @@
 ﻿
 using System;
 using CustomBeatmaps.Patches;
-using CustomBeatmaps.UISystem;
 using CustomBeatmaps.Util;
 using UnityEngine;
 
@@ -9,6 +8,8 @@ namespace CustomBeatmaps.UI
 {
     public static class CustomBeatmapsUI
     {
+        // Remember our tab state for convenience (ShaiUI might have been right here, maybe I didn't even need react lmfao)
+        private static Tab _tab;
         public static void Render()
         {
             /*
@@ -25,7 +26,7 @@ namespace CustomBeatmaps.UI
 
             GUIHelper.SetDefaultStyles();
 
-            var (tab, setTab) = Reacc.UseState(Tab.Online);
+            (Tab tab, Action<Tab> setTab) = (_tab, val => _tab = val);
 
             switch (tab)
             {

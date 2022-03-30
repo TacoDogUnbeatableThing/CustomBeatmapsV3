@@ -14,9 +14,14 @@ namespace CustomBeatmaps.UI
 {
     public static class LocalPackageListUI
     {
+
+        // To preserve across play sessions
+        private static int _selectedPackageIndex;
+
         public static void Render(Action onRenderAboveList)
         {
-            var (selectedPackageIndex, setSelectedPackageIndex) = Reacc.UseState(0);
+            (int selectedPackageIndex, Action<int>setSelectedPackageIndex) =
+                (_selectedPackageIndex, val => _selectedPackageIndex = val);
             var (selectedBeatmapIndex, setSelectedBeatmapIndex) = Reacc.UseState(0);
 
             var (sortMode, setSortMode) = Reacc.UseState(SortMode.New);
