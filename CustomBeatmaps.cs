@@ -11,7 +11,7 @@ using Debug = UnityEngine.Debug;
 
 namespace CustomBeatmaps
 {
-    [BepInPlugin("tacodog.unbeatable.custombeatmaps", "Custom Beatmaps V3", "3.1.0")]
+    [BepInPlugin("tacodog.unbeatable.custombeatmaps", "Custom Beatmaps V3", "3.1.1")]
     public class CustomBeatmaps : BaseUnityPlugin
     {
         public static ModConfig ModConfig { get; private set; }
