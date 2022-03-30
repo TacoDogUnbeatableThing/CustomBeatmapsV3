@@ -18,14 +18,15 @@ Custom Beatmaps Mod for UNBEATABLE \[white label\] `V1.0.8` with ONLINE mode and
 # Installation
 
 0) Make sure UNBEATABLE \[white label\] is up to date and patched to the current version
-1) Locate UNBEATABLE's game files (Steam Instructions. For Itch just open the game installation folder)
+1) [Download the latest release of the mod](https://github.com/TacoDogUnbeatableThing/CustomBeatmapsV3/releases)
+2) Locate UNBEATABLE's game files (Steam Instructions. For Itch just open the game installation folder)
     1) Locate `UNBEATABLE [white label]` in your Steam Library
     2) Right click `UNBEATABLE [white label]` and click `Properties`
     3) In the open panel, navigate to `LOCAL FILES`
     4) In the `LOCAL FILES` page, click `Browse...`
-2) If you downloaded the old mod (CustomBeatmapsV2), there is no need for conversions, everything should work as it did before!
-3) If you downloaded the REALLY old mod (CustomBeatmapsV1), rename `USER_BEATMAPS` to `USER_PACKAGES`
-4) Drag and drop the contents of the mod's zip file directly into the Unbeatable game directory (same directory as `UNBEATABLE [white label].exe`)
+3) If you downloaded the old mod (CustomBeatmapsV2), there is no need for conversions, everything should work as it did before!
+4) If you downloaded the REALLY old mod (CustomBeatmapsV1), rename `USER_BEATMAPS` to `USER_PACKAGES`
+5) Drag and drop the contents of the mod's zip file directly into the Unbeatable game directory (same directory as `UNBEATABLE [white label].exe`)
 
 Before:
 
@@ -35,7 +36,7 @@ After:
 
 ![image](https://user-images.githubusercontent.com/13367955/160724936-ec8ec110-05e4-4723-9ac1-9e1b1094fcd4.png)
 
-5) Open the game. If the mod was installed correctly, you will see an extra option in the title screens called `CUSTOM BEATMAPS`
+6) Open the game. If the mod was installed correctly, you will see an extra option in the title screens called `CUSTOM BEATMAPS`
 
 # Making Custom Beatmaps
 
