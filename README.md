@@ -53,9 +53,10 @@ After:
 
 
 # Screenshots
-![image](https://user-images.githubusercontent.com/13367955/160724010-7abbb737-62b6-482d-a4c2-8f2ba61fe784.png)
+![image](https://user-images.githubusercontent.com/13367955/160829336-05c7c6f5-6b80-4d85-bf61-e767d75be477.png)
 
-![image](https://user-images.githubusercontent.com/13367955/160724034-401ef3f0-bc86-4e48-bc70-e430ecdb1892.png)
+![image](https://user-images.githubusercontent.com/13367955/160829254-39a8f385-a3e9-4514-b96d-05dcfcad635f.png)
+
 
 # Known Issues
 
