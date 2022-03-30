@@ -55,7 +55,7 @@ After:
 # Screenshots
 ![image](https://user-images.githubusercontent.com/13367955/160829336-05c7c6f5-6b80-4d85-bf61-e767d75be477.png)
 
-![image](https://user-images.githubusercontent.com/13367955/160829254-39a8f385-a3e9-4514-b96d-05dcfcad635f.png)
+![image](https://user-images.githubusercontent.com/13367955/160878699-29b51e5c-b426-4853-a888-c480963cdfe3.png)
 
 
 # Known Issues
