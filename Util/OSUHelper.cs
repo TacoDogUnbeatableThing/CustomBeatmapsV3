@@ -47,18 +47,10 @@ namespace CustomBeatmaps.Util
             return overridePath;
         }
 
-        private static string GetPackageNameFromOsu(string osuPath)
+        private static string LoadPackageNameFromOsu(string osuPath)
         {
-            string title = "(undefined)";
-            foreach (string fpath in Directory.EnumerateFiles(osuPath))
-            {
-                if (fpath.EndsWith(".osu"))
-                {
-                    string text = File.ReadAllText(fpath);
-                    title = CustomPackageHelper.GetBeatmapProp(text, "Title", fpath);
-                }
-            }
-            return $"LOCAL_{title}";
+            string text = File.ReadAllText(osuPath);
+            return CustomPackageHelper.GetBeatmapProp(text, "Title", osuPath);
         }
 
         public static string CreateExportZipFile(string osuPath, string temporaryFolderLocation)
@@ -68,26 +60,26 @@ namespace CustomBeatmaps.Util
                 Directory.Delete(temporaryFolderLocation, true);
             }
             Directory.CreateDirectory(temporaryFolderLocation);
-            string packageName = GetPackageNameFromOsu(osuPath);
-            string filesLocation = $"{temporaryFolderLocation}/{packageName}";
+            string packageName = LoadPackageNameFromOsu(osuPath);
+            string filesLocation = temporaryFolderLocation;
             Directory.CreateDirectory(filesLocation);
 
-            List<string> beatmaps = new List<string>();
             // Copy over the files
-            foreach (string fpath in Directory.EnumerateFiles(osuPath))
+            string osuFullPath = Path.GetFullPath(osuPath);
+            int lastSlash = osuFullPath.LastIndexOf("\\", StringComparison.Ordinal);
+            string osuParentDir = lastSlash != -1 ? osuFullPath.Substring(0, lastSlash) : "";
+            foreach (string fpath in Directory.EnumerateFiles(osuParentDir))
             {
                 string fname = Path.GetFileName(fpath);
                 File.Copy(fpath, $"{filesLocation}/{fname}");
-                if (fpath.EndsWith(".osu"))
-                {
-                    beatmaps.Add(fpath);
-                }
             }
 
             // Zip
+            
             string zipTarget = $"{packageName}.zip";
             // Remove LOCAL_ just... to make it a bit more neat.
             if (zipTarget.StartsWith("LOCAL_")) zipTarget = zipTarget.Substring("LOCAL_".Length);
+            // THIS MAY FAIL due to invalid access. No clue why.
             System.IO.Compression.ZipFile.CreateFromDirectory(temporaryFolderLocation, zipTarget);
 
             // Delete temporary directory afterwards

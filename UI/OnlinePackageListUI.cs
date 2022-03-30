@@ -177,8 +177,11 @@ namespace CustomBeatmaps.UI
                             if (UnbeatableHelper.UsingHighScoreProhibitedAssists())
                             {
                                 GUILayout.Label("<b>USING ASSISTS</b> (no high score)");
+                            } else if (!CustomBeatmaps.UserSession.LoggedIn)
+                            {
+                                GUILayout.Label("Register above to post your own high scores!");
                             }
-                            
+
                             bool buttonPressed = PlayButtonUI.Render(buttonText, buttonSub);
                             switch (downloadStatus)
                             {

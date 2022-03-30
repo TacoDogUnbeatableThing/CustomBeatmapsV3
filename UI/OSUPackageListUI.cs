@@ -78,8 +78,8 @@ namespace CustomBeatmaps.UI
                     if (GUILayout.Button($"EXPORT"))
                     {
                         string exportFolder = Config.Mod.OsuExportDirectory;
-                        string exportName = selectedBeatmap.SongName + ".zip";
-                        //OSUHelper.CreateExportZipFile(selectedBeatmap.OsuPath, Path.Join(exportFolder, exportName));
+                        string exportName = selectedBeatmap.SongName;
+                        OSUHelper.CreateExportZipFile(selectedBeatmap.OsuPath, Path.Combine(exportFolder, exportName));
                     }
                     if (PlayButtonUI.Render($"EDIT: {selectedBeatmap.SongName}"))
                     {
