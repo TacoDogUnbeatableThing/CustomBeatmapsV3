@@ -118,7 +118,7 @@ namespace CustomBeatmaps.Patches
             UISelectionButton toCopy = __instance.PlayOption;
             _customOption = Object.Instantiate(toCopy, toCopy.transform.parent);
             var copy = _customOption.transform.position;
-            copy.z = 11.5527f; // Eh just move it
+            copy.z = 11.5527f + 0.2f; // Eh just move it
             _customOption.transform.position = copy;
             _customOption.setting.text = "CUSTOM\n<size=50%>   BEATMAPS</size>";
 
