@@ -43,6 +43,14 @@ After:
 
 2) To test your beatmap, open the `OSU!` tab and find your beatmap there (should be at the top). Inside the edit view you can pause, make changes in OSU, save the OSU file and the beatmap will auto-reload in UNBEATABLE (as in, your changes will appear in UNBEATABLE right before your very eyes!)
 
+# Uploading Custom Beatmaps
+
+1) In the CustomBeatmaps screen, Open the `OSU!` tab and select your beatmap
+2) Press `EXPORT`
+3) Check the `UNBEATABLE [white label]` game directory for a zip file of your beatmap
+4) Upload this beatmap to the [discord server](https://discord.gg/XzqMhRMmhC)'s #beatmap-verify channel. A mod will take a look, once your beatmap is approved & uploaded it will appear in the online view!
+
+
 # Screenshots
 ![image](https://user-images.githubusercontent.com/13367955/160724010-7abbb737-62b6-482d-a4c2-8f2ba61fe784.png)
 
