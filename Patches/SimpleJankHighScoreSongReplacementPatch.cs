@@ -22,8 +22,15 @@ namespace CustomBeatmaps.Patches
     {
         [HarmonyPatch(typeof(HighScoreList), "ReplaceHighScore")]
         [HarmonyPrefix]
-        private static void ReplaceHighScoreInjectCustomPath(ref string song)
+        private static void ReplaceHighScoreInjectCustomPath(ref string song, ref bool __runOriginal)
         {
+            // Don't save our score if we failed!
+            // TODO: Figure out why, but for some reason the mod makes us enter the high score screen after a failure. 
+            if (JeffBezosController.prevFail)
+            {
+                __runOriginal = false;
+                return;
+            }
             string serverMapsPath = Path.GetFullPath(Config.Mod.ServerPackagesDir);
             string localMapsPath = Path.GetFullPath(Config.Mod.UserPackagesDir);
             if (song.StartsWith(serverMapsPath))
