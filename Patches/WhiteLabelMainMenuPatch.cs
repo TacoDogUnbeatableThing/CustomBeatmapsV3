@@ -145,6 +145,9 @@ namespace CustomBeatmaps.Patches
             CustomBeatmapLoadingOverridePatch.ResetOverrideBeatmap();
             // Also reset server high score key so we don't interfere with vanilla beatmaps 
             CustomBeatmaps.ServerHighScoreManager.ResetCurrentBeatmapKey();
+            
+            // Disable preview
+            StopSongPreview();
 
             // Load our high scores just to be clean/up to date
             CustomBeatmaps.ServerHighScoreManager.Reload();

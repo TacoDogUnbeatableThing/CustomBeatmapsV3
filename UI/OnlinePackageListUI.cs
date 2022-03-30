@@ -194,7 +194,7 @@ namespace CustomBeatmaps.UI
                                     WhiteLabelMainMenuPatch.PlaySongPreview(customBeatmapInfo.RealAudioKey);
                                     if (buttonPressed)
                                     {
-                                        UnbeatableHelper.PlayBeatmap(customBeatmapInfo, true);
+                                        UnbeatableHelper.PlayBeatmap(customBeatmapInfo, true, UnbeatableHelper.GetSceneNameByIndex(CustomBeatmaps.Memory.SelectedRoom));
                                         CustomBeatmaps.PlayedPackageManager.RegisterPlay(localPackage.FolderName);
                                     }
                                     break;

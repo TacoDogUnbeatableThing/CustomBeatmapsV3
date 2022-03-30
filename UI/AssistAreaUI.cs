@@ -1,4 +1,6 @@
-﻿using CustomBeatmaps.UISystem;
+﻿using System.Linq;
+using CustomBeatmaps.UISystem;
+using CustomBeatmaps.Util;
 using UnityEngine;
 
 namespace CustomBeatmaps.UI
@@ -28,7 +30,14 @@ namespace CustomBeatmaps.UI
             }
             GUILayout.Label($"= {(JeffBezosController.GetScrollSpeedIndex() + 1) * 0.2f:0.0}");
             GUILayout.EndHorizontal();
-            
+
+            // Room options
+            GUILayout.BeginHorizontal(GUILayout.ExpandWidth(false));
+            GUILayout.Label("Stage:", GUILayout.ExpandWidth(false));
+            CustomBeatmaps.Memory.SelectedRoom = GUILayout.Toolbar(CustomBeatmaps.Memory.SelectedRoom,
+                UnbeatableHelper.Rooms.Select(room => room.Name).ToArray(), GUILayout.ExpandWidth(false));
+            GUILayout.EndHorizontal();
+
             GUILayout.EndHorizontal();
         }
         private static int Toggle(int mode, string text)

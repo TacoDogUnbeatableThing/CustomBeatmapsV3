@@ -26,7 +26,10 @@ namespace CustomBeatmaps
         public static PlayedPackageManager PlayedPackageManager { get; private set; }
         public static ServerHighScoreManager ServerHighScoreManager { get; private set; }
         public static BeatmapDownloader Downloader { get; private set; }
+        public static GameMemory Memory { get; private set; }
 
+        private static readonly string MEMORY_LOCATION = "CustomBeatmapsV3-Data/.memory";
+        
         // Check for config reload every 2 seconds
         private readonly Timer _checkConfigReload = new Timer(2000);
 
@@ -42,6 +45,15 @@ namespace CustomBeatmaps
             OSUBeatmapManager = new OSUBeatmapManager();
             ServerHighScoreManager = new ServerHighScoreManager();
 
+            if (!Directory.Exists("CustomBeatmapsV3-Data"))
+                Directory.CreateDirectory("CustomBeatmapsV3-Data");
+
+            // Load game memory from disk
+            if (File.Exists(MEMORY_LOCATION))
+                Memory = SerializeHelper.LoadJSON<GameMemory>(MEMORY_LOCATION);
+            else
+                Memory = new GameMemory();
+
             ConfigHelper.LoadConfig("custombeatmaps_config.json",() => new ModConfig(), config =>
             {
                 ModConfig = config;
@@ -51,8 +63,6 @@ namespace CustomBeatmaps
                 OSUBeatmapManager.SetOverride(config.OsuSongsOverrideDirectory);
                 PlayedPackageManager = new PlayedPackageManager(config.PlayedBeatmapList);
             });
-            if (!Directory.Exists("CustomBeatmapsV3-Data"))
-                Directory.CreateDirectory("CustomBeatmapsV3-Data");
             ConfigHelper.LoadConfig("CustomBeatmapsV3-Data/custombeatmaps_backend.json", () => new BackendConfig(), config => BackendConfig = config);
 
             UserSession = new UserSession();
@@ -82,8 +92,15 @@ namespace CustomBeatmaps
             Harmony.CreateAndPatchAll(typeof(CustomBeatmapLoadingOverridePatch));
             Harmony.CreateAndPatchAll(typeof(OsuEditorPatch));
             Harmony.CreateAndPatchAll(typeof(HighScoreScreenPatch));
+            Harmony.CreateAndPatchAll(typeof(PauseMenuPatch));
+            Harmony.CreateAndPatchAll(typeof(DisablePracticeRoomOpenerPatch));
             Harmony.CreateAndPatchAll(typeof(SimpleJankHighScoreSongReplacementPatch));
+        }
 
+        private void OnApplicationQuit()
+        {
+            // Save our memory
+            SerializeHelper.SaveJSON(MEMORY_LOCATION, Memory);
         }
     }
 }

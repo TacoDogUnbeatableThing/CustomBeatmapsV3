@@ -104,7 +104,7 @@ namespace CustomBeatmaps.UI
                             // Play a local beatmap
                             var package = localPackages[selectedPackageIndex];
                             var customBeatmapInfo = package.Beatmaps[selectedBeatmapIndex];
-                            UnbeatableHelper.PlayBeatmap(customBeatmapInfo, false);
+                            UnbeatableHelper.PlayBeatmap(customBeatmapInfo, false, UnbeatableHelper.GetSceneNameByIndex(CustomBeatmaps.Memory.SelectedRoom));
                             CustomBeatmaps.PlayedPackageManager.RegisterPlay(package.FolderName);
                         }
                     }

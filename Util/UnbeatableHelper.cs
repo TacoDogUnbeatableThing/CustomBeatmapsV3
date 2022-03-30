@@ -8,16 +8,36 @@ namespace CustomBeatmaps.Util
 {
     public static class UnbeatableHelper
     {
-        private static readonly string PLAY_SCENE_NAME = "TrainStationRhythm";
+        public static readonly CustomBeatmapRoom[] Rooms = {
+            new CustomBeatmapRoom("Default", "TrainStationRhythm"),
+            new CustomBeatmapRoom("Practice Room", "PracticeRoomRhythm"),
+            new CustomBeatmapRoom("NSR", "NSR_Stage"),
+            // TODO: Make Tutorial screen viable
+            // 1) disable tutorial fail
+            // 2) bring back regular pause screen
+            //new CustomBeatmapRoom("Tutorial", "Tutorial"),
+            new CustomBeatmapRoom("Offset Wizard", "OffsetWizard")
+        };
+        private static readonly string DEFAULT_BEATMAP_SCENE = "TrainStationRhythm";
 
-        private static void PlayBeatmapinternal(CustomBeatmapInfo beatmap)
+        public static string GetSceneNameByIndex(int index)
         {
-            CustomBeatmapLoadingOverridePatch.SetOverrideBeatmap(beatmap);
-            LevelManager.LoadLevel(PLAY_SCENE_NAME);
-            JeffBezosController.rhythmProgression = new DefaultProgression(beatmap.OsuPath, PLAY_SCENE_NAME);
+            if (index < 0 || index >= Rooms.Length)
+            {
+                return DEFAULT_BEATMAP_SCENE;
+            }
+
+            return Rooms[index].SceneName;
         }
         
-        public static void PlayBeatmap(CustomBeatmapInfo beatmap, bool registerHighScores)
+        private static void PlayBeatmapinternal(CustomBeatmapInfo beatmap, string sceneName)
+        {
+            CustomBeatmapLoadingOverridePatch.SetOverrideBeatmap(beatmap);
+            LevelManager.LoadLevel(sceneName);
+            JeffBezosController.rhythmProgression = new DefaultProgression(beatmap.OsuPath, sceneName);
+        }
+        
+        public static void PlayBeatmap(CustomBeatmapInfo beatmap, bool registerHighScores, string sceneName)
         {
             if (registerHighScores)
             {
@@ -29,13 +49,13 @@ namespace CustomBeatmaps.Util
                 CustomBeatmaps.ServerHighScoreManager.ResetCurrentBeatmapKey();
             }
             OsuEditorPatch.SetEditMode(false);
-            PlayBeatmapinternal(beatmap);
+            PlayBeatmapinternal(beatmap, sceneName);
         }
 
         public static void PlayBeatmapEdit(CustomBeatmapInfo beatmap, bool enableCountdown=false)
         {
             OsuEditorPatch.SetEditMode(true, enableCountdown, beatmap.OsuPath);
-            PlayBeatmapinternal(beatmap);
+            PlayBeatmapinternal(beatmap, DEFAULT_BEATMAP_SCENE);
         }
 
         public static bool UsingHighScoreProhibitedAssists()
@@ -65,5 +85,16 @@ namespace CustomBeatmaps.Util
             return false;
         }
 
+        public struct CustomBeatmapRoom
+        {
+            public string Name;
+            public string SceneName;
+
+            public CustomBeatmapRoom(string name, string sceneName)
+            {
+                Name = name;
+                SceneName = sceneName;
+            }
+        }
     }
 }

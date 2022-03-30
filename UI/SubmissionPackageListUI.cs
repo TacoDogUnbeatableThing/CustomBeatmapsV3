@@ -99,7 +99,7 @@ namespace CustomBeatmaps.UI
                             {
                                 // Play a local beatmap
                                 var customBeatmapInfo = package.Beatmaps[selectedBeatmapIndex];
-                                UnbeatableHelper.PlayBeatmap(customBeatmapInfo, false);
+                                UnbeatableHelper.PlayBeatmap(customBeatmapInfo, false, UnbeatableHelper.GetSceneNameByIndex(CustomBeatmaps.Memory.SelectedRoom));
                             }
                         }
                         else
