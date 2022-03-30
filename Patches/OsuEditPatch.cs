@@ -152,8 +152,11 @@ namespace CustomBeatmaps.Patches
         [HarmonyPrefix]
         private static void RhythmControllerDisableCountdown(Rhythm.RhythmController __instance)
         {
-            // Externally enable/disable countdown
-            __instance.enableCountdown = _enableCountdown;
+            if (EditMode)
+            {
+                // Externally enable/disable countdown
+                __instance.enableCountdown = _enableCountdown;
+            }
         }
 
         // INVINCIBILITY
