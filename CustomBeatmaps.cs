@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Threading.Tasks;
 using System.Timers;
 using BepInEx;
@@ -10,7 +11,7 @@ using Debug = UnityEngine.Debug;
 
 namespace CustomBeatmaps
 {
-    [BepInPlugin("tacodog.unbeatable.custombeatmaps", "Custom Beatmaps V3", "3.0.0")]
+    [BepInPlugin("tacodog.unbeatable.custombeatmaps", "Custom Beatmaps V3", "3.1.0")]
     public class CustomBeatmaps : BaseUnityPlugin
     {
         public static ModConfig ModConfig { get; private set; }
@@ -50,7 +51,9 @@ namespace CustomBeatmaps
                 OSUBeatmapManager.SetOverride(config.OsuSongsOverrideDirectory);
                 PlayedPackageManager = new PlayedPackageManager(config.PlayedBeatmapList);
             });
-            ConfigHelper.LoadConfig("custombeatmaps_backend.json", () => new BackendConfig(), config => BackendConfig = config);
+            if (!Directory.Exists("CustomBeatmapsV3-Data"))
+                Directory.CreateDirectory("CustomBeatmapsV3-Data");
+            ConfigHelper.LoadConfig("CustomBeatmapsV3-Data/custombeatmaps_backend.json", () => new BackendConfig(), config => BackendConfig = config);
 
             UserSession = new UserSession();
 
@@ -81,13 +84,6 @@ namespace CustomBeatmaps
             Harmony.CreateAndPatchAll(typeof(HighScoreScreenPatch));
             Harmony.CreateAndPatchAll(typeof(SimpleJankHighScoreSongReplacementPatch));
 
-            /*
-            // Test fetching our package list
-            CustomPackageHelper.FetchServerPackageList(BackendConfig.ServerPackageList).ContinueWith(i =>
-            {
-                ScheduleHelper.SafeLog(i.Result);
-            });
-            */
         }
     }
 }

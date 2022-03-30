@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using BepInEx;
@@ -21,11 +22,14 @@ namespace CustomBeatmaps.Util
 
         public static async Task<Version> GetOnlineLatestReleaseVersion()
         {
-            var tags = await FetchHelper.GetJSON<JArray>(Config.Backend.RepoLatestTagsURL);
+            var headers = new Dictionary<string, string>();
+            headers["User-Agent"] = "request";
+            var tags = await FetchHelper.GetJSON<JArray>(Config.Backend.RepoLatestTagsURL, headers);
             if (tags.Count == 0)
                 return null;
             var tag = tags[0];
             var versionString = tag["name"];
+            ScheduleHelper.SafeLog($"VERSION: {versionString}");
             if (versionString == null)
             {
                 return null;

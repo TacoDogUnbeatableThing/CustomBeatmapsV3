@@ -13,20 +13,20 @@ namespace CustomBeatmaps.UI.Highscore
             var lowScores = CustomBeatmaps.ServerHighScoreManager.GetLowScores(beatmapKey);
 
             GUILayout.Label("<size=32>HIGH SCORES</size>");
-            if (!RenderScores(highScores))
+            if (!RenderScores(highScores, 0))
             {
                 GUILayout.Label("Can't find High Scores...");
             }
             GUILayout.Label("<size=32>LOW BALLERS</size>");
-            if (!RenderScores(lowScores))
+            if (!RenderScores(lowScores, 1))
             {
                 GUILayout.Label("Can't find Low Scores...");
             }
         }
 
-        private static bool RenderScores(List<KeyValuePair<string, BeatmapHighScoreEntry>> scores)
+        private static bool RenderScores(List<KeyValuePair<string, BeatmapHighScoreEntry>> scores, int uniqueLineNumber)
         {
-            var (scroll, setScroll) = Reacc.UseState(Vector2.zero);
+            var (scroll, setScroll) = Reacc.UseState(Vector2.zero, uniqueLineNumber);
             if (scores != null)
             {
                 setScroll(GUILayout.BeginScrollView(scroll));

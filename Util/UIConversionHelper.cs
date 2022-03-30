@@ -32,6 +32,15 @@ namespace CustomBeatmaps.Util
             return headers;
         }
 
+        private static string GetServerPackageName(CustomServerPackage package)
+        {
+            return package.Beatmaps.Join(beatmap => beatmap.Value.Name, " | ");
+        }
+        private static string GetLocalPackageName(CustomLocalPackage package)
+        {
+            return package.Beatmaps.Join(beatmap => beatmap.SongName, " | ");
+        }
+
         public static void SortServerPackages(List<CustomServerPackage> headers, SortMode sortMode)
         {
             headers.Sort((left, right) =>
@@ -40,11 +49,9 @@ namespace CustomBeatmaps.Util
                 {
                     case SortMode.New:
                         return DateTime.Compare(right.UploadTime, left.UploadTime);
-                    case SortMode.Old:
-                        return DateTime.Compare(left.UploadTime, right.UploadTime);
                     case SortMode.Title:
-                        string nameL = Path.GetFileName(left.ServerURL),
-                            nameR = Path.GetFileName(right.ServerURL);
+                        string nameL = GetServerPackageName(left),
+                            nameR = GetServerPackageName(right);
                         return String.CompareOrdinal(nameL, nameR);
                     case SortMode.Artist:
                         string artistLeft = left.Beatmaps.Values.Select(map => map.Artist).OrderBy(x => x).Join();
@@ -76,11 +83,9 @@ namespace CustomBeatmaps.Util
                 {
                     case SortMode.New:
                         return DateTime.Compare(Directory.GetLastWriteTime(right.FolderName), Directory.GetLastWriteTime(left.FolderName));
-                    case SortMode.Old:
-                        return DateTime.Compare(Directory.GetLastWriteTime(left.FolderName), Directory.GetLastWriteTime(right.FolderName));
                     case SortMode.Title:
-                        string nameL = Path.GetFileName(left.FolderName),
-                            nameR = Path.GetFileName(right.FolderName);
+                        string nameL = GetLocalPackageName(left),
+                            nameR = GetLocalPackageName(right);
                         return String.CompareOrdinal(nameL, nameR);
                     case SortMode.Artist:
                         string artistLeft = left.Beatmaps.Select(map => map.Artist).OrderBy(x => x).Join();

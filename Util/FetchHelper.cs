@@ -13,9 +13,17 @@ namespace CustomBeatmaps.Util
     {
         private static readonly HttpClient HttpClient = new HttpClient();
 
-        public static async Task<T> GetJSON<T>(string url)
+        public static async Task<T> GetJSON<T>(string url, Dictionary<string, string> headers = null)
         {
-            var response = await HttpClient.GetAsync(url);
+            var request = new HttpRequestMessage(HttpMethod.Get, url);
+            if (headers != null)
+            {
+                foreach(var header in headers)
+                {
+                    request.Headers.Add(header.Key, header.Value);
+                }
+            }
+            var response = await HttpClient.SendAsync(request);
 
             string mediaType = response.Content.Headers.ContentType?.MediaType;
             if (mediaType == "application/json")

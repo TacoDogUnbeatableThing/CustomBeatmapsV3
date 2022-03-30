@@ -19,8 +19,8 @@
         /// Where we grab user data from
         public string ServerUserURL = "http://64.225.60.116:8081";
         // Grabs the latest project tag from GitHub
-        // TODO: Once repo goes public, switch this to CustomBeatmapsV3
-        public string RepoLatestTagsURL = "https://api.github.com/repos/TacoDogUnbeatableThing/CustomBeatmapsV2/tags?per_page=1";
+        public string RepoLatestTagsURL = "https://api.github.com/repos/TacoDogUnbeatableThing/CustomBeatmapsV3/tags?per_page=1";
+        public string DownloadLatestReleaseLink = "https://github.com/TacoDogUnbeatableThing/CustomBeatmapsV3/releases";
         public string DiscordInviteLink = "https://discord.gg/TfZF7Vxv8S";
     }
 }

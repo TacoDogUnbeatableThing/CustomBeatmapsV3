@@ -219,10 +219,9 @@ namespace CustomBeatmaps.UI
                 {
                     ReloadPackageList(sortMode);
                 }
-                
-                renderHeaderSortPicker?.Invoke();
-                
                 GUILayout.Label(label, GUILayout.ExpandWidth(false));
+
+                renderHeaderSortPicker?.Invoke();
             GUILayout.EndHorizontal();
             GUILayout.Space(20);
         }

@@ -48,6 +48,9 @@ namespace CustomBeatmaps.UI
                         CustomBeatmaps.ServerHighScoreManager.SyncUpHighScoresFromLocal();
                     }
                 }
+
+                NewVersionAvailableUI.Render();
+
                 GUILayout.FlexibleSpace();
                 if (GUILayout.Button("Check out our Discord!", GUILayout.ExpandWidth(false)))
                 {
@@ -57,7 +60,6 @@ namespace CustomBeatmaps.UI
             }
             else
             {
-
                 if (!session.LocalSessionExists())
                 {
                     // Shake effect
@@ -78,7 +80,9 @@ namespace CustomBeatmaps.UI
                 }
                 // Show status (logging in/login failed/registration failed because XYZ) 
                 GUILayout.Label(session.LoginStatus);
+                NewVersionAvailableUI.Render();
             }
+
             GUILayout.EndHorizontal();
         }
 

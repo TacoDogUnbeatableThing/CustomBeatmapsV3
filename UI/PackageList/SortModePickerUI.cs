@@ -8,7 +8,8 @@ namespace CustomBeatmaps.UI.PackageList
         public static void Render(SortMode sortMode, Action<SortMode> setSortMode)
         {
             GUILayout.BeginHorizontal();
-            GUILayout.Label("Sort By");
+            GUILayout.FlexibleSpace();
+            GUILayout.Label("Sort By", GUILayout.ExpandWidth(false));
             EnumTooltipPickerUI.Render(sortMode, setSortMode, GUILayout.ExpandWidth(false));
             GUILayout.EndHorizontal();
         }

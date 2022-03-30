@@ -11,7 +11,7 @@ namespace CustomBeatmaps.UI
 
     public enum SortMode
     {
-        New, Old, Title, Artist, Creator, Downloaded
+        New, Title, Artist, Creator, Downloaded
     }
 
     public struct PackageHeader
