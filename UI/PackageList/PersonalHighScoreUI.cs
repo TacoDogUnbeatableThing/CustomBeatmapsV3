@@ -12,7 +12,7 @@ namespace CustomBeatmaps.UI.PackageList
                 Reacc.UseState(() => HighScoreScreen.LoadHighScores("wl-highscores"));
 
             var score = highScores.GetScoreItem(beatmapPath);
-            GUILayout.Label($"<color=green>{score.score:00000000}</color> PTS, <color=blue>{(score.accuracy*100, 0.00)}%</color>");
+            GUILayout.Label($"<color=green>{score.score:00000000}</color> PTS, <color=blue>{score.accuracy * 100: 0.00}%</color>");
         }
     }
 }
