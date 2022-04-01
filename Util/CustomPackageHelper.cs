@@ -214,6 +214,15 @@ namespace CustomBeatmaps.Util
 
         public static async Task DownloadTemporarySubmissionPackage(string downloadURL, string tempSubmissionFolder)
         {
+            try
+            {
+                if (Directory.Exists(tempSubmissionFolder))
+                    Directory.Delete(tempSubmissionFolder, true);
+            }
+            catch (Exception e)
+            {
+                EventBus.ExceptionThrown?.Invoke(e);
+            }
             await DownloadPackageInner(downloadURL, tempSubmissionFolder);
         }
     }
