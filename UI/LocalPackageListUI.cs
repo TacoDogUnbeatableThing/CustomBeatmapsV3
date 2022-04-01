@@ -55,13 +55,18 @@ namespace CustomBeatmaps.UI
             {
                 // Get unique song count
                 HashSet<string> songs = new HashSet<string>();
+                HashSet<string> names = new HashSet<string>();
+                HashSet<string> creators = new HashSet<string>();
                 foreach (var bmap in p.Beatmaps)
                 {
-                    songs.Add(bmap.RealAudioKey);
+                    songs.Add(bmap.OsuPath);
+                    names.Add(bmap.SongName);
+                    creators.Add(bmap.BeatmapCreator);
                 }
 
-                string name = p.Beatmaps.Length == 1 ? p.Beatmaps[0].SongName : Path.GetFileName(p.FolderName);
-                string creator = p.Beatmaps.Join(binfo => binfo.BeatmapCreator, ",");
+                string creator = creators.Join(x => x," | ");
+                string name = names.Join(x => x,", ");
+
                 bool isNew = !CustomBeatmaps.PlayedPackageManager.HasPlayed(p.FolderName);
                 headers.Add(new PackageHeader(name, songs.Count, p.Beatmaps.Length, creator, isNew, BeatmapDownloadStatus.Downloaded));
             }

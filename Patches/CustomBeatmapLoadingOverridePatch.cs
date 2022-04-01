@@ -78,9 +78,27 @@ namespace CustomBeatmaps.Patches
             if (_override != null)
             {
                 string loadFrom = __instance.parser.audioKey;
-                //Debug.Log($"PRELOADING: {loadFrom}");
                 __instance.songTracker.PreloadFromFile(loadFrom);
+                // We're definitely NOT in tutorial mode
+                __instance.showingTutorial = false;
+                // For the tutorial screen, don't set nofail
+                __instance.noFailOverride = false;
+                // For the tutorial screen, don't load the wrong scene.
+                __instance.loadLevelWhenFinished = UnbeatableHelper.DefaultScoreScene;
             }
+        }
+
+        [HarmonyPatch(typeof(SkipLevel), "Start")]
+        [HarmonyPrefix]
+        private static void DisableTutorialSkipLevel(SkipLevel __instance)
+        {
+            // Also disable skip prompt
+            var skipPrompt = GameObject.Find("SkipPrompt");
+            if (skipPrompt != null)
+            {
+                skipPrompt.SetActive(false);
+            }
+            __instance.enabled = false;
         }
     }
 }

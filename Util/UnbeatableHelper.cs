@@ -12,19 +12,19 @@ namespace CustomBeatmaps.Util
             new CustomBeatmapRoom("Default", "TrainStationRhythm"),
             new CustomBeatmapRoom("Practice Room", "PracticeRoomRhythm"),
             new CustomBeatmapRoom("NSR", "NSR_Stage"),
-            // TODO: Make Tutorial screen viable
-            // 1) disable tutorial fail
-            // 2) bring back regular pause screen
-            //new CustomBeatmapRoom("Tutorial", "Tutorial"),
-            new CustomBeatmapRoom("Offset Wizard", "OffsetWizard")
+            new CustomBeatmapRoom("Tutorial", "Tutorial")
+            // This one would be interesting but we already have the tutorial screen
+            //new CustomBeatmapRoom("Offset Wizard", "OffsetWizard")
         };
-        private static readonly string DEFAULT_BEATMAP_SCENE = "TrainStationRhythm";
+        private static readonly string DefaultBeatmapScene = "TrainStationRhythm";
+
+        public static readonly string DefaultScoreScene = "ScoreScreenArcade";
 
         public static string GetSceneNameByIndex(int index)
         {
             if (index < 0 || index >= Rooms.Length)
             {
-                return DEFAULT_BEATMAP_SCENE;
+                return DefaultBeatmapScene;
             }
 
             return Rooms[index].SceneName;
@@ -55,7 +55,7 @@ namespace CustomBeatmaps.Util
         public static void PlayBeatmapEdit(CustomBeatmapInfo beatmap, bool enableCountdown=false)
         {
             OsuEditorPatch.SetEditMode(true, enableCountdown, beatmap.OsuPath);
-            PlayBeatmapinternal(beatmap, DEFAULT_BEATMAP_SCENE);
+            PlayBeatmapinternal(beatmap, DefaultBeatmapScene);
         }
 
         public static bool UsingHighScoreProhibitedAssists()

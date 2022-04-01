@@ -63,21 +63,17 @@ namespace CustomBeatmaps.UI
             {
                 // Get unique song count
                 HashSet<string> songs = new HashSet<string>();
-                string creator = "";
-                string name = "";
+                HashSet<string> names = new HashSet<string>();
+                HashSet<string> creators = new HashSet<string>();
                 foreach (var bmap in serverPackage.Beatmaps.Values)
                 {
                     songs.Add(bmap.AudioFileName);
-                    creator += bmap.Creator + ", ";
-                    name += bmap.Name + " | ";
+                    names.Add(bmap.Name);
+                    creators.Add(bmap.Creator);
                 }
 
-                if (serverPackage.Beatmaps.Count >= 1)
-                {
-                    // Trim
-                    name = name.Substring(0, name.Length - " | ".Length);
-                    creator = creator.Substring(0, creator.Length - ", ".Length);
-                }
+                string creator = creators.Join(x => x," | ");
+                string name = names.Join(x => x,", ");
 
                 string serverUrl = serverPackage.ServerURL;
                 var downloadStatus = CustomBeatmaps.Downloader.GetDownloadStatus(serverUrl);
