@@ -55,23 +55,24 @@ namespace CustomBeatmaps.UI.PackageList
 
             // Map picker
 
-            // TODO: If there is only one, ignore.
-
-            int newMapSelect = GUILayout.Toolbar(selectedNameIndex, uniqueNames.ToArray());
-            if (newMapSelect != selectedNameIndex)
+            if (uniqueNames.Count > 1)
             {
-                // We have a new map name, find the first one with this name.
-                string newSelectionName = uniqueNames[newMapSelect];
-                for (int i = 0; i < packageBeatmaps.Count; ++i)
+                int newMapSelect = GUILayout.Toolbar(selectedNameIndex, uniqueNames.ToArray());
+                if (newMapSelect != selectedNameIndex)
                 {
-                    var packageBeatmap = packageBeatmaps[i];
-                    if (packageBeatmap.Name == newSelectionName)
+                    // We have a new map name, find the first one with this name.
+                    string newSelectionName = uniqueNames[newMapSelect];
+                    for (int i = 0; i < packageBeatmaps.Count; ++i)
                     {
-                        onBeatmapSelect(i);
-                        break;
+                        var packageBeatmap = packageBeatmaps[i];
+                        if (packageBeatmap.Name == newSelectionName)
+                        {
+                            onBeatmapSelect(i);
+                            break;
+                        }
                     }
+                    // Should never get here
                 }
-                // Should never get here
             }
 
             // Beatmap Info Card
@@ -79,21 +80,28 @@ namespace CustomBeatmaps.UI.PackageList
 
             // Difficulty picker
 
-            int newDifficultySelect = GUILayout.Toolbar(selectedDifficultyIndex, selectedMapDifficulties.ToArray());
-            if (newDifficultySelect != selectedDifficultyIndex)
+            if (selectedMapDifficulties.Count > 1)
             {
-                // We have a new map name, find the first one with this name and difficulty.
-                string newDifficultyName = selectedMapDifficulties[newDifficultySelect];
-                for (int i = 0; i < packageBeatmaps.Count; ++i)
+                var bStyle = GUI.skin.button;
+                var bolderStyle = new GUIStyle(bStyle);
+                bolderStyle.fontSize = (int)(bolderStyle.fontSize * 1.5);
+                int newDifficultySelect = GUILayout.Toolbar(selectedDifficultyIndex, selectedMapDifficulties.ToArray(), bolderStyle);
+                GUI.skin.button = bStyle;
+                if (newDifficultySelect != selectedDifficultyIndex)
                 {
-                    var packageBeatmap = packageBeatmaps[i];
-                    if (packageBeatmap.Name == selectedName && packageBeatmap.Difficulty == newDifficultyName)
+                    // We have a new map name, find the first one with this name and difficulty.
+                    string newDifficultyName = selectedMapDifficulties[newDifficultySelect];
+                    for (int i = 0; i < packageBeatmaps.Count; ++i)
                     {
-                        onBeatmapSelect(i);
-                        break;
+                        var packageBeatmap = packageBeatmaps[i];
+                        if (packageBeatmap.Name == selectedName && packageBeatmap.Difficulty == newDifficultyName)
+                        {
+                            onBeatmapSelect(i);
+                            break;
+                        }
                     }
+                    // Should never get here
                 }
-                // Should never get here
             }
 
             // Leaderboards and the "PLAY/DOWNLOAD" button are rendered separately

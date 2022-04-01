@@ -100,7 +100,8 @@ namespace CustomBeatmaps.UI
                     },
                     () =>
                     {
-                        PersonalHighScoreUI.Render(selectedBeatmap.OsuPath);
+                        string highScoreKey = UserServerHelper.GetHighScoreLocalEntryFromCustomBeatmap(Config.Mod.ServerPackagesDir, Config.Mod.UserPackagesDir, selectedBeatmap.OsuPath);
+                        PersonalHighScoreUI.Render(highScoreKey);
                     },
                     () =>
                     {

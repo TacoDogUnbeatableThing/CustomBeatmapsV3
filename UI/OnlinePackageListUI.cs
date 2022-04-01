@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using CustomBeatmaps.CustomPackages;
 using CustomBeatmaps.Patches;
@@ -18,7 +17,7 @@ namespace CustomBeatmaps.UI
         private static CustomServerPackageList _list;
         private static bool _loaded;
         private static string _failure;
-        
+
         // To preserve across play sessions
         private static int _selectedPackageIndex;
 
@@ -130,8 +129,9 @@ namespace CustomBeatmaps.UI
                             if (downloadStatus == BeatmapDownloadStatus.Downloaded)
                             {
                                 var localPackages = CustomBeatmaps.LocalServerPackages;
-                                var (_, customBeatmapInfo) = localPackages.FindCustomBeatmapInfoFromServer(selectedPackage.ServerURL, selectedBeatmapKeyPath);
-                                PersonalHighScoreUI.Render(customBeatmapInfo.OsuPath);
+                                var (_, selectedBeatmap) = localPackages.FindCustomBeatmapInfoFromServer(selectedPackage.ServerURL, selectedBeatmapKeyPath);
+                                string highScoreKey = UserServerHelper.GetHighScoreLocalEntryFromCustomBeatmap(Config.Mod.ServerPackagesDir, Config.Mod.UserPackagesDir, selectedBeatmap.OsuPath);
+                                PersonalHighScoreUI.Render(highScoreKey);
                             }
                             // SERVER high scores
                             HighScoreListUI.Render(UserServerHelper.GetHighScoreBeatmapKeyFromServerBeatmap(selectedPackage.ServerURL, selectedBeatmapKeyPath));

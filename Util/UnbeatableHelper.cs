@@ -69,7 +69,7 @@ namespace CustomBeatmaps.Util
         }
 
         /// <returns> whether <code>potentialSongPath</code> is in the format "[UNBEATABLE Song]/[DIFFICULTY] </returns>
-        public static bool IsValidSongPath(string potentialSongPath)
+        public static bool IsValidUnbeatableSongPath(string potentialSongPath)
         {
             var beatmapIndex = Rhythm.BeatmapIndex.defaultIndex;
             var whiteLabelSongs = beatmapIndex.SongNames;

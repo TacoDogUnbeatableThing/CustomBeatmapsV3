@@ -31,14 +31,11 @@ namespace CustomBeatmaps.Patches
                 __runOriginal = false;
                 return;
             }
-            string serverMapsPath = Path.GetFullPath(Config.Mod.ServerPackagesDir);
-            string localMapsPath = Path.GetFullPath(Config.Mod.UserPackagesDir);
-            if (song.StartsWith(serverMapsPath))
+
+            if (!UnbeatableHelper.IsValidUnbeatableSongPath(song))
             {
-                song = $"CUSTOMBEATMAPS_SERVER::{song.Substring(serverMapsPath.Length + 1)}";
-            } else if (song.StartsWith(localMapsPath))
-            {
-                song = $"CUSTOMBEATMAPS_USER::{song.Substring(localMapsPath.Length + 1)}";
+                song = UserServerHelper.GetHighScoreLocalEntryFromCustomBeatmap(Config.Mod.ServerPackagesDir,
+                    Config.Mod.UserPackagesDir, song);
             }
         }
     }

@@ -71,6 +71,24 @@ namespace CustomBeatmaps.Util
             return $"game/{beatmapPath}";
         }
 
+        public static string GetHighScoreLocalEntryFromCustomBeatmap(string serverPackageDir, string localPackageDir,
+            string beatmapOSUPath)
+        {
+            serverPackageDir = Path.GetFullPath(serverPackageDir);
+            localPackageDir = Path.GetFullPath(localPackageDir);
+            if (beatmapOSUPath.StartsWith(serverPackageDir))
+            {
+                return $"CUSTOMBEATMAPS_SERVER::{beatmapOSUPath.Substring(serverPackageDir.Length + 1)}";
+            }
+            if (beatmapOSUPath.StartsWith(localPackageDir))
+            {
+                return $"CUSTOMBEATMAPS_USER::{beatmapOSUPath.Substring(localPackageDir.Length + 1)}";
+            }
+
+            EventBus.ExceptionThrown?.Invoke(new InvalidOperationException($"Custom beatmap not in server/local folder: {beatmapOSUPath}"));
+            return beatmapOSUPath;
+        }
+
         public static async Task<NewUserInfo> RegisterUser(string userServerURL, string username)
         {
             return await FetchHelper.PostJSON<NewUserInfo>(userServerURL + "/newuser", new RegisterUserRequest(username));
@@ -145,7 +163,7 @@ namespace CustomBeatmaps.Util
                 }
                 // Try to parse as white label?
                 // [Song]/[Difficulty]
-                if (UnbeatableHelper.IsValidSongPath(score.song))
+                if (UnbeatableHelper.IsValidUnbeatableSongPath(score.song))
                 {
                     whiteLabelScores.Add(score);
                     continue;

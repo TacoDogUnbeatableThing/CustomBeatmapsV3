@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using CustomBeatmaps.UI.Highscore;
 using CustomBeatmaps.Util;
 using JetBrains.Annotations;
 using UnityEngine;

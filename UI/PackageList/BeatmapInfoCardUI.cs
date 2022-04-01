@@ -13,7 +13,7 @@ namespace CustomBeatmaps.UI.PackageList
             GUILayout.BeginHorizontal(cardStyle);
             // TODO: Icon if provided! For fun!
                 GUILayout.BeginVertical();
-                    GUILayout.Label($"<b>{beatmapHeader.Name}</b>");
+                    GUILayout.Label($"<b><size=20>{beatmapHeader.Name}</size></b>");
                     GUILayout.Label($"by <b>{beatmapHeader.Artist}</b>");
                 GUILayout.EndVertical();
 
