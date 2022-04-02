@@ -12,12 +12,12 @@ namespace CustomBeatmaps.UI.Highscore
             var highScores = CustomBeatmaps.ServerHighScoreManager.GetHighScores(beatmapKey);
             var lowScores = CustomBeatmaps.ServerHighScoreManager.GetLowScores(beatmapKey);
 
-            GUILayout.Label("<size=32>HIGH SCORES</size>");
+            GUILayout.Label("<size=24>HIGH SCORES</size>");
             if (!RenderScores(highScores, 0))
             {
                 GUILayout.Label("Can't find High Scores...");
             }
-            GUILayout.Label("<size=32>LOW BALLERS</size>");
+            GUILayout.Label("<size=24>LOW BALLERS</size>");
             if (!RenderScores(lowScores, 1))
             {
                 GUILayout.Label("Can't find Low Scores...");
