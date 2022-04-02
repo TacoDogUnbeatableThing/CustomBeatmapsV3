@@ -17,7 +17,7 @@ namespace CustomBeatmaps.UI
                 if (task.IsCompletedSuccessfully)
                 {
                     var onlineVersion = task.Result;
-                    ScheduleHelper.SafeLog($"FOUND ONLINE VERSION: {onlineVersion}");
+                    ScheduleHelper.SafeLog($"FOUND ONLINE VERSION: {onlineVersion} vs Our Version: {modVersion}");
                     if (onlineVersion > modVersion)
                     {
                         _newVersion = onlineVersion;

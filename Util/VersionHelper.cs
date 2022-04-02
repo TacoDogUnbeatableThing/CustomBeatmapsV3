@@ -9,15 +9,20 @@ namespace CustomBeatmaps.Util
 {
     public static class VersionHelper
     {
+        private static Version _modVersion = null;
         public static Version GetModVersion()
         {
-            if (typeof(CustomBeatmaps).GetCustomAttributes(
-                    typeof(BepInPlugin), true
-                ).FirstOrDefault() is BepInPlugin dnAttribute)
+            if (_modVersion == null)
             {
-                return dnAttribute.Version;
+                if (typeof(CustomBeatmaps).GetCustomAttributes(
+                        typeof(BepInPlugin), true
+                    ).FirstOrDefault() is BepInPlugin dnAttribute)
+                {
+                    _modVersion = dnAttribute.Version;
+                }
+                
             }
-            return null;
+            return _modVersion != null? _modVersion : new Version();
         }
 
         public static async Task<Version> GetOnlineLatestReleaseVersion()
@@ -29,7 +34,6 @@ namespace CustomBeatmaps.Util
                 return null;
             var tag = tags[0];
             var versionString = tag["name"];
-            ScheduleHelper.SafeLog($"VERSION: {versionString}");
             if (versionString == null)
             {
                 return null;

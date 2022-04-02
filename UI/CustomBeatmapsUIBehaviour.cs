@@ -117,7 +117,7 @@ namespace CustomBeatmaps.UI
                     }
                 }
 
-            }, "Custom Beatmaps v3");
+            }, "Custom Beatmaps v" + VersionHelper.GetModVersion());
             // Extra Error UI
             ErrorUI.Render(_errors);
         }
