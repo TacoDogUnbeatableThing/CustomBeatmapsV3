@@ -5,7 +5,6 @@ using System.Linq;
 using System.Reflection;
 using CustomBeatmaps.UI.OSUEditMode;
 using CustomBeatmaps.Util;
-using FMOD.Studio;
 using HarmonyLib;
 using Rhythm;
 using UnityEngine;
@@ -28,6 +27,8 @@ namespace CustomBeatmaps.Patches
         private static bool _paused;
 
         public static bool AutoReload = true;
+
+        private static bool _reloadInvulnerability;
 
         public static int SongTimeMS =>
             _rhythmController != null ? (int)_rhythmController.songTracker.TimelinePosition : 0;
@@ -162,12 +163,22 @@ namespace CustomBeatmaps.Patches
         // INVINCIBILITY
 
         [HarmonyPatch(typeof(Rhythm.RhythmController), "Miss")]
-        [HarmonyPrefix]
-        private static void ProcessMiss(ref bool __runOriginal)
+        [HarmonyPostfix]
+        private static void ProcessMiss(Rhythm.RhythmController __instance)
         {
-            // Don't miss
-            if (EditMode)
+            // Reset our health after a miss
+            if (EditMode && (!CustomBeatmaps.Memory.OneLifeMode || _reloadInvulnerability)) // eh this is jank but it fixes the edge case
             {
+                __instance.song.health = 10;
+            }
+        }
+        [HarmonyPatch(typeof(Rhythm.RhythmController), "Miss")]
+        [HarmonyPrefix]
+        private static void ProcessMissPre(ref bool __runOriginal)
+        {
+            if (EditMode && _reloadInvulnerability)
+            {
+                // Ignore misses as we're reloading our notes
                 __runOriginal = false;
             }
         }
@@ -187,11 +198,24 @@ namespace CustomBeatmaps.Patches
             }
         }
 
+        [HarmonyPatch(typeof(Rhythm.RhythmController), "Update")]
+        [HarmonyPostfix]
+        private static void ResetReloadInvulnerability()
+        {
+            if (_reloadInvulnerability)
+            {
+                _reloadInvulnerability = false;
+            }
+        }
+
         public static void HotReloadBeatmap()
         {
+            _reloadInvulnerability = true;
             HotReloadBeatmapInfo();
             SongTotalMS = GetSongDurationEstimate();
             HotReloadAdjustNotesToCurrentTime();
+            // We wait ONE frame so we load all the notes...
+            //_reloadInvulnerability = false;
         }
 
         private static readonly FieldInfo FlipsField =

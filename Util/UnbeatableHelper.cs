@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Linq;
+using System.Reflection;
 using CustomBeatmaps.CustomPackages;
 using CustomBeatmaps.Patches;
 using Rhythm;
+using TMPro;
+using UnityEngine;
 
 namespace CustomBeatmaps.Util
 {
@@ -19,6 +22,8 @@ namespace CustomBeatmaps.Util
         private static readonly string DefaultBeatmapScene = "TrainStationRhythm";
 
         public static readonly string DefaultScoreScene = "ScoreScreenArcade";
+
+        public static readonly string LevelSelectScene = "TrainLevelSelect";
 
         public static string GetSceneNameByIndex(int index)
         {
@@ -60,7 +65,8 @@ namespace CustomBeatmaps.Util
 
         public static bool UsingHighScoreProhibitedAssists()
         {
-            return JeffBezosController.useAssistMode || JeffBezosController.songSpeed < 1 || JeffBezosController.noFail;
+            // We include flip mode because _potentially_ it might be used to make high notes easier to hit?
+            return JeffBezosController.useAssistMode || JeffBezosController.songSpeed < 1 || JeffBezosController.noFail || CustomBeatmaps.Memory.FlipMode;
         }
 
         public static HighScoreList LoadWhiteLabelHighscores()
@@ -83,6 +89,61 @@ namespace CustomBeatmaps.Util
             }
 
             return false;
+        }
+
+        private static readonly Vector3 MenuOffsetPerNewOption = new Vector3( 0.17f - 0.21f, 0.015f, 0.82f - 0.75f);
+        private static readonly FieldInfo UINavigatorRowField = typeof(UINavigator).GetField("row", BindingFlags.Instance | BindingFlags.NonPublic);
+        public static UISelectionCycle InsertBeatmapOptionInMenu(BeatmapOptionsMenu menu, Func<int, int> indexGivenSize, string name)
+        {
+            var navigator = menu.navigator;
+            var rows = navigator.columns[0].rows;
+
+            int index = indexGivenSize.Invoke(rows.Count);
+
+            // Find the thing to copy 
+            var titleToCopy = menu.transform.GetChild(Math.Min(index*2, menu.transform.childCount - 2));
+            var optionToCopy = menu.transform.GetChild(Math.Min(index*2, menu.transform.childCount - 2) + 1);
+            var newTitle = UnityEngine.Object.Instantiate(titleToCopy, titleToCopy.parent, true);
+            var newOption = UnityEngine.Object.Instantiate(optionToCopy, optionToCopy.parent, true);
+
+            Vector3 offsetPerElement = Vector3.down * (0.1857f - 0.1272f);
+
+            // MOVE cycles AFTER this one ahead
+            for (int i = index; i < rows.Count; ++i)
+            {
+                var uiRow = rows[i];
+                uiRow.transform.localPosition += offsetPerElement;
+                // Also offset the title
+                var uiTitleTransform = menu.transform.GetChild(uiRow.transform.GetSiblingIndex() - 1);
+                uiTitleTransform.localPosition += offsetPerElement;
+            }
+
+            // If we're appending to the end, move us UP
+            if (index == rows.Count)
+            {
+                newTitle.transform.localPosition += offsetPerElement;
+                newOption.transform.localPosition += offsetPerElement;
+            }
+
+            // Prepend our option
+            var newUICycle = newOption.GetComponent<UISelectionCycle>();
+            rows.Insert(index, newUICycle);
+
+
+
+            // Update our UI Row to work 
+            var navRow = (WrapCounter) UINavigatorRowField.GetValue(navigator);
+            UINavigatorRowField.SetValue(navigator, new WrapCounter(navRow.count + 1, navRow.value));
+
+            newTitle.name = $"{name} Title";
+            newOption.name = $"{name} Option";
+
+            newTitle.GetComponent<TMP_Text>().text = name;
+
+            // Move our entire menu back to fit the new option
+            menu.transform.localPosition += MenuOffsetPerNewOption;
+            
+            return newUICycle;
         }
 
         public struct CustomBeatmapRoom

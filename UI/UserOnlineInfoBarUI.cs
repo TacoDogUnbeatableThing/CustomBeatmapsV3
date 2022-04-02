@@ -52,10 +52,7 @@ namespace CustomBeatmaps.UI
                 NewVersionAvailableUI.Render();
 
                 GUILayout.FlexibleSpace();
-                if (GUILayout.Button("Check out our Discord!", GUILayout.ExpandWidth(false)))
-                {
-                    Application.OpenURL(Config.Backend.DiscordInviteLink);
-                }
+                DiscordButtonUI.Render();
                 GUILayout.EndHorizontal();
             }
             else

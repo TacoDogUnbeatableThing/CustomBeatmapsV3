@@ -16,6 +16,9 @@ namespace CustomBeatmaps.UI
 
             JeffBezosController.SetAssistMode(Toggle(JeffBezosController.GetAssistMode(), "Assist Mode"));
             JeffBezosController.SetNoFail(Toggle(JeffBezosController.GetNoFail(), "No Fail"));
+            // Custom settings, like One Life mode
+            CustomBeatmaps.Memory.OneLifeMode = GUILayout.Toggle(CustomBeatmaps.Memory.OneLifeMode, "ONE LIFE");
+            CustomBeatmaps.Memory.FlipMode = GUILayout.Toggle(CustomBeatmaps.Memory.FlipMode, "FLIP MODE");
             JeffBezosController.SetSongSpeed(GUILayout.Toolbar(JeffBezosController.GetSongSpeed(),
                 new[] {"Regular", "Half Time", "Double Time"}));
 
@@ -30,6 +33,7 @@ namespace CustomBeatmaps.UI
             }
             GUILayout.Label($"= {(JeffBezosController.GetScrollSpeedIndex() + 1) * 0.2f:0.0}");
             GUILayout.EndHorizontal();
+
 
             // Room options
             GUILayout.BeginHorizontal(GUILayout.ExpandWidth(false));

@@ -5,13 +5,16 @@ using System.Timers;
 using BepInEx;
 using CustomBeatmaps.CustomPackages;
 using CustomBeatmaps.Patches;
+using CustomBeatmaps.UI;
 using CustomBeatmaps.Util;
 using HarmonyLib;
+using UnityEngine;
+using UnityEngine.SceneManagement;
 using Debug = UnityEngine.Debug;
 
 namespace CustomBeatmaps
 {
-    [BepInPlugin("tacodog.unbeatable.custombeatmaps", "Custom Beatmaps V3", "3.2.0")]
+    [BepInPlugin("tacodog.unbeatable.custombeatmaps", "Custom Beatmaps V3", "3.3.0")]
     public class CustomBeatmaps : BaseUnityPlugin
     {
         public static ModConfig ModConfig { get; private set; }
@@ -95,13 +98,48 @@ namespace CustomBeatmaps
             Harmony.CreateAndPatchAll(typeof(PauseMenuPatch));
             Harmony.CreateAndPatchAll(typeof(DisablePracticeRoomOpenerPatch));
             Harmony.CreateAndPatchAll(typeof(CursorUnhidePatch));
+            Harmony.CreateAndPatchAll(typeof(OneLifeModePatch));
+            Harmony.CreateAndPatchAll(typeof(FlipModePatch));
             Harmony.CreateAndPatchAll(typeof(SimpleJankHighScoreSongReplacementPatch));
+
+            // Disclaimer screen
+            if (!Memory.OpeningDisclaimerDisabled)
+            {
+                foreach (var obj in FindObjectsOfType(typeof(GameObject)))
+                {
+                    var gobject = (GameObject) obj;
+                    var ourselves = gobject.GetComponentInChildren<CustomBeatmaps>();
+                    if (ourselves == null)
+                    {
+                        DestroyImmediate(gobject);
+                    }
+                }
+
+                var disclaimer = new GameObject().AddComponent<OpeningDisclaimerUIBehaviour>();
+                disclaimer.OnSelect += () =>
+                {
+                    // Reload game
+                    Memory.OpeningDisclaimerDisabled = true;
+                    SceneManager.LoadScene(0);
+                };
+            }
+        }
+
+        private static bool _quitted;
+        private void OnDestroy()
+        {
+            // Save our memory
+            if (!_quitted)
+                SerializeHelper.SaveJSON(MEMORY_LOCATION, Memory);
+            _quitted = true;
         }
 
         private void OnApplicationQuit()
         {
             // Save our memory
-            SerializeHelper.SaveJSON(MEMORY_LOCATION, Memory);
+            if (!_quitted)
+                SerializeHelper.SaveJSON(MEMORY_LOCATION, Memory);
+            _quitted = true;
         }
     }
 }
