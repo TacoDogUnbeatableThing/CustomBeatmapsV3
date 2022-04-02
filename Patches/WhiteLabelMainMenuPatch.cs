@@ -176,11 +176,7 @@ namespace CustomBeatmaps.Patches
                     __instance.menuState = WhiteLabelMainMenu.MenuState.DEFAULT;
                     RuntimeManager.PlayOneShot(__instance.menuBackEvent);
                     _customBeatmapsUIBehaviour.Close();
-                    return;
                 }
-
-                // For some reason it's hidden by default?
-                Cursor.visible = true;
             }
         }
 
@@ -191,8 +187,6 @@ namespace CustomBeatmaps.Patches
             if (__instance.menuState == WhiteLabelMainMenu.MenuState.LEVELSELECT)
             {
                 _walkmanHighScoreUI.Open();
-                // Let us move the high score UI around.
-                Cursor.visible = true;
             }
             else
                 _walkmanHighScoreUI.Close();

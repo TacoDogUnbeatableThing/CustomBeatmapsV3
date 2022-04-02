@@ -94,6 +94,7 @@ namespace CustomBeatmaps
             Harmony.CreateAndPatchAll(typeof(HighScoreScreenPatch));
             Harmony.CreateAndPatchAll(typeof(PauseMenuPatch));
             Harmony.CreateAndPatchAll(typeof(DisablePracticeRoomOpenerPatch));
+            Harmony.CreateAndPatchAll(typeof(CursorUnhidePatch));
             Harmony.CreateAndPatchAll(typeof(SimpleJankHighScoreSongReplacementPatch));
         }
 

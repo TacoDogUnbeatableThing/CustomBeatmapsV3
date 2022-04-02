@@ -6,6 +6,8 @@ namespace CustomBeatmaps.UI.Highscore
 {
     public class HighScoreUIBehaviour : MonoBehaviour
     {
+        public static bool Opened { get; private set; }
+
         private bool _showLoginScreen;
         private Func<string> _getBeatmapKey;
 
@@ -21,7 +23,7 @@ namespace CustomBeatmaps.UI.Highscore
         {
             if (_opened)
                 return;
-            ScheduleHelper.SafeLog("OPENED");
+            Opened = true;
             _opened = true;
             _closing = false;
         }
@@ -30,6 +32,7 @@ namespace CustomBeatmaps.UI.Highscore
         {
             if (!_opened || _closing)
                 return;
+            Opened = false;
             // TODO: Zooom and set _opened (and _closing) to false then
             _opened = false;
             _closing = true;
@@ -41,11 +44,15 @@ namespace CustomBeatmaps.UI.Highscore
             _getBeatmapKey = getBeatmapKey;
         }
         
-        private void Start()
+        private void Awake()
         {
             int p = 8;
             _windowRect = new Rect(Screen.width - DEFAULT_WIDTH - p, Screen.height - DEFAULT_HEIGHT - p, DEFAULT_WIDTH,
                 DEFAULT_HEIGHT);
+        }
+        private void OnDestroy()
+        {
+            Opened = false;
         }
 
         private void OnGUI()

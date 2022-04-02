@@ -10,6 +10,8 @@ namespace CustomBeatmaps.UI
 {
     public class CustomBeatmapsUIBehaviour : MonoBehaviour
     {
+        public static bool Opened { get; private set; }
+
         private readonly ReaccStore _store = new ReaccStore();
         private Vector2 _windowOffset;
 
@@ -27,11 +29,20 @@ namespace CustomBeatmaps.UI
             };
         }
 
+        private void OnDestroy()
+        {
+            Opened = false;
+        }
+
         public void Open()
         {
+            if (_open)
+                return;
+
             GUIHelper.AvoidInputOneFrame();
             _releaseInputTimer = 3;
             _open = true;
+            Opened = true;
             DOTween.Kill(this);
             DOTween.To(() => _windowOffset, value => _windowOffset = value, Vector2.zero, 0.2f)
                 .SetEase(Ease.OutBounce)
@@ -44,6 +55,9 @@ namespace CustomBeatmaps.UI
         }
         public void Close()
         {
+            if (!_open || DOTween.IsTweening(this))
+                return;
+
             _releaseInputTimer = -1;
             DOTween.Kill(this);
             DOTween.To(() => _windowOffset, value => _windowOffset = value,
@@ -54,6 +68,7 @@ namespace CustomBeatmaps.UI
                 .OnComplete(() =>
                 {
                     _open = false;
+                    Opened = false;
                     WhiteLabelMainMenuPatch.EnableBGM();
                     WhiteLabelMainMenuPatch.StopSongPreview();
                     _windowOffset = new Vector2(-1 * Screen.width, -1 * Screen.height);
