@@ -96,7 +96,7 @@ namespace CustomBeatmaps.UI
                 PackageInfoUI.Render(
                     () =>
                     {
-                        PackageInfoTopUI.Render(selectedBeatmaps, selectedBeatmapIndex, setSelectedBeatmapIndex);
+                        PackageInfoTopUI.Render(selectedBeatmaps, selectedBeatmapIndex);
                     },
                     () =>
                     {
@@ -105,6 +105,7 @@ namespace CustomBeatmaps.UI
                     },
                     () =>
                     {
+                        PackageBeatmapPickerUI.Render(selectedBeatmaps, selectedBeatmapIndex, setSelectedBeatmapIndex);
                         if (PlayButtonUI.Render("PLAY", $"{selectedBeatmap.SongName}: {selectedBeatmap.Difficulty}"))
                         {
                             // Play a local beatmap

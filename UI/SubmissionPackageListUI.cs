@@ -6,6 +6,7 @@ using CustomBeatmaps.Patches;
 using CustomBeatmaps.UI.PackageList;
 using CustomBeatmaps.UISystem;
 using CustomBeatmaps.Util;
+using HarmonyLib;
 using UnityEngine;
 
 namespace CustomBeatmaps.UI
@@ -14,9 +15,6 @@ namespace CustomBeatmaps.UI
 
     public static class SubmissionPackageListUI
     {
-        private static List<ServerSubmissionPackage> _list;
-        private static bool _loaded;
-        private static string _failure;
 
         public static void Render(Action onRenderAboveList)
         {
@@ -27,30 +25,32 @@ namespace CustomBeatmaps.UI
 
             onRenderAboveList();
 
-            if (_failure != null)
+            var p = CustomBeatmaps.SubmissionPackageManager;
+            
+            if (p.ListLoadFailures.Count != 0)
             {
-                RenderReloadButton($"Failed to grab packages from server: {_failure}");
+                RenderReloadButton($"Failed to grab packages from server: {p.ListLoadFailures.Join()}");
                 return;
             }
 
-            if (!_loaded)
+            if (!p.ListLoaded)
             {
                 RenderReloadButton("Loading...");
                 return;
             }
 
-            if (_list.Count == 0)
+            if (p.SubmissionPackages.Count == 0)
             {
                 RenderReloadButton("No packages found!");
                 return;
             }
 
-            RenderReloadButton($"Found {_list.Count} submissions");
+            RenderReloadButton($"Found {p.SubmissionPackages.Count} submissions");
 
             GUILayout.BeginHorizontal();
 
             setScroll(GUILayout.BeginScrollView(scroll, GUILayout.ExpandWidth(true)));
-            foreach (var serverSubmissionPackage in _list)
+            foreach (var serverSubmissionPackage in p.SubmissionPackages)
             {
                 GUILayout.BeginHorizontal(GUI.skin.box);
                 string downloadName = Path.GetFileName(serverSubmissionPackage.DownloadURL);
@@ -74,7 +74,7 @@ namespace CustomBeatmaps.UI
                 {
                     if (hasPackage)
                     {
-                        PackageInfoTopUI.Render(beatmaps, selectedBeatmapIndex, setSelectedBeatmapIndex);
+                        PackageInfoTopUI.Render(beatmaps, selectedBeatmapIndex);
                     }
                     else
                     {
@@ -93,6 +93,8 @@ namespace CustomBeatmaps.UI
                             var selectedBeatmap = package.Beatmaps[selectedBeatmapIndex];
                             
                             WhiteLabelMainMenuPatch.PlaySongPreview(selectedBeatmap.RealAudioKey);
+
+                            PackageBeatmapPickerUI.Render(beatmaps, selectedBeatmapIndex, setSelectedBeatmapIndex);
 
                             if (PlayButtonUI.Render("PLAY",
                                     $"{selectedBeatmap.SongName}: {selectedBeatmap.Difficulty}"))
@@ -121,21 +123,7 @@ namespace CustomBeatmaps.UI
         private static void ReloadPackageList()
         {
             ScheduleHelper.SafeLog("RELOADING Submissions from Server...");
-            CustomPackageHelper.FetchServerSubmissions(CustomBeatmaps.BackendConfig.ServerSubmissionList).ContinueWith(result =>
-            {
-                if (result.Exception != null)
-                {
-                    _failure = "";
-                    foreach (var ex in result.Exception.InnerExceptions)
-                        _failure += ex.Message + " ";
-                    EventBus.ExceptionThrown?.Invoke(result.Exception);
-                    return;
-                }
-                _failure = null;
-                _loaded = false; // Impromptu mutex :P
-                _list = new List<ServerSubmissionPackage>(result.Result.Values);
-                _loaded = true;
-            });
+            CustomBeatmaps.SubmissionPackageManager.RefreshServerSubmissions();
         }
         
         private static void RenderReloadButton(string label)

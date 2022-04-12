@@ -117,7 +117,7 @@ namespace CustomBeatmaps.UI
                 PackageInfoUI.Render(
                     () =>
                     {
-                        PackageInfoTopUI.Render(selectedBeatmaps, selectedBeatmapIndex, setSelectedBeatmapIndex);
+                        PackageInfoTopUI.Render(selectedBeatmaps, selectedBeatmapIndex);
                     },
                     () =>
                     {
@@ -171,12 +171,14 @@ namespace CustomBeatmaps.UI
                                     throw new ArgumentOutOfRangeException();
                             }
 
+                            PackageBeatmapPickerUI.Render(selectedBeatmaps, selectedBeatmapIndex, setSelectedBeatmapIndex);
+
                             if (UnbeatableHelper.UsingHighScoreProhibitedAssists())
                             {
-                                GUILayout.Label("<b>USING ASSISTS</b> (no high score)");
+                                GUILayout.Label("<size=24><b>USING ASSISTS</b></size> (no high score)");
                             } else if (!CustomBeatmaps.UserSession.LoggedIn)
                             {
-                                GUILayout.Label("Register above to post your own high scores!");
+                                GUILayout.Label("<b>Register above to post your own high scores!<b>");
                             }
 
                             bool buttonPressed = PlayButtonUI.Render(buttonText, buttonSub);

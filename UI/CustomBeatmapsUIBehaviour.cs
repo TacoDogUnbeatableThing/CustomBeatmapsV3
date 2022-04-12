@@ -50,8 +50,9 @@ namespace CustomBeatmaps.UI
 
             WhiteLabelMainMenuPatch.DisableBGM();
 
-            // Reload our high scores just to be clean/up to date
+            // Reload our high scores + submissions just to be clean/up to date
             CustomBeatmaps.ServerHighScoreManager.Reload();
+            CustomBeatmaps.SubmissionPackageManager.RefreshServerSubmissions();
         }
         public void Close()
         {

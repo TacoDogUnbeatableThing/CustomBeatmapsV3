@@ -26,16 +26,23 @@ namespace CustomBeatmaps.UI.PackageList
                 label = $"<b><color=#fbff8fff>{label}</color></b>";
             }
 
-            /*
-            GUIStyle withRichText = GUI.skin.button;
-            withRichText.padding.left = 8; // Left side
-            withRichText.richText = true;
-            //withRichText.fixedHeight = 32;
-            */
+            var styleOriginal = GUI.skin.button;
+            var style = new GUIStyle(styleOriginal);
+            if (selected)
+            {
+                style.normal = style.active;
+                style.hover = style.active;
+            }
 
-            if (GUILayout.Button("", /*withRichText,*/ GUILayout.ExpandWidth(true), GUILayout.Height(32)))
+            if (GUILayout.Button("", style, GUILayout.ExpandWidth(true), GUILayout.Height(32)))
             {
                 onSelect?.Invoke();
+            }
+
+            if (selected)
+            {
+                style.normal = styleOriginal.normal;
+                style.hover = styleOriginal.hover;
             }
 
             // button rect for Text + Map + Song + New count

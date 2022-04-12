@@ -16,6 +16,9 @@ namespace CustomBeatmaps.CustomPackages
         public string LocalPackageDownloadURL => _downloadedPackageURL;
         public CustomLocalPackage LocalPackage => _localPackage;
 
+        public bool ListLoaded { get; private set; }
+        public readonly List<string> ListLoadFailures = new List<string>();
+
         private readonly Action<BeatmapException> _onLoadException;
 
         public SubmissionPackageManager(Action<BeatmapException> onLoadException)
@@ -58,14 +61,28 @@ namespace CustomBeatmaps.CustomPackages
             // Already being handled.
             if (_fetching)
                 return;
-            _fetching = true;
-            var packages = await CustomPackageHelper.FetchServerSubmissions(Config.Backend.ServerSubmissionList);
-            lock (packages)
+            try
             {
-                _submissionPackages.Clear();
-                _submissionPackages.AddRange(packages.Values);
+                ListLoaded = false;
+                ListLoadFailures.Clear();
+                _fetching = true;
+                var list = await CustomPackageHelper.FetchServerSubmissions(Config.Backend.ServerSubmissionList);
+                lock (_submissionPackages)
+                {
+                    _submissionPackages.Clear();
+                    _submissionPackages.AddRange(list.Values);
+                }
+                ListLoaded = true;
             }
-            _fetching = false;
+            catch (Exception e)
+            {
+                ListLoadFailures.Add(e.Message);
+                EventBus.ExceptionThrown?.Invoke(e);
+            }
+            finally
+            {
+                _fetching = false; // Impromptu mutex :P
+            }
         }
     }
 }

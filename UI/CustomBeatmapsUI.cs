@@ -72,7 +72,25 @@ namespace CustomBeatmaps.UI
 
         private static void RenderListTop(Tab tab, Action<Tab> onSetTab)
         {
-            EnumTooltipPickerUI.Render(tab, onSetTab);
+            EnumTooltipPickerUI.Render(tab, onSetTab, tabName =>
+            {
+                switch (tabName)
+                {
+                    case Tab.Online:
+                        return "Online";
+                    case Tab.Local:
+                        return "Local";
+                    case Tab.Submissions:
+                        var p = CustomBeatmaps.SubmissionPackageManager;
+                        if (p.ListLoaded && p.SubmissionPackages.Count > 0)
+                            return $"Submissions <b>x {p.SubmissionPackages.Count}!</b>";
+                        return "Submissions";
+                    case Tab.Osu:
+                        return "OSU!";
+                    default:
+                        throw new ArgumentOutOfRangeException(nameof(tabName), tabName, null);
+                }
+            });
             UserOnlineInfoBarUI.Render();
         }
     }

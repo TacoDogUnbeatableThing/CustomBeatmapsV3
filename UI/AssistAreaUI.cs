@@ -9,9 +9,15 @@ namespace CustomBeatmaps.UI
     {
         public static void Render()
         {
-            // Kinda spooky but 4 is the magic number.
-            (string scrollSpeedText, var setScrollSpeedText) = Reacc.UseState("4");
+            var (scrollSpeedText, setScrollSpeedText) = Reacc.UseState(() => "" + JeffBezosController.GetScrollSpeedIndex());
+            var (horizontalScrollPos, setHorizontalScrollPos) = Reacc.UseState(Vector2.zero);
 
+            Reacc.UseEffect(() =>
+            {
+                setScrollSpeedText("" + JeffBezosController.GetScrollSpeedIndex());
+            }, new object[] {JeffBezosController.GetScrollSpeedIndex()});
+
+            setHorizontalScrollPos(GUILayout.BeginScrollView(horizontalScrollPos, GUILayout.Height(48)));
             GUILayout.BeginHorizontal();
 
             JeffBezosController.SetAssistMode(Toggle(JeffBezosController.GetAssistMode(), "Assist Mode"));
@@ -23,8 +29,9 @@ namespace CustomBeatmaps.UI
                 new[] {"Regular", "Half Time", "Double Time"}));
 
             GUILayout.BeginHorizontal();
-            GUILayout.Label("Scroll Speed:", GUILayout.ExpandWidth(false));
+            GUILayout.Label("Scroll Speed:", GUILayout.Width(64 + 32));
             scrollSpeedText = GUILayout.TextField(scrollSpeedText, GUILayout.ExpandWidth(false));
+            GUILayout.Space(16);
             setScrollSpeedText(scrollSpeedText);
             int spd;
             if (int.TryParse(scrollSpeedText, out spd))
@@ -37,12 +44,14 @@ namespace CustomBeatmaps.UI
 
             // Room options
             GUILayout.BeginHorizontal(GUILayout.ExpandWidth(false));
-            GUILayout.Label("Stage:", GUILayout.ExpandWidth(false));
+            GUILayout.Label("Stage:", GUILayout.Width(64));
             CustomBeatmaps.Memory.SelectedRoom = GUILayout.Toolbar(CustomBeatmaps.Memory.SelectedRoom,
                 UnbeatableHelper.Rooms.Select(room => room.Name).ToArray(), GUILayout.ExpandWidth(false));
             GUILayout.EndHorizontal();
 
             GUILayout.EndHorizontal();
+            
+            GUILayout.EndScrollView();
         }
         private static int Toggle(int mode, string text)
         {

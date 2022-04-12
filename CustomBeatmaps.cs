@@ -69,7 +69,6 @@ namespace CustomBeatmaps
             ConfigHelper.LoadConfig("CustomBeatmapsV3-Data/custombeatmaps_backend.json", () => new BackendConfig(), config => BackendConfig = config);
 
             UserSession = new UserSession();
-
             Downloader = new BeatmapDownloader();
         }
 
