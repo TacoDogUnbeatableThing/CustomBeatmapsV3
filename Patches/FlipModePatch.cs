@@ -11,7 +11,6 @@ namespace CustomBeatmaps.Patches
         [HarmonyPostfix]
         private static void FlipLoadedBeatmapsAfterLoad(ref Queue<NoteInfo> ___notes)
         {
-            FlipInfo f;
             if (CustomBeatmaps.Memory.FlipMode)
             {
                 var og = ___notes.ToArray();
