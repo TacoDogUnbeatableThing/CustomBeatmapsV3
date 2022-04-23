@@ -48,7 +48,7 @@ namespace CustomBeatmaps.UI.Highscore
                 player = $"<color=yellow><b>{player}</b></color>";
             }
 
-            int minL = FcModeLeftPad + 16;
+            int minL = FcModeLeftPad + 64;
             bool tooSmall = r.width - AccuracyRightPad < minL;
 
 
@@ -58,7 +58,7 @@ namespace CustomBeatmaps.UI.Highscore
             int fcModeLeftPad = FcModeLeftPad;
             if (tooSmall)
             {
-                fcModeLeftPad = NameLeftPad + 128;
+                fcModeLeftPad = (int)(r.width - AccuracyRightPad - 64);
             }
 
             GUI.Label(new Rect(r.x, r.y - 2, RankLeftPad, r.height), $"<b>{rank.ToString()}</b>", rightPadStyle);
@@ -73,7 +73,7 @@ namespace CustomBeatmaps.UI.Highscore
             if (tooSmall)
             {
                 scoreRightPad = 64;
-                accuracyRightPad = (int)r.width - minL;
+                accuracyRightPad = scoreRightPad + 64;
             }
 
             GUI.Label(Oxr(r, accuracyRightPad), $"{entry.Accuracy * 100:0.00}%", lastLabelStyle);
