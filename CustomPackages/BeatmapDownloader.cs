@@ -15,8 +15,7 @@ namespace CustomBeatmaps.CustomPackages
             // Check the local package folder, if it exists then we've downloaded it
             string packageFolder = CustomPackageHelper.GetLocalFolderFromServerPackageURL(Config.Mod.ServerPackagesDir, serverPackageURL);
 
-            if (Directory.Exists(packageFolder) && CustomBeatmaps.LocalServerPackages.PackageExists(CustomPackageHelper.GetLocalFolderFromServerPackageURL(
-                    Config.Mod.ServerPackagesDir, serverPackageURL)))
+            if (CustomBeatmaps.LocalServerPackages.PackageExists(packageFolder))
                 return BeatmapDownloadStatus.Downloaded;
 
             // Check if we're downloading/are queued to download this file...

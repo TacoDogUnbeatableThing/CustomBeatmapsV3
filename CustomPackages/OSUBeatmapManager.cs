@@ -59,7 +59,7 @@ namespace CustomBeatmaps.CustomPackages
             lock (_beatmaps)
             {
                 string folder = OSUHelper.GetOsuPath(Config.Mod.OsuSongsOverrideDirectory);
-                var bmaps = OSUHelper.GetOsuBeatmaps(folder);
+                var bmaps = OSUHelper.LoadOsuBeatmaps(folder);
                 if (bmaps != null)
                 {
                     _beatmaps.Clear();

@@ -11,7 +11,11 @@ namespace CustomBeatmaps.CustomPackages
     /// </summary>
     public class LocalPackageManager
     {
+        public Action<CustomLocalPackage> PackageUpdated;
+
         private readonly List<CustomLocalPackage> _packages = new List<CustomLocalPackage>();
+        private readonly HashSet<string> _downloadedFolders = new HashSet<string>();
+
         private readonly Action<BeatmapException> _onLoadException;
 
         private readonly Queue<string> _loadQueue = new Queue<string>();
@@ -34,15 +38,23 @@ namespace CustomBeatmaps.CustomPackages
 
                 _packages.Clear();
                 _packages.AddRange(CustomPackageHelper.LoadLocalPackages(_folder, _onLoadException));
+                lock (_downloadedFolders)
+                {
+                    _downloadedFolders.Clear();
+                    foreach (var package in _packages)
+                    {
+                        _downloadedFolders.Add(Path.GetFullPath(package.FolderName));
+                    }
+                }
             }
         }
 
         private void UpdatePackage(string folderPath)
         {
-            ScheduleHelper.SafeLog($"UPDATING PACKAGE: {folderPath}");
             if (CustomPackageHelper.TryLoadLocalPackage(folderPath, _folder, out CustomLocalPackage package, true,
                     _onLoadException))
             {
+                ScheduleHelper.SafeLog($"UPDATING PACKAGE: {folderPath}");
                 lock (_packages)
                 {
                     // Remove old package if there was one and update
@@ -50,11 +62,41 @@ namespace CustomBeatmaps.CustomPackages
                     if (toRemove != -1)
                         _packages.RemoveAt(toRemove);
                     _packages.Add(package);
+                    lock (_downloadedFolders)
+                    {
+                        _downloadedFolders.Add(Path.GetFullPath(package.FolderName));
+                    }
                 }
+                PackageUpdated?.Invoke(package);
             }
             else
             {
-                ScheduleHelper.SafeLog("    cannot find package!!!");
+                ScheduleHelper.SafeLog($"CANNOT find package: {folderPath}");
+            }
+        }
+
+        private void RemovePackage(string folderPath)
+        {
+            lock (_packages)
+            {
+                string fullPath = Path.GetFullPath(folderPath);
+                int toRemove = _packages.FindIndex(check => check.FolderName == fullPath);
+                if (toRemove != -1)
+                {
+                    var p = _packages[toRemove];
+                    _packages.RemoveAt(toRemove);
+                    lock (_downloadedFolders)
+                    {
+                        _downloadedFolders.Remove(fullPath);
+                    }
+
+                    ScheduleHelper.SafeLog($"REMOVED PACKAGE: {fullPath}");
+                    PackageUpdated?.Invoke(p);
+                }
+                else
+                {
+                    ScheduleHelper.SafeLog($"CANNOT find package to remove: {folderPath}");
+                }
             }
         }
 
@@ -70,14 +112,11 @@ namespace CustomBeatmaps.CustomPackages
 
         public bool PackageExists(string folder)
         {
-            string targetFullPath = Path.GetFullPath(folder);
-            foreach (var package in Packages)
+            lock (_downloadedFolders)
             {
-                if (Path.GetFullPath(package.FolderName) == targetFullPath)
-                    return true;
+                string targetFullPath = Path.GetFullPath(folder);
+                return _downloadedFolders.Contains(targetFullPath);
             }
-
-            return false;
         }
 
         /// <summary>
@@ -149,9 +188,18 @@ namespace CustomBeatmaps.CustomPackages
         {
             string changedFilePath = Path.GetFullPath(evt.FullPath);
             // The root folder within the packages folder we consider to be a "package"
-            string basePackageFolder = Path.Combine(_folder, StupidMissingTypesHelper.GetPathRoot(changedFilePath.Substring(_folder.Length + 1)));
-            ScheduleHelper.SafeLog($"Local Package Change: {basePackageFolder}");
+            string basePackageFolder = Path.GetFullPath(Path.Combine(_folder, StupidMissingTypesHelper.GetPathRoot(changedFilePath.Substring(_folder.Length + 1))));
 
+            // Special case: Root package folder is deleted, we delete a package.
+            if (evt.ChangeType == WatcherChangeTypes.Deleted && basePackageFolder == changedFilePath)
+            {
+                ScheduleHelper.SafeLog($"Local Package DELETE: {basePackageFolder}");
+                RemovePackage(basePackageFolder);
+                return;
+            }
+
+            ScheduleHelper.SafeLog($"Local Package Change: {evt.ChangeType}: {basePackageFolder} ");
+            
             lock (_loadQueue)
             {
                 // We should refresh queued packages in bulk.

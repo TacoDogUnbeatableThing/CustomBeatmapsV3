@@ -7,7 +7,7 @@ namespace CustomBeatmaps.Util
 {
     public static class OSUHelper
     {
-        public static CustomBeatmapInfo[] GetOsuBeatmaps(string path)
+        public static CustomBeatmapInfo[] LoadOsuBeatmaps(string path)
         {
             path = GetOsuPath(path);
             if (Directory.Exists(path))
