@@ -28,7 +28,7 @@ namespace CustomBeatmaps.UI
             // Regen headers after updating a server package
             CustomBeatmaps.LocalServerPackages.PackageUpdated += package =>
             {
-                RegenerateHeaders();
+                RegenerateHeaders(true);
             };
         }
         
@@ -222,7 +222,7 @@ namespace CustomBeatmaps.UI
             var l = _list.Packages.ToList();
             UIConversionHelper.SortServerPackages(l, sortMode);
             _list.Packages = l.ToArray();
-            RegenerateHeaders();
+            RegenerateHeaders(false);
         }
         
         private static void ReloadPackageList(SortMode sortMode)
@@ -249,7 +249,7 @@ namespace CustomBeatmaps.UI
         }
 
         private static bool _headerRegenerationQueued;
-        private static void RegenerateHeaders()
+        private static void RegenerateHeaders(bool delayed)
         {
             if (_headerRegenerationQueued)
                 return;
@@ -257,7 +257,8 @@ namespace CustomBeatmaps.UI
             Task.Run(async () =>
             {
                 // Wait a bit for file system to uh do its thing
-                await Task.Delay(300);
+                if (delayed)
+                    await Task.Delay(300);
                 ScheduleHelper.SafeLog("    RELOADING HEADERS");
                 _headers = new List<PackageHeader>(_list.Packages.Length);
                 foreach (var serverPackage in _list.Packages)
