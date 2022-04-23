@@ -96,7 +96,6 @@ namespace CustomBeatmaps.Util
         public static CustomLocalPackage[] LoadLocalPackages(string folderPath, Action<BeatmapException> onBeatmapFail=null)
         {
             folderPath = Path.GetFullPath(folderPath);
-            ScheduleHelper.SafeLog($"LOADING PACKAGES FROM {folderPath}");
 
             List<CustomLocalPackage> result = new List<CustomLocalPackage>();
 
@@ -108,7 +107,6 @@ namespace CustomBeatmaps.Util
                 {
                     result.Add(potentialNewPackage);
                 }
-
             }
 
             // Files = packages too! For compatibility with V1 (cause why not)

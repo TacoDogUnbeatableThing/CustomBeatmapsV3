@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
 using CustomBeatmaps.Util;
-using UnityEngine;
 
 namespace CustomBeatmaps.CustomPackages
 {
@@ -14,6 +14,8 @@ namespace CustomBeatmaps.CustomPackages
         private readonly List<CustomLocalPackage> _packages = new List<CustomLocalPackage>();
         private readonly Action<BeatmapException> _onLoadException;
 
+        private readonly Queue<string> _loadQueue = new Queue<string>();
+
         private string _folder;
         private FileSystemWatcher _watcher;
 
@@ -22,14 +24,37 @@ namespace CustomBeatmaps.CustomPackages
             _onLoadException = onLoadException;
         }
 
-        private void Reload()
+        private void ReloadAll()
         {
             if (_folder == null)
                 return;
             lock (_packages)
             {
+                ScheduleHelper.SafeLog($"RELOADING ALL PACKAGES FROM {_folder}");
+
                 _packages.Clear();
                 _packages.AddRange(CustomPackageHelper.LoadLocalPackages(_folder, _onLoadException));
+            }
+        }
+
+        private void UpdatePackage(string folderPath)
+        {
+            ScheduleHelper.SafeLog($"UPDATING PACKAGE: {folderPath}");
+            if (CustomPackageHelper.TryLoadLocalPackage(folderPath, _folder, out CustomLocalPackage package, true,
+                    _onLoadException))
+            {
+                lock (_packages)
+                {
+                    // Remove old package if there was one and update
+                    int toRemove = _packages.FindIndex(check => check.FolderName == package.FolderName);
+                    if (toRemove != -1)
+                        _packages.RemoveAt(toRemove);
+                    _packages.Add(package);
+                }
+            }
+            else
+            {
+                ScheduleHelper.SafeLog("    cannot find package!!!");
             }
         }
 
@@ -97,6 +122,7 @@ namespace CustomBeatmaps.CustomPackages
 
         public void SetFolder(string folder)
         {
+            folder = Path.GetFullPath(folder);
             if (folder == _folder)
                 return;
 
@@ -114,9 +140,50 @@ namespace CustomBeatmaps.CustomPackages
             }
 
             // Watch for changes
-            _watcher = FileWatchHelper.WatchFolder(folder, true, Reload);
+            _watcher = FileWatchHelper.WatchFolder(folder, true, OnFileChange);
             // Reload now
-            Reload();
+            ReloadAll();
+        }
+
+        private void OnFileChange(FileSystemEventArgs evt)
+        {
+            string changedFilePath = Path.GetFullPath(evt.FullPath);
+            // The root folder within the packages folder we consider to be a "package"
+            string basePackageFolder = Path.Combine(_folder, StupidMissingTypesHelper.GetPathRoot(changedFilePath.Substring(_folder.Length + 1)));
+            ScheduleHelper.SafeLog($"Local Package Change: {basePackageFolder}");
+
+            lock (_loadQueue)
+            {
+                // We should refresh queued packages in bulk.
+                bool isFirst = _loadQueue.Count == 0;
+                if (!_loadQueue.Contains(basePackageFolder))
+                {
+                    _loadQueue.Enqueue(basePackageFolder);
+                }
+
+                if (isFirst)
+                {
+                    // Wait for potential other loads to come in
+                    Task.Run(async () =>
+                    {
+                        await Task.Delay(400);
+                        RefreshQueuedPackages();
+                    });
+                }
+            }
+        }
+
+        private void RefreshQueuedPackages()
+        {
+            while (true)
+            {
+                lock (_loadQueue)
+                {
+                    if (_loadQueue.Count <= 0)
+                        break;
+                    UpdatePackage(_loadQueue.Dequeue());
+                }
+            }
         }
     }
 }

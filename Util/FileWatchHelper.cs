@@ -21,13 +21,13 @@ namespace CustomBeatmaps.Util
                 IncludeSubdirectories = false
             };
 
-            FileSystemEventHandler Do = (sender, args) =>
+            void Do(object sender, FileSystemEventArgs args)
             {
                 if (Path.GetFullPath(filePath) == Path.GetFullPath(args.FullPath))
                 {
                     onChange.Invoke();
                 }
-            };
+            }
 
             fileWatcher.Changed += Do;
             fileWatcher.Created += Do;
@@ -37,7 +37,7 @@ namespace CustomBeatmaps.Util
             return fileWatcher;
         }
 
-        public static FileSystemWatcher WatchFolder(string dirPath, bool recursive, Action onChange)
+        public static FileSystemWatcher WatchFolder(string dirPath, bool recursive, Action<FileSystemEventArgs> onChange)
         {
             var fileWatcher = new FileSystemWatcher
             {
@@ -49,10 +49,16 @@ namespace CustomBeatmaps.Util
                 Filter = "*",
                 IncludeSubdirectories = recursive
             };
-            fileWatcher.Changed += (sender, args) => onChange.Invoke();
-            fileWatcher.Created += (sender, args) => onChange.Invoke();
-            fileWatcher.Deleted += (sender, args) => onChange.Invoke();
-            fileWatcher.Renamed += (sender, args) => onChange.Invoke();
+
+            void Do(object sender, FileSystemEventArgs args)
+            {
+                onChange.Invoke(args);
+            }
+
+            fileWatcher.Changed += Do;
+            fileWatcher.Created += Do;
+            fileWatcher.Deleted += Do;
+            fileWatcher.Renamed += Do;
 
             return fileWatcher;
         }

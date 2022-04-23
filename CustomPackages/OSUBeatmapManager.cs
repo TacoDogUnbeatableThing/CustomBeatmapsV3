@@ -41,7 +41,7 @@ namespace CustomBeatmaps.CustomPackages
             try
             {
                 // Watch for changes
-                _watcher = FileWatchHelper.WatchFolder(folder, true, Reload);
+                _watcher = FileWatchHelper.WatchFolder(folder, true, evt => Reload());
             }
             catch (Exception e)
             {
