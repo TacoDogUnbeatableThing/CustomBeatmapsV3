@@ -1,4 +1,5 @@
-﻿using CustomBeatmaps.Util;
+﻿using System.Collections.Generic;
+using CustomBeatmaps.Util;
 using HarmonyLib;
 using Rhythm;
 
@@ -6,24 +7,31 @@ namespace CustomBeatmaps.Patches
 {
     public static class FlipModePatch
     {
-        [HarmonyPatch(typeof(Rhythm.RhythmController), "CreateNote", typeof(NoteInfo), typeof(bool))]
-        [HarmonyPrefix]
-        private static void FlipNotesBeforeGenerating(ref NoteInfo info)
+        [HarmonyPatch(typeof(Rhythm.RhythmController), "Start")]
+        [HarmonyPostfix]
+        private static void FlipLoadedBeatmapsAfterLoad(ref Queue<NoteInfo> ___notes)
         {
+            FlipInfo f;
             if (CustomBeatmaps.Memory.FlipMode)
             {
-                switch (info.height)
+                var og = ___notes.ToArray();
+                ___notes.Clear();
+                foreach (var note in og)
                 {
-                    case Height.Low:
-                        info.height = Height.Top;
-                        break;
-                    case Height.Top:
-                        info.height = Height.Low;
-                        break;
+                    switch (note.height)
+                    {
+                        case Height.Low:
+                            note.height = Height.Top;
+                            break;
+                        case Height.Top:
+                            note.height = Height.Low;
+                            break;
+                    }
+                    ___notes.Enqueue(note);
                 }
             }
         }
-        
+
         [HarmonyPatch(typeof(BeatmapOptionsMenu), "Start")]
         [HarmonyPostfix]
         private static void AddNoMissOption(BeatmapOptionsMenu __instance)
