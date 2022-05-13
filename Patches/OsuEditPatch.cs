@@ -23,7 +23,7 @@ namespace CustomBeatmaps.Patches
 
         private static Rhythm.RhythmController _rhythmController;
 
-        private static bool EditMode => _editMode;
+        public static bool EditMode => _editMode;
         private static bool _paused;
 
         public static bool AutoReload = true;
