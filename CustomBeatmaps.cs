@@ -32,7 +32,7 @@ namespace CustomBeatmaps
         public static GameMemory Memory { get; private set; }
 
         private static readonly string MEMORY_LOCATION = "CustomBeatmapsV3-Data/.memory";
-        
+
         // Check for config reload every 2 seconds
         private readonly Timer _checkConfigReload = new Timer(2000);
 
@@ -52,10 +52,7 @@ namespace CustomBeatmaps
                 Directory.CreateDirectory("CustomBeatmapsV3-Data");
 
             // Load game memory from disk
-            if (File.Exists(MEMORY_LOCATION))
-                Memory = SerializeHelper.LoadJSON<GameMemory>(MEMORY_LOCATION);
-            else
-                Memory = new GameMemory();
+            Memory = GameMemory.Load(MEMORY_LOCATION);
 
             ConfigHelper.LoadConfig("custombeatmaps_config.json",() => new ModConfig(), config =>
             {

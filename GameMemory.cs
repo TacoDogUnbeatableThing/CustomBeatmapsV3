@@ -1,4 +1,6 @@
-﻿using CustomBeatmaps.UI;
+﻿using System.IO;
+using CustomBeatmaps.UI;
+using CustomBeatmaps.Util;
 
 namespace CustomBeatmaps
 {
@@ -10,5 +12,12 @@ namespace CustomBeatmaps
         // Extra modes for fun!
         public bool OneLifeMode = false;
         public bool FlipMode = false;
+
+        public static GameMemory Load(string path)
+        {
+            if (File.Exists(path))
+                return SerializeHelper.LoadJSON<GameMemory>(path);
+            return new GameMemory();
+        }
     }
 }
