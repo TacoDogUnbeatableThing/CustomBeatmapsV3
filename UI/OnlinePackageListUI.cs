@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using CustomBeatmaps.CustomPackages;
@@ -117,9 +118,22 @@ namespace CustomBeatmaps.UI
                             if (downloadStatus == BeatmapDownloadStatus.Downloaded)
                             {
                                 var localPackages = CustomBeatmaps.LocalServerPackages;
-                                var (_, selectedBeatmap) = localPackages.FindCustomBeatmapInfoFromServer(selectedPackage.ServerURL, selectedBeatmapKeyPath);
-                                string highScoreKey = UserServerHelper.GetHighScoreLocalEntryFromCustomBeatmap(Config.Mod.ServerPackagesDir, Config.Mod.UserPackagesDir, selectedBeatmap.OsuPath);
-                                PersonalHighScoreUI.Render(highScoreKey);
+                                try
+                                {
+                                    var (_, selectedBeatmap) =
+                                        localPackages.FindCustomBeatmapInfoFromServer(selectedPackage.ServerURL,
+                                            selectedBeatmapKeyPath);
+                                    string highScoreKey =
+                                        UserServerHelper.GetHighScoreLocalEntryFromCustomBeatmap(
+                                            Config.Mod.ServerPackagesDir, Config.Mod.UserPackagesDir,
+                                            selectedBeatmap.OsuPath);
+                                    PersonalHighScoreUI.Render(highScoreKey);
+                                }
+                                catch (Exception e)
+                                {
+                                    Debug.LogWarning("Invalid package found: (ignoring)");
+                                    Debug.LogException(e);
+                                }
                             }
                             // SERVER high scores
                             HighScoreListUI.Render(UserServerHelper.GetHighScoreBeatmapKeyFromServerBeatmap(selectedPackage.ServerURL, selectedBeatmapKeyPath));
@@ -173,17 +187,34 @@ namespace CustomBeatmaps.UI
                             switch (downloadStatus)
                             {
                                 case BeatmapDownloadStatus.Downloaded:
-                                    var localPackages = CustomBeatmaps.LocalServerPackages;
-                                    // Play a local beatmap
-                                    var (localPackage, customBeatmapInfo) = localPackages.FindCustomBeatmapInfoFromServer(selectedPackage.ServerURL, selectedBeatmapKeyPath);
-                                    // Preview, cause we can!
-                                    if (customBeatmapInfo != null)
-                                        WhiteLabelMainMenuPatch.PlaySongPreview(customBeatmapInfo.RealAudioKey);
-                                    if (buttonPressed)
+                                    try
                                     {
-                                        UnbeatableHelper.PlayBeatmap(customBeatmapInfo, true, UnbeatableHelper.GetSceneNameByIndex(CustomBeatmaps.Memory.SelectedRoom));
-                                        CustomBeatmaps.PlayedPackageManager.RegisterPlay(localPackage.FolderName);
+                                        var localPackages = CustomBeatmaps.LocalServerPackages;
+                                        // Play a local beatmap
+                                        var (localPackage, customBeatmapInfo) =
+                                            localPackages.FindCustomBeatmapInfoFromServer(selectedPackage.ServerURL,
+                                                selectedBeatmapKeyPath);
+                                        // Preview, cause we can!
+                                        if (customBeatmapInfo != null)
+                                            WhiteLabelMainMenuPatch.PlaySongPreview(customBeatmapInfo.RealAudioKey);
+                                        if (buttonPressed)
+                                        {
+                                            UnbeatableHelper.PlayBeatmap(customBeatmapInfo, true,
+                                                UnbeatableHelper.GetSceneNameByIndex(CustomBeatmaps.Memory
+                                                    .SelectedRoom));
+                                            CustomBeatmaps.PlayedPackageManager.RegisterPlay(localPackage.FolderName);
+                                        }
                                     }
+                                    catch (InvalidOperationException e)
+                                    {
+                                        if (PlayButtonUI.Render("INVALID PACKAGE: Redownload"))
+                                        {
+                                            // Delete + redownload
+                                            Directory.Delete(CustomPackageHelper.GetLocalFolderFromServerPackageURL(Config.Mod.ServerPackagesDir, selectedPackage.ServerURL), true);
+                                            CustomBeatmaps.Downloader.QueueDownloadPackage(selectedPackage.ServerURL);
+                                        }
+                                    }
+
                                     break;
                                 case BeatmapDownloadStatus.NotDownloaded:
                                     WhiteLabelMainMenuPatch.StopSongPreview();
