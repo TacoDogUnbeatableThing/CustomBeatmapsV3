@@ -205,7 +205,7 @@ namespace CustomBeatmaps.UI
                                             CustomBeatmaps.PlayedPackageManager.RegisterPlay(localPackage.FolderName);
                                         }
                                     }
-                                    catch (InvalidOperationException e)
+                                    catch (InvalidOperationException)
                                     {
                                         if (PlayButtonUI.Render("INVALID PACKAGE: Redownload"))
                                         {
