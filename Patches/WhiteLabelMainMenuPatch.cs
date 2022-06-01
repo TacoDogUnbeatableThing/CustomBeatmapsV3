@@ -200,6 +200,16 @@ namespace CustomBeatmaps.Patches
         [HarmonyPrefix]
         static void MenuDefaultPreUpdate(WhiteLabelMainMenu __instance, ref bool __runOriginal, ref WrapCounter ___selectionInc, Player ___rewired)
         {
+            // Make the menu hold the proper number of options
+            if (__instance.menuState == WhiteLabelMainMenu.MenuState.DEFAULT)
+            {
+                if (___selectionInc.count != _mainMenuWrapCount)
+                {
+                    Debug.Log("(Reset menu count)");
+                    ___selectionInc = new WrapCounter(_mainMenuWrapCount, ___selectionInc.value);
+                }
+            }
+
             // We selected our custom option
             if (___selectionInc == 3 && ___rewired.GetButtonDown("Interact"))
             {
