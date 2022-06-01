@@ -116,6 +116,7 @@ namespace CustomBeatmaps
                 {
                     // Reload game
                     Memory.OpeningDisclaimerDisabled = true;
+                    GameMemory.Save(MEMORY_LOCATION, Memory);
                     SceneManager.LoadScene(0);
                 };
             }
@@ -126,7 +127,7 @@ namespace CustomBeatmaps
         {
             // Save our memory
             if (!_quitted)
-                SerializeHelper.SaveJSON(MEMORY_LOCATION, Memory);
+                GameMemory.Save(MEMORY_LOCATION, Memory);
             _quitted = true;
         }
 
@@ -134,7 +135,7 @@ namespace CustomBeatmaps
         {
             // Save our memory
             if (!_quitted)
-                SerializeHelper.SaveJSON(MEMORY_LOCATION, Memory);
+                GameMemory.Save(MEMORY_LOCATION, Memory);
             _quitted = true;
         }
     }

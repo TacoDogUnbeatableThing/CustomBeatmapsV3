@@ -11,7 +11,7 @@ namespace CustomBeatmaps.UI
 {
     public static class OSUPackageListUI
     {
-        private static bool _overrideCountdown = false;
+        private static bool _overrideCountdown = true;
 
         public static void Render(Action onRenderAboveList)
         {
@@ -28,7 +28,9 @@ namespace CustomBeatmaps.UI
                 WhiteLabelMainMenuPatch.StopSongPreview();
                 return;
             }
-            
+
+            GUILayout.Label(CustomBeatmaps.OSUBeatmapManager.WarningMessages);
+
             if (osuBeatmaps.Length == 0)
             {
                 GUILayout.Label("No OSU beatmaps found!");

@@ -10,6 +10,8 @@ namespace CustomBeatmaps.CustomPackages
         private readonly List<CustomBeatmapInfo> _beatmaps = new List<CustomBeatmapInfo>();
         private string _folderOverride;
 
+        public string WarningMessages;
+
         private FileSystemWatcher _watcher;
 
         public CustomBeatmapInfo[] OsuBeatmaps {
@@ -59,7 +61,7 @@ namespace CustomBeatmaps.CustomPackages
             lock (_beatmaps)
             {
                 string folder = OSUHelper.GetOsuPath(Config.Mod.OsuSongsOverrideDirectory);
-                var bmaps = OSUHelper.LoadOsuBeatmaps(folder);
+                var bmaps = OSUHelper.LoadOsuBeatmaps(folder, out WarningMessages);
                 if (bmaps != null)
                 {
                     _beatmaps.Clear();

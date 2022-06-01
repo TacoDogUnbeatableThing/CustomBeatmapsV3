@@ -108,6 +108,9 @@ namespace CustomBeatmaps.Patches
         {
             _current = __instance;
 
+            // Disable OSU edit mode when opening up vanilla maps
+            OsuEditorPatch.SetEditMode(false);
+
             // Create custom UI
             _customBeatmapsUIBehaviour = new GameObject().AddComponent<CustomBeatmapsUIBehaviour>();
             _walkmanHighScoreUI = new GameObject().AddComponent<HighScoreUIBehaviour>();

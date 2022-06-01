@@ -7,8 +7,9 @@ namespace CustomBeatmaps.Util
 {
     public static class OSUHelper
     {
-        public static CustomBeatmapInfo[] LoadOsuBeatmaps(string path)
+        public static CustomBeatmapInfo[] LoadOsuBeatmaps(string path, out string failMessage)
         {
+            failMessage = "";
             path = GetOsuPath(path);
             if (Directory.Exists(path))
             {
@@ -19,7 +20,15 @@ namespace CustomBeatmaps.Util
                     {
                         if (file.EndsWith(".osu"))
                         {
-                            beatmaps.Add(CustomPackageHelper.LoadLocalBeatmap(file));
+                            try
+                            {
+                                var b = CustomPackageHelper.LoadLocalBeatmap(file);
+                                beatmaps.Add(b);
+                            }
+                            catch (Exception e)
+                            {
+                                failMessage += e.Message + "\n";
+                            }
                         }
                     }
                 }

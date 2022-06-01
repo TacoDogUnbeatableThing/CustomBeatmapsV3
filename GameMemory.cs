@@ -19,5 +19,10 @@ namespace CustomBeatmaps
                 return SerializeHelper.LoadJSON<GameMemory>(path);
             return new GameMemory();
         }
+
+        public static void Save(string path, GameMemory gameMemory)
+        {
+            SerializeHelper.SaveJSON(path, gameMemory);
+        }
     }
 }
