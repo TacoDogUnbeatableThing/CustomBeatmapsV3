@@ -6,11 +6,11 @@ namespace CustomBeatmaps.Patches
     {
         [HarmonyPatch(typeof(PauseMenu), "Start")]
         [HarmonyPostfix]
-        private static void DisableQuitNameChange(ref string ___sceneName)
+        private static void DisableQuitNameChange(ref string ___cachedSceneName)
         {
             if (CustomBeatmapLoadingOverridePatch.CustomBeatmapSet())
             {
-                ___sceneName = ""; // We don't care what it is tbh
+                ___cachedSceneName = ""; // We don't care what it is tbh
             }
         }
     }

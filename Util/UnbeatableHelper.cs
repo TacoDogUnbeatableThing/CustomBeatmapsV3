@@ -66,7 +66,22 @@ namespace CustomBeatmaps.Util
         public static bool UsingHighScoreProhibitedAssists()
         {
             // We include flip mode because _potentially_ it might be used to make high notes easier to hit?
-            return JeffBezosController.useAssistMode || JeffBezosController.songSpeed < 1 || JeffBezosController.noFail || CustomBeatmaps.Memory.FlipMode;
+            return (JeffBezosController.GetAssistMode() == 1) || GetSongSpeed(JeffBezosController.GetSongSpeed()) < 1 || (JeffBezosController.GetNoFail() == 1) || CustomBeatmaps.Memory.FlipMode;
+        }
+
+        public static float GetSongSpeed(int songSpeedIndex)
+        {
+            switch (songSpeedIndex)
+            {
+                case 0:
+                    return 1f;
+                case 1:
+                    return 0.5f;
+                case 2:
+                    return 2f;
+                default:
+                    throw new InvalidOperationException($"Invalid song speed index: {songSpeedIndex}");
+            }
         }
 
         public static HighScoreList LoadWhiteLabelHighscores()

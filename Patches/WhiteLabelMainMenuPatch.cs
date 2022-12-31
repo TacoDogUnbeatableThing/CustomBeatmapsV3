@@ -72,7 +72,7 @@ namespace CustomBeatmaps.Patches
                 songPreviewInstance = RuntimeManager.CreateInstance(_current.songPreviewEvent);
                 SongPreviewInstanceInfo.SetValue(_current, songPreviewInstance);
                 RhythmTracker.PrepareInstance(songPreviewInstance, PlaySource.FromFile, audioFile);
-                int num3 = (int) songPreviewInstance.setPitch(JeffBezosController.songSpeed);
+                int num3 = (int) songPreviewInstance.setPitch(UnbeatableHelper.GetSongSpeed(JeffBezosController.GetSongSpeed()));
                 int num4 = (int) songPreviewInstance.start();
             }
         }
