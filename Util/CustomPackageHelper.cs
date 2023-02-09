@@ -172,6 +172,8 @@ namespace CustomBeatmaps.Util
 
         private static async Task DownloadPackageInner(string downloadURL, string targetFolder)
         {
+            ScheduleHelper.SafeLog($"Downloading package from {downloadURL} to {targetFolder}");
+            
             string tempDownloadFilePath = ".TEMP.zip";
 
             // Impromptu mutex, as per usual.
