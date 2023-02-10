@@ -184,14 +184,20 @@ namespace CustomBeatmaps.Util
             }
 
             _dealingWithTempFile = true;
+            try
+            {
+                await FetchHelper.DownloadFile(downloadURL, tempDownloadFilePath);
 
-            await FetchHelper.DownloadFile(downloadURL, tempDownloadFilePath);
-
-            // Extract
-            System.IO.Compression.ZipFile.ExtractToDirectory(tempDownloadFilePath, targetFolder, true);
-            // Delete old
-            File.Delete(tempDownloadFilePath);
-
+                // Extract
+                ZipFile.ExtractToDirectory(tempDownloadFilePath, targetFolder, true);
+                // Delete old
+                File.Delete(tempDownloadFilePath);
+            }
+            catch (Exception)
+            {
+                _dealingWithTempFile = false;
+                throw;
+            }
             _dealingWithTempFile = false;
         }
         

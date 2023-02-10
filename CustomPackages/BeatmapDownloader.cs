@@ -34,9 +34,18 @@ namespace CustomBeatmaps.CustomPackages
         {
             _currentlyDownloading = serverPackageURL;
 
-            await CustomPackageHelper.DownloadPackage(Config.Backend.ServerStorageURL, Config.Backend.ServerPackageRoot,
-                Config.Mod.ServerPackagesDir, serverPackageURL);
-            
+            try
+            {
+                await CustomPackageHelper.DownloadPackage(Config.Backend.ServerStorageURL,
+                    Config.Backend.ServerPackageRoot,
+                    Config.Mod.ServerPackagesDir, serverPackageURL);
+            }
+            catch (Exception e)
+            {
+                ScheduleHelper.SafeLog($"FAILED DOWNLOADING PACKAGE (skipping): {e}");
+                _currentlyDownloading = null;
+            }
+
             // We downloaded one, grab the next one.
             lock (_queuedIdsToDownload)
             {
