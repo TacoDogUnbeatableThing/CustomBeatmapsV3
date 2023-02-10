@@ -32,15 +32,15 @@ namespace CustomBeatmaps.CustomPackages
 
             Failure = null;
             _loading = true;
-            Task.WhenAll(HighScoreManager.Reload(Config.Backend.ServerHighScores),
-                LowScoreManager.Reload(Config.Backend.ServerLowScores)).ContinueWith(
+            Task.WhenAll(HighScoreManager.Reload(Config.Backend.ServerHighScores)).ContinueWith(
                 task =>
                 {
                     _loading = false;
 
                     if (task.Exception != null)
                     {
-                        Failure = "Failed to load server scores!";
+                        ScheduleHelper.SafeLog(task.Exception);
+                        Failure = task.Exception.Message;
                         return;
                     }
 
@@ -91,17 +91,6 @@ namespace CustomBeatmaps.CustomPackages
             if (result != null)
             {
                 result.Sort((left, right) => right.Value.Score.CompareTo(left.Value.Score));
-                return result;
-            }
-            return null;
-        }
-        [CanBeNull]
-        public List<KeyValuePair<string, BeatmapHighScoreEntry>> GetLowScores(string beatmapKey)
-        {
-            var result = LowScoreManager.GetScores(beatmapKey);
-            if (result != null)
-            {
-                result.Sort((left, right) => left.Value.Score.CompareTo(right.Value.Score));
                 return result;
             }
             return null;
