@@ -7,6 +7,7 @@ namespace CustomBeatmaps.UI.Highscore
     public class HighScoreUIBehaviour : MonoBehaviour
     {
         public static bool Opened { get; private set; }
+        private static bool Hide;
 
         private bool _showLoginScreen;
         private Func<string> _getBeatmapKey;
@@ -55,9 +56,17 @@ namespace CustomBeatmaps.UI.Highscore
             Opened = false;
         }
 
+        private void Update()
+        {
+            if (Input.GetKeyDown(KeyCode.F5))
+            {
+                Hide = !Hide;
+            }
+        }
+
         private void OnGUI()
         {
-            if (!_opened)
+            if (!_opened || Hide)
                 return;
 
             if (CustomBeatmaps.ServerHighScoreManager.Loaded)
@@ -84,6 +93,9 @@ namespace CustomBeatmaps.UI.Highscore
                     {
                         HighScoreListUI.Render(beatmapScoreKey);
                     }
+
+                    // Hide mode
+                    GUILayout.Label("<size=12><color=gray>F5: Hide</color></size>");
 
                     GUILayout.EndVertical();
 
