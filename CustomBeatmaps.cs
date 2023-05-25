@@ -86,17 +86,31 @@ namespace CustomBeatmaps
             Task.Run(UserSession.AttemptLogin);
 
             // Harmony Patching
-            Harmony.CreateAndPatchAll(typeof(DebugLogPatch));
-            Harmony.CreateAndPatchAll(typeof(WhiteLabelMainMenuPatch));
-            Harmony.CreateAndPatchAll(typeof(CustomBeatmapLoadingOverridePatch));
-            Harmony.CreateAndPatchAll(typeof(OsuEditorPatch));
-            Harmony.CreateAndPatchAll(typeof(HighScoreScreenPatch));
-            Harmony.CreateAndPatchAll(typeof(PauseMenuPatch));
-            Harmony.CreateAndPatchAll(typeof(DisablePracticeRoomOpenerPatch));
-            Harmony.CreateAndPatchAll(typeof(CursorUnhidePatch));
-            Harmony.CreateAndPatchAll(typeof(OneLifeModePatch));
-            Harmony.CreateAndPatchAll(typeof(FlipModePatch));
-            Harmony.CreateAndPatchAll(typeof(SimpleJankHighScoreSongReplacementPatch));
+            Type[] classesToPatch = {
+                typeof(DebugLogPatch),
+                typeof(WhiteLabelMainMenuPatch),
+                typeof(CustomBeatmapLoadingOverridePatch),
+                typeof(OsuEditorPatch),
+                typeof(HighScoreScreenPatch),
+                typeof(PauseMenuPatch),
+                typeof(DisablePracticeRoomOpenerPatch),
+                typeof(CursorUnhidePatch),
+                typeof(OneLifeModePatch),
+                typeof(FlipModePatch),
+                typeof(SimpleJankHighScoreSongReplacementPatch),
+            };
+            foreach (var toPatch in classesToPatch)
+            {
+                try
+                {
+                    Harmony.CreateAndPatchAll(toPatch);
+                }
+                catch (Exception e)
+                {
+                    Logger.LogError("EXCEPTION CAUGHT while PATCHING:");
+                    Logger.LogError(e.ToString());
+                }
+            }
 
             // Disclaimer screen
             if (!Memory.OpeningDisclaimerDisabled)
