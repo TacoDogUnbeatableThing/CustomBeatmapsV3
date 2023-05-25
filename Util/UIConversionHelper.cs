@@ -104,5 +104,38 @@ namespace CustomBeatmaps.Util
             });
         }
 
+        public static bool PackageMatchesFilter(CustomServerPackage serverPackage, string filterQuery)
+        {
+            if (string.IsNullOrEmpty(filterQuery))
+            {
+                return true;
+            }
+
+            bool caseSensitive = filterQuery.ToLower() != filterQuery;
+
+            foreach (var (bmapName, bmap) in serverPackage.Beatmaps)
+            {
+                string[] possibleMatches = new[]
+                {
+                    bmapName,
+                    bmap.Name,
+                    bmap.Artist,
+                    bmap.Creator,
+                    bmap.Difficulty
+                };
+                foreach (var possibleMatch in possibleMatches)
+                {
+                    string toCheck = caseSensitive
+                        ? possibleMatch
+                        : possibleMatch.ToLower();
+                    if (toCheck.Contains(filterQuery))
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
     }
 }

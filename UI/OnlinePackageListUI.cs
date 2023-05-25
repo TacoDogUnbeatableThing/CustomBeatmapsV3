@@ -40,6 +40,7 @@ namespace CustomBeatmaps.UI
             var (selectedBeatmapIndex, setSelectedBeatmapIndex) = Reacc.UseState(0);
 
             var (sortMode, setSortMode) = Reacc.UseState(SortMode.New);
+            var (searchText, setSearchText) = Reacc.UseState("");
 
             // Load packages from server the first time we open this
             Reacc.UseEffect(() => ReloadPackageList(sortMode));
@@ -61,7 +62,7 @@ namespace CustomBeatmaps.UI
                 return;
             }
 
-            if (_list.Packages.Length == 0 || _headers == null || _headers.Count == 0)
+            if (_list.Packages.Length == 0 || _headers == null)
             {
                 RenderReloadHeader("No packages found!");
                 return;
@@ -98,6 +99,12 @@ namespace CustomBeatmaps.UI
                     {
                         SortModePickerUI.Render(sortMode, setSortMode);
                     }, sortMode);
+                    string searchTextInput = GUILayout.TextArea(searchText);
+                    if (searchTextInput != searchText)
+                    {
+                        setSearchText(searchTextInput);
+                        RegenerateHeaders(false, searchTextInput);
+                    }
                     PackageListUI.Render($"Server Packages", _headers, selectedPackageIndex, setSelectedPackageIndex);
                     AssistAreaUI.Render();
                 GUILayout.EndVertical();
@@ -280,7 +287,7 @@ namespace CustomBeatmaps.UI
         }
 
         private static bool _headerRegenerationQueued;
-        private static void RegenerateHeaders(bool delayed)
+        private static void RegenerateHeaders(bool delayed, string filterQuery = "")
         {
             if (_headerRegenerationQueued)
                 return;
@@ -303,6 +310,11 @@ namespace CustomBeatmaps.UI
                         songs.Add(bmap.AudioFileName);
                         names.Add(bmap.Name);
                         creators.Add(bmap.Creator);
+                    }
+
+                    if (!UIConversionHelper.PackageMatchesFilter(serverPackage, filterQuery))
+                    {
+                        continue;
                     }
 
                     string creator = creators.Join(x => x," | ");
