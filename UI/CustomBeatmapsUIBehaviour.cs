@@ -10,7 +10,7 @@ namespace CustomBeatmaps.UI
 {
     public class CustomBeatmapsUIBehaviour : MonoBehaviour
     {
-        public static bool Opened { get; private set; }
+        public static bool Opened => _open;
 
         private readonly ReaccStore _store = new ReaccStore();
         private Vector2 _windowOffset;
@@ -18,7 +18,7 @@ namespace CustomBeatmaps.UI
         private static readonly float WindowPadding = 8;
 
         private int _releaseInputTimer;
-        private bool _open;
+        private static bool _open;
         private readonly List<Exception> _errors = new List<Exception>();
 
         private void Awake()
@@ -31,7 +31,7 @@ namespace CustomBeatmaps.UI
 
         private void OnDestroy()
         {
-            Opened = false;
+            _open = false;
         }
 
         public void Open()
@@ -42,7 +42,6 @@ namespace CustomBeatmaps.UI
             GUIHelper.AvoidInputOneFrame();
             _releaseInputTimer = 3;
             _open = true;
-            Opened = true;
             DOTween.Kill(this);
             DOTween.To(() => _windowOffset, value => _windowOffset = value, Vector2.zero, 0.2f)
                 .SetEase(Ease.OutBounce)
@@ -69,7 +68,6 @@ namespace CustomBeatmaps.UI
                 .OnComplete(() =>
                 {
                     _open = false;
-                    Opened = false;
                     WhiteLabelMainMenuPatch.EnableBGM();
                     WhiteLabelMainMenuPatch.StopSongPreview();
                     _windowOffset = new Vector2(-1 * Screen.width, -1 * Screen.height);
