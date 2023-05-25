@@ -54,8 +54,9 @@ namespace CustomBeatmaps.UI
                 GUILayout.FlexibleSpace();
                 if (!session.LoggedIn)
                 {
-                    GUILayout.EndHorizontal();
+                    DiscordButtonUI.Render();
                 }
+                GUILayout.EndHorizontal();
             }
             else
             {
