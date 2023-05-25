@@ -162,9 +162,33 @@ namespace CustomBeatmaps.Patches
 
         // INVINCIBILITY
 
-        [HarmonyPatch(typeof(Rhythm.RhythmController), "Miss")]
+        [HarmonyPatch(typeof(Rhythm.RhythmController), "Miss", new Type[0])]
         [HarmonyPostfix]
-        private static void ProcessMiss(Rhythm.RhythmController __instance)
+        private static void PatchMissPost1(Rhythm.RhythmController __instance)
+        {
+            ProcessMissPost(__instance);
+        }
+        [HarmonyPatch(typeof(Rhythm.RhythmController), "Miss", typeof(float), typeof(bool))]
+        [HarmonyPostfix]
+        private static void PatchMissPost2(Rhythm.RhythmController __instance)
+        {
+            ProcessMissPost(__instance);
+        }
+        [HarmonyPatch(typeof(Rhythm.RhythmController), "Miss", new Type[0])]
+        [HarmonyPrefix]
+        private static void PatchMissPre1(ref bool __runOriginal)
+        {
+            ProcessMissPre(ref __runOriginal);
+        }
+        [HarmonyPatch(typeof(Rhythm.RhythmController), "Miss", typeof(float), typeof(bool))]
+        [HarmonyPrefix]
+        private static void PatchMissPre2(ref bool __runOriginal)
+        {
+            ProcessMissPre(ref __runOriginal);
+        }
+
+        
+        private static void ProcessMissPost(Rhythm.RhythmController __instance)
         {
             // Reset our health after a miss
             if (EditMode && (!CustomBeatmaps.Memory.OneLifeMode || _reloadInvulnerability)) // eh this is jank but it fixes the edge case
@@ -172,8 +196,7 @@ namespace CustomBeatmaps.Patches
                 __instance.song.health = 10;
             }
         }
-        [HarmonyPatch(typeof(Rhythm.RhythmController), "Miss")]
-        [HarmonyPrefix]
+
         private static void ProcessMissPre(ref bool __runOriginal)
         {
             if (EditMode && _reloadInvulnerability)
