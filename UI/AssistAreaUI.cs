@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using CustomBeatmaps.UISystem;
 using CustomBeatmaps.Util;
 using UnityEngine;
@@ -20,13 +21,21 @@ namespace CustomBeatmaps.UI
             setHorizontalScrollPos(GUILayout.BeginScrollView(horizontalScrollPos, GUILayout.Height(48)));
             GUILayout.BeginHorizontal();
 
-            JeffBezosController.SetAssistMode(Toggle(JeffBezosController.GetAssistMode(), "Assist Mode"));
-            JeffBezosController.SetNoFail(Toggle(JeffBezosController.GetNoFail(), "No Fail"));
+            Toggle(JeffBezosController.GetAssistMode(), "Assist Mode", JeffBezosController.SetAssistMode);
+            Toggle(JeffBezosController.GetNoFail(), "No Fail", JeffBezosController.SetNoFail);
+
             // Custom settings, like One Life mode
             CustomBeatmaps.Memory.OneLifeMode = GUILayout.Toggle(CustomBeatmaps.Memory.OneLifeMode, "ONE LIFE");
             CustomBeatmaps.Memory.FlipMode = GUILayout.Toggle(CustomBeatmaps.Memory.FlipMode, "FLIP MODE");
-            JeffBezosController.SetSongSpeed(GUILayout.Toolbar(JeffBezosController.GetSongSpeed(),
-                new[] {"Regular", "Half Time", "Double Time"}));
+
+            int prevSongSpeed = JeffBezosController.GetSongSpeed();
+            int newSongSpeed = GUILayout.Toolbar(prevSongSpeed,
+                new[] {"Regular", "Half Time", "Double Time"});
+            if (prevSongSpeed != newSongSpeed)
+            {
+                JeffBezosController.SetSongSpeed(newSongSpeed);
+                FileStorage.profile.SaveBeatmapOptions();
+            }
 
             GUILayout.BeginHorizontal();
             GUILayout.Label("Scroll Speed:", GUILayout.Width(64 + 32));
@@ -36,7 +45,10 @@ namespace CustomBeatmaps.UI
             int spd;
             if (int.TryParse(scrollSpeedText, out spd))
             {
-                JeffBezosController.SetScrollSpeed(spd);
+                if (JeffBezosController.GetScrollSpeedIndex() != spd)
+                {
+                    JeffBezosController.SetScrollSpeed(spd);
+                }
             }
             GUILayout.Label($"= {(JeffBezosController.GetScrollSpeedIndex() + 1) * 0.2f:0.0}");
             GUILayout.EndHorizontal();
@@ -53,9 +65,19 @@ namespace CustomBeatmaps.UI
             
             GUILayout.EndScrollView();
         }
-        private static int Toggle(int mode, string text)
+        private static int Toggle(int mode, string text, Action<int> setter)
         {
-            return GUILayout.Toggle(mode != 0, text, GUILayout.ExpandWidth(false)) ? 1 : 0;
+            int result = GUILayout.Toggle(mode != 0, text, GUILayout.ExpandWidth(false)) ? 1 : 0;
+
+            if (result != mode)
+            {
+                // Write UI because otherwise it gets overriden.
+                // Might be fixed in later versions of the game
+                setter(result);
+                FileStorage.profile.SaveBeatmapOptions();
+            }
+
+            return result;
         }
     }
 }
