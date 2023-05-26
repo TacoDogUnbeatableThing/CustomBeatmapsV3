@@ -22,7 +22,9 @@ namespace CustomBeatmaps.UI
         private static string _failure;
 
         // To preserve across play sessions
-        private static int _selectedPackageIndex;
+        private static int _selectedHeaderIndex;
+        private static string _searchQuery;
+        private static int _selectedBeatmapIndex;
 
         static OnlinePackageListUI()
         {
@@ -35,12 +37,7 @@ namespace CustomBeatmaps.UI
         
         public static void Render(Action onRenderAboveList)
         {
-            (int selectedPackageIndex, Action<int>setSelectedPackageIndex) =
-                (_selectedPackageIndex, val => _selectedPackageIndex = val);
-            var (selectedBeatmapIndex, setSelectedBeatmapIndex) = Reacc.UseState(0);
-
             var (sortMode, setSortMode) = Reacc.UseState(SortMode.New);
-            var (searchText, setSearchText) = Reacc.UseState("");
 
             // Load packages from server the first time we open this
             Reacc.UseEffect(() => ReloadPackageList(sortMode));
@@ -71,13 +68,13 @@ namespace CustomBeatmaps.UI
             // Map server headers -> UI headers
 
             // Beatmaps
+            int selectedPackageIndex = _headers[_selectedHeaderIndex].PackageIndex; 
             var selectedPackage = _list.Packages[selectedPackageIndex];
             var selectedServerBeatmapKVPairs = selectedPackage.Beatmaps.ToArray();
             // Jank overflow fix between packages with varying beatmap sizes
-            if (selectedBeatmapIndex >= selectedPackage.Beatmaps.Count)
+            if (_selectedBeatmapIndex >= selectedPackage.Beatmaps.Count)
             {
-                selectedBeatmapIndex = selectedPackage.Beatmaps.Count - 1;
-                setSelectedBeatmapIndex(selectedBeatmapIndex);
+                _selectedBeatmapIndex = selectedPackage.Beatmaps.Count - 1;
             }
             List<BeatmapHeader> selectedBeatmaps = new List<BeatmapHeader>(selectedPackage.Beatmaps.Count);
             foreach (var bmapKVPair in selectedServerBeatmapKVPairs)
@@ -99,13 +96,13 @@ namespace CustomBeatmaps.UI
                     {
                         SortModePickerUI.Render(sortMode, setSortMode);
                     }, sortMode);
-                    string searchTextInput = GUILayout.TextArea(searchText);
-                    if (searchTextInput != searchText)
+                    string searchTextInput = GUILayout.TextArea(_searchQuery);
+                    if (searchTextInput != _searchQuery)
                     {
-                        setSearchText(searchTextInput);
-                        RegenerateHeaders(false, searchTextInput);
+                        _searchQuery = searchTextInput;
+                        RegenerateHeaders(false);
                     }
-                    PackageListUI.Render($"Server Packages", _headers, selectedPackageIndex, setSelectedPackageIndex);
+                    PackageListUI.Render($"Server Packages", _headers, _selectedHeaderIndex, newVal => _selectedHeaderIndex = newVal);
                     AssistAreaUI.Render();
                 GUILayout.EndVertical();
 
@@ -113,7 +110,7 @@ namespace CustomBeatmaps.UI
                 PackageInfoUI.Render(
                     () =>
                     {
-                        PackageInfoTopUI.Render(selectedBeatmaps, selectedBeatmapIndex);
+                        PackageInfoTopUI.Render(selectedBeatmaps, _selectedBeatmapIndex);
                     },
                     () =>
                     {
@@ -121,7 +118,7 @@ namespace CustomBeatmaps.UI
                         {
                             // LOCAL high score
                             var downloadStatus = CustomBeatmaps.Downloader.GetDownloadStatus(selectedPackage.ServerURL);
-                            var selectedBeatmapKeyPath = selectedServerBeatmapKVPairs[selectedBeatmapIndex].Key;
+                            var selectedBeatmapKeyPath = selectedServerBeatmapKVPairs[_selectedBeatmapIndex].Key;
                             if (downloadStatus == BeatmapDownloadStatus.Downloaded)
                             {
                                 var localPackages = CustomBeatmaps.LocalServerPackages;
@@ -156,8 +153,8 @@ namespace CustomBeatmaps.UI
                         {
                             var downloadStatus = CustomBeatmaps.Downloader.GetDownloadStatus(selectedPackage.ServerURL);
 
-                            var selectedBeatmap = selectedServerBeatmapKVPairs[selectedBeatmapIndex].Value;
-                            var selectedBeatmapKeyPath = selectedServerBeatmapKVPairs[selectedBeatmapIndex].Key;
+                            var selectedBeatmap = selectedServerBeatmapKVPairs[_selectedBeatmapIndex].Value;
+                            var selectedBeatmapKeyPath = selectedServerBeatmapKVPairs[_selectedBeatmapIndex].Key;
 
                             string buttonText = "??";
                             string buttonSub = "";
@@ -180,7 +177,7 @@ namespace CustomBeatmaps.UI
                                     throw new ArgumentOutOfRangeException();
                             }
 
-                            PackageBeatmapPickerUI.Render(selectedBeatmaps, selectedBeatmapIndex, setSelectedBeatmapIndex);
+                            PackageBeatmapPickerUI.Render(selectedBeatmaps, _selectedBeatmapIndex, newVal => _selectedBeatmapIndex = newVal);
 
                             if (UnbeatableHelper.UsingHighScoreProhibitedAssists())
                             {
@@ -287,7 +284,7 @@ namespace CustomBeatmaps.UI
         }
 
         private static bool _headerRegenerationQueued;
-        private static void RegenerateHeaders(bool delayed, string filterQuery = "")
+        private static void RegenerateHeaders(bool delayed)
         {
             if (_headerRegenerationQueued)
                 return;
@@ -299,8 +296,10 @@ namespace CustomBeatmaps.UI
                     await Task.Delay(300);
                 ScheduleHelper.SafeLog("    RELOADING HEADERS");
                 _headers = new List<PackageHeader>(_list.Packages.Length);
+                int packageIndex = -1;
                 foreach (var serverPackage in _list.Packages)
                 {
+                    ++packageIndex;
                     // Get unique song count
                     HashSet<string> songs = new HashSet<string>();
                     HashSet<string> names = new HashSet<string>();
@@ -312,7 +311,7 @@ namespace CustomBeatmaps.UI
                         creators.Add(bmap.Creator);
                     }
 
-                    if (!UIConversionHelper.PackageMatchesFilter(serverPackage, filterQuery))
+                    if (!UIConversionHelper.PackageMatchesFilter(serverPackage, _searchQuery))
                     {
                         continue;
                     }
@@ -324,7 +323,13 @@ namespace CustomBeatmaps.UI
                     var downloadStatus = CustomBeatmaps.Downloader.GetDownloadStatus(serverUrl);
                     bool isNew = !CustomBeatmaps.PlayedPackageManager.HasPlayed(
                         CustomPackageHelper.GetLocalFolderFromServerPackageURL(Config.Mod.ServerPackagesDir, serverUrl));
-                    _headers.Add(new PackageHeader(name, songs.Count, serverPackage.Beatmaps.Count, creator, isNew, downloadStatus));
+                    _headers.Add(new PackageHeader(name, songs.Count, serverPackage.Beatmaps.Count, creator, isNew, downloadStatus, packageIndex));
+                }
+                
+                // Ensure we have SOMETHING visible
+                if (_selectedHeaderIndex >= _headers.Count)
+                {
+                    _selectedHeaderIndex = 0;
                 }
 
                 _headerRegenerationQueued = false;

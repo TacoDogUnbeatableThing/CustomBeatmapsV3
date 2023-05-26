@@ -51,8 +51,10 @@ namespace CustomBeatmaps.UI
             var selectedPackage = localPackages[selectedPackageIndex];
 
             List<PackageHeader> headers = new List<PackageHeader>(localPackages.Count);
+            int packageIndex = -1;
             foreach (var p in localPackages)
             {
+                ++packageIndex;
                 // Get unique song count
                 HashSet<string> songs = new HashSet<string>();
                 HashSet<string> names = new HashSet<string>();
@@ -68,7 +70,7 @@ namespace CustomBeatmaps.UI
                 string name = names.Join(x => x,", ");
 
                 bool isNew = !CustomBeatmaps.PlayedPackageManager.HasPlayed(p.FolderName);
-                headers.Add(new PackageHeader(name, songs.Count, p.Beatmaps.Length, creator, isNew, BeatmapDownloadStatus.Downloaded));
+                headers.Add(new PackageHeader(name, songs.Count, p.Beatmaps.Length, creator, isNew, BeatmapDownloadStatus.Downloaded, packageIndex));
             }
 
             // Beatmaps of selected package

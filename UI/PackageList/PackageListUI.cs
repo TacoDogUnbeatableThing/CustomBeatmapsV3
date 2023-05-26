@@ -8,7 +8,7 @@ namespace CustomBeatmaps.UI.PackageList
 {
     public static class PackageListUI
     {
-        public static void Render(string header, List<PackageHeader> packageHeaders, int selectedPackageIndex, Action<int> onPackageSelect)
+        public static void Render(string header, List<PackageHeader> packageHeaders, int selectedHeaderIndex, Action<int> onPackageHeaderSelect)
         {
             var (scrollPos, setScrollPos) = Reacc.UseState(Vector2.zero);
 
@@ -18,9 +18,9 @@ namespace CustomBeatmaps.UI.PackageList
                 {
                     var packageHeader = packageHeaders[i];
                     int indexToSelect = i;
-                    PackageEntryUI.Render(packageHeader, selectedPackageIndex == i, () =>
+                    PackageEntryUI.Render(packageHeader, selectedHeaderIndex == i, () =>
                     {
-                        onPackageSelect?.Invoke(indexToSelect);
+                        onPackageHeaderSelect?.Invoke(indexToSelect);
                     }, packageHeader.DownloadStatus);
                 }
             GUILayout.EndScrollView();
@@ -33,14 +33,14 @@ namespace CustomBeatmaps.UI.PackageList
             {
                 if (Input.GetKeyDown(KeyCode.DownArrow) || Input.GetKeyDown(KeyCode.S))
                 {
-                    onPackageSelect((selectedPackageIndex + 1) % packageHeaders.Count);
+                    onPackageHeaderSelect((selectedHeaderIndex + 1) % packageHeaders.Count);
                 }
                 else if (Input.GetKeyDown(KeyCode.UpArrow) || Input.GetKeyDown(KeyCode.W))
                 {
-                    int ind = selectedPackageIndex - 1;
+                    int ind = selectedHeaderIndex - 1;
                     if (ind < 0)
                         ind = packageHeaders.Count - 1;
-                    onPackageSelect(ind);
+                    onPackageHeaderSelect(ind);
                 }
             }
         }
