@@ -48,6 +48,7 @@ namespace CustomBeatmaps.UI
                 if (JeffBezosController.GetScrollSpeedIndex() != spd)
                 {
                     JeffBezosController.SetScrollSpeed(spd);
+                    FileStorage.profile.SaveBeatmapOptions();
                 }
             }
             GUILayout.Label($"= {(JeffBezosController.GetScrollSpeedIndex() + 1) * 0.2f:0.0}");
