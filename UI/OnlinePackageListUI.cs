@@ -68,171 +68,178 @@ namespace CustomBeatmaps.UI
             // Map server headers -> UI headers
 
             // Beatmaps
-            int selectedPackageIndex = _headers[_selectedHeaderIndex].PackageIndex; 
-            var selectedPackage = _list.Packages[selectedPackageIndex];
-            var selectedServerBeatmapKVPairs = selectedPackage.Beatmaps.ToArray();
-            // Jank overflow fix between packages with varying beatmap sizes
-            if (_selectedBeatmapIndex >= selectedPackage.Beatmaps.Count)
+            if (_headers.Count > 0)
             {
-                _selectedBeatmapIndex = selectedPackage.Beatmaps.Count - 1;
-            }
-            List<BeatmapHeader> selectedBeatmaps = new List<BeatmapHeader>(selectedPackage.Beatmaps.Count);
-            foreach (var bmapKVPair in selectedServerBeatmapKVPairs)
-            {
-                var bmap = bmapKVPair.Value;
-                selectedBeatmaps.Add(new BeatmapHeader(
-                    bmap.Name,
-                    bmap.Artist,
-                    bmap.Creator,
-                    bmap.Difficulty,
-                    null
-                ));
-            }
+                if (_selectedHeaderIndex >= _headers.Count)
+                {
+                    _selectedHeaderIndex = _headers.Count;
+                }
+                int selectedPackageIndex = _headers[_selectedHeaderIndex].PackageIndex; 
+                var selectedPackage = _list.Packages[selectedPackageIndex];
+                var selectedServerBeatmapKVPairs = selectedPackage.Beatmaps.ToArray();
+                // Jank overflow fix between packages with varying beatmap sizes
+                if (_selectedBeatmapIndex >= selectedPackage.Beatmaps.Count)
+                {
+                    _selectedBeatmapIndex = selectedPackage.Beatmaps.Count - 1;
+                }
+                List<BeatmapHeader> selectedBeatmaps = new List<BeatmapHeader>(selectedPackage.Beatmaps.Count);
+                foreach (var bmapKVPair in selectedServerBeatmapKVPairs)
+                {
+                    var bmap = bmapKVPair.Value;
+                    selectedBeatmaps.Add(new BeatmapHeader(
+                        bmap.Name,
+                        bmap.Artist,
+                        bmap.Creator,
+                        bmap.Difficulty,
+                        null
+                    ));
+                }
 
-            GUILayout.BeginHorizontal();
-                // Render list
-                GUILayout.BeginVertical(GUILayout.ExpandWidth(true));
-                    RenderReloadHeader($"Got {_list.Packages.Length} Packages", () =>
-                    {
-                        SortModePickerUI.Render(sortMode, setSortMode);
-                    }, sortMode);
-                    string searchTextInput = GUILayout.TextArea(_searchQuery);
-                    if (searchTextInput != _searchQuery)
-                    {
-                        _searchQuery = searchTextInput;
-                        RegenerateHeaders(false);
-                    }
-                    PackageListUI.Render($"Server Packages", _headers, _selectedHeaderIndex, newVal => _selectedHeaderIndex = newVal);
-                    AssistAreaUI.Render();
-                GUILayout.EndVertical();
-
-                // Render Right Info
-                PackageInfoUI.Render(
-                    () =>
-                    {
-                        PackageInfoTopUI.Render(selectedBeatmaps, _selectedBeatmapIndex);
-                    },
-                    () =>
-                    {
-                        if (selectedPackage.Beatmaps.Count != 0)
+                GUILayout.BeginHorizontal();
+                    // Render list
+                    GUILayout.BeginVertical(GUILayout.ExpandWidth(true));
+                        RenderReloadHeader($"Got {_list.Packages.Length} Packages", () =>
                         {
-                            // LOCAL high score
-                            var downloadStatus = CustomBeatmaps.Downloader.GetDownloadStatus(selectedPackage.ServerURL);
-                            var selectedBeatmapKeyPath = selectedServerBeatmapKVPairs[_selectedBeatmapIndex].Key;
-                            if (downloadStatus == BeatmapDownloadStatus.Downloaded)
-                            {
-                                var localPackages = CustomBeatmaps.LocalServerPackages;
-                                try
-                                {
-                                    var (_, selectedBeatmap) =
-                                        localPackages.FindCustomBeatmapInfoFromServer(selectedPackage.ServerURL,
-                                            selectedBeatmapKeyPath);
-                                    string highScoreKey =
-                                        UserServerHelper.GetHighScoreLocalEntryFromCustomBeatmap(
-                                            Config.Mod.ServerPackagesDir, Config.Mod.UserPackagesDir,
-                                            selectedBeatmap.OsuPath);
-                                    PersonalHighScoreUI.Render(highScoreKey);
-                                }
-                                catch (Exception e)
-                                {
-                                    Debug.LogWarning("Invalid package found: (ignoring)");
-                                    Debug.LogException(e);
-                                }
-                            }
-                            // SERVER high scores
-                            HighScoreListUI.Render(UserServerHelper.GetHighScoreBeatmapKeyFromServerBeatmap(selectedPackage.ServerURL, selectedBeatmapKeyPath));
+                            SortModePickerUI.Render(sortMode, setSortMode);
+                        }, sortMode);
+                        string searchTextInput = GUILayout.TextArea(_searchQuery);
+                        if (searchTextInput != _searchQuery)
+                        {
+                            _searchQuery = searchTextInput;
+                            RegenerateHeaders(false);
                         }
-                    },
-                    () =>
-                    {
-                        if (selectedPackage.Beatmaps.Count == 0)
+                        PackageListUI.Render($"Server Packages", _headers, _selectedHeaderIndex, newVal => _selectedHeaderIndex = newVal);
+                        AssistAreaUI.Render();
+                    GUILayout.EndVertical();
+
+                    // Render Right Info
+                    PackageInfoUI.Render(
+                        () =>
                         {
-                            GUILayout.Label("No beatmaps found...");
-                        }
-                        else
+                            PackageInfoTopUI.Render(selectedBeatmaps, _selectedBeatmapIndex);
+                        },
+                        () =>
                         {
-                            var downloadStatus = CustomBeatmaps.Downloader.GetDownloadStatus(selectedPackage.ServerURL);
-
-                            var selectedBeatmap = selectedServerBeatmapKVPairs[_selectedBeatmapIndex].Value;
-                            var selectedBeatmapKeyPath = selectedServerBeatmapKVPairs[_selectedBeatmapIndex].Key;
-
-                            string buttonText = "??";
-                            string buttonSub = "";
-                            switch (downloadStatus)
+                            if (selectedPackage.Beatmaps.Count != 0)
                             {
-                                case BeatmapDownloadStatus.Downloaded:
-                                    buttonText = "PLAY";
-                                    buttonSub = $"{selectedBeatmap.Name}: {selectedBeatmap.Difficulty}";
-                                    break;
-                                case BeatmapDownloadStatus.CurrentlyDownloading:
-                                    buttonText = "Downloading...";
-                                    break;
-                                case BeatmapDownloadStatus.Queued:
-                                    buttonText = "Queued for download...";
-                                    break;
-                                case BeatmapDownloadStatus.NotDownloaded:
-                                    buttonText = "DOWNLOAD";
-                                    break;
-                                default:
-                                    throw new ArgumentOutOfRangeException();
-                            }
-
-                            PackageBeatmapPickerUI.Render(selectedBeatmaps, _selectedBeatmapIndex, newVal => _selectedBeatmapIndex = newVal);
-
-                            if (UnbeatableHelper.UsingHighScoreProhibitedAssists())
-                            {
-                                GUILayout.Label("<size=24><b>USING ASSISTS</b></size> (no high score)");
-                            } else if (!CustomBeatmaps.UserSession.LoggedIn)
-                            {
-                                GUILayout.Label("<b>Register above to post your own high scores!<b>");
-                            }
-
-                            bool buttonPressed = PlayButtonUI.Render(buttonText, buttonSub);
-                            switch (downloadStatus)
-                            {
-                                case BeatmapDownloadStatus.Downloaded:
+                                // LOCAL high score
+                                var downloadStatus = CustomBeatmaps.Downloader.GetDownloadStatus(selectedPackage.ServerURL);
+                                var selectedBeatmapKeyPath = selectedServerBeatmapKVPairs[_selectedBeatmapIndex].Key;
+                                if (downloadStatus == BeatmapDownloadStatus.Downloaded)
+                                {
+                                    var localPackages = CustomBeatmaps.LocalServerPackages;
                                     try
                                     {
-                                        var localPackages = CustomBeatmaps.LocalServerPackages;
-                                        // Play a local beatmap
-                                        var (localPackage, customBeatmapInfo) =
+                                        var (_, selectedBeatmap) =
                                             localPackages.FindCustomBeatmapInfoFromServer(selectedPackage.ServerURL,
                                                 selectedBeatmapKeyPath);
-                                        // Preview, cause we can!
-                                        if (customBeatmapInfo != null)
-                                            WhiteLabelMainMenuPatch.PlaySongPreview(customBeatmapInfo.RealAudioKey);
+                                        string highScoreKey =
+                                            UserServerHelper.GetHighScoreLocalEntryFromCustomBeatmap(
+                                                Config.Mod.ServerPackagesDir, Config.Mod.UserPackagesDir,
+                                                selectedBeatmap.OsuPath);
+                                        PersonalHighScoreUI.Render(highScoreKey);
+                                    }
+                                    catch (Exception e)
+                                    {
+                                        Debug.LogWarning("Invalid package found: (ignoring)");
+                                        Debug.LogException(e);
+                                    }
+                                }
+                                // SERVER high scores
+                                HighScoreListUI.Render(UserServerHelper.GetHighScoreBeatmapKeyFromServerBeatmap(selectedPackage.ServerURL, selectedBeatmapKeyPath));
+                            }
+                        },
+                        () =>
+                        {
+                            if (selectedPackage.Beatmaps.Count == 0)
+                            {
+                                GUILayout.Label("No beatmaps found...");
+                            }
+                            else
+                            {
+                                var downloadStatus = CustomBeatmaps.Downloader.GetDownloadStatus(selectedPackage.ServerURL);
+
+                                var selectedBeatmap = selectedServerBeatmapKVPairs[_selectedBeatmapIndex].Value;
+                                var selectedBeatmapKeyPath = selectedServerBeatmapKVPairs[_selectedBeatmapIndex].Key;
+
+                                string buttonText = "??";
+                                string buttonSub = "";
+                                switch (downloadStatus)
+                                {
+                                    case BeatmapDownloadStatus.Downloaded:
+                                        buttonText = "PLAY";
+                                        buttonSub = $"{selectedBeatmap.Name}: {selectedBeatmap.Difficulty}";
+                                        break;
+                                    case BeatmapDownloadStatus.CurrentlyDownloading:
+                                        buttonText = "Downloading...";
+                                        break;
+                                    case BeatmapDownloadStatus.Queued:
+                                        buttonText = "Queued for download...";
+                                        break;
+                                    case BeatmapDownloadStatus.NotDownloaded:
+                                        buttonText = "DOWNLOAD";
+                                        break;
+                                    default:
+                                        throw new ArgumentOutOfRangeException();
+                                }
+
+                                PackageBeatmapPickerUI.Render(selectedBeatmaps, _selectedBeatmapIndex, newVal => _selectedBeatmapIndex = newVal);
+
+                                if (UnbeatableHelper.UsingHighScoreProhibitedAssists())
+                                {
+                                    GUILayout.Label("<size=24><b>USING ASSISTS</b></size> (no high score)");
+                                } else if (!CustomBeatmaps.UserSession.LoggedIn)
+                                {
+                                    GUILayout.Label("<b>Register above to post your own high scores!<b>");
+                                }
+
+                                bool buttonPressed = PlayButtonUI.Render(buttonText, buttonSub);
+                                switch (downloadStatus)
+                                {
+                                    case BeatmapDownloadStatus.Downloaded:
+                                        try
+                                        {
+                                            var localPackages = CustomBeatmaps.LocalServerPackages;
+                                            // Play a local beatmap
+                                            var (localPackage, customBeatmapInfo) =
+                                                localPackages.FindCustomBeatmapInfoFromServer(selectedPackage.ServerURL,
+                                                    selectedBeatmapKeyPath);
+                                            // Preview, cause we can!
+                                            if (customBeatmapInfo != null)
+                                                WhiteLabelMainMenuPatch.PlaySongPreview(customBeatmapInfo.RealAudioKey);
+                                            if (buttonPressed)
+                                            {
+                                                UnbeatableHelper.PlayBeatmap(customBeatmapInfo, true,
+                                                    UnbeatableHelper.GetSceneNameByIndex(CustomBeatmaps.Memory
+                                                        .SelectedRoom));
+                                                CustomBeatmaps.PlayedPackageManager.RegisterPlay(localPackage.FolderName);
+                                            }
+                                        }
+                                        catch (InvalidOperationException)
+                                        {
+                                            if (PlayButtonUI.Render("INVALID PACKAGE: Redownload"))
+                                            {
+                                                // Delete + redownload
+                                                Directory.Delete(CustomPackageHelper.GetLocalFolderFromServerPackageURL(Config.Mod.ServerPackagesDir, selectedPackage.ServerURL), true);
+                                                CustomBeatmaps.Downloader.QueueDownloadPackage(selectedPackage.ServerURL);
+                                            }
+                                        }
+
+                                        break;
+                                    case BeatmapDownloadStatus.NotDownloaded:
+                                        WhiteLabelMainMenuPatch.StopSongPreview();
                                         if (buttonPressed)
                                         {
-                                            UnbeatableHelper.PlayBeatmap(customBeatmapInfo, true,
-                                                UnbeatableHelper.GetSceneNameByIndex(CustomBeatmaps.Memory
-                                                    .SelectedRoom));
-                                            CustomBeatmaps.PlayedPackageManager.RegisterPlay(localPackage.FolderName);
-                                        }
-                                    }
-                                    catch (InvalidOperationException)
-                                    {
-                                        if (PlayButtonUI.Render("INVALID PACKAGE: Redownload"))
-                                        {
-                                            // Delete + redownload
-                                            Directory.Delete(CustomPackageHelper.GetLocalFolderFromServerPackageURL(Config.Mod.ServerPackagesDir, selectedPackage.ServerURL), true);
                                             CustomBeatmaps.Downloader.QueueDownloadPackage(selectedPackage.ServerURL);
                                         }
-                                    }
+                                        break;
+                                }
 
-                                    break;
-                                case BeatmapDownloadStatus.NotDownloaded:
-                                    WhiteLabelMainMenuPatch.StopSongPreview();
-                                    if (buttonPressed)
-                                    {
-                                        CustomBeatmaps.Downloader.QueueDownloadPackage(selectedPackage.ServerURL);
-                                    }
-                                    break;
                             }
-
                         }
-                    }
-                );
-            GUILayout.EndHorizontal();
+                    );
+                GUILayout.EndHorizontal();
+            }
         }
 
         private static void RenderReloadHeader(string label, Action renderHeaderSortPicker = null, SortMode sortMode = SortMode.New) // ok this part is jank but that's all I need

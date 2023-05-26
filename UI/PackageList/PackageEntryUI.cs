@@ -18,7 +18,7 @@ namespace CustomBeatmaps.UI.PackageList
             return singular ? $"{count} {unitSingular}" : $"{count} {unitSingular}s";
         }
 
-        public static void Render(PackageHeader header, bool selected, Action onSelect, BeatmapDownloadStatus status=BeatmapDownloadStatus.Downloaded)
+        public static Rect Render(PackageHeader header, bool selected, Action onSelect, BeatmapDownloadStatus status=BeatmapDownloadStatus.Downloaded)
         {
             string label = $"{header.Name}";
             if (selected)
@@ -74,6 +74,8 @@ namespace CustomBeatmaps.UI.PackageList
                 }
                 GUI.Label(new Rect(br.xMax - DownloadStatusRightPad, br.y, DownloadStatusRightPad, br.height), statusLabel);
             }
+
+            return br;
         }
     }
 }
