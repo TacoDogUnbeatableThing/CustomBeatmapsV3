@@ -11,7 +11,7 @@ namespace CustomBeatmaps.CustomPackages
         public string UniqueId { get; private set; } = null;
         public bool LoggedIn => UniqueId != null && Username != null;
         public string Username { get; private set; } = null;
-        public string LoginStatus = "(log in not attempted)";
+        public string LoginStatus = "(login not attempted)";
 
         public bool LoginFailed;
 

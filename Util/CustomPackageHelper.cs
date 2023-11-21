@@ -59,19 +59,20 @@ namespace CustomBeatmaps.Util
             // We also only want the stub (lowest directory)
             string rootSubFolder = Path.Combine(outerFolderPath, StupidMissingTypesHelper.GetPathRoot(relative));
             package.FolderName = rootSubFolder;
-            ScheduleHelper.SafeLog($"DIR: {packageFolder} -> {rootSubFolder}");
+            ScheduleHelper.SafeLog($"{packageFolder.Substring(AppDomain.CurrentDomain.BaseDirectory.Length)}");
+
 
             List<CustomBeatmapInfo> bmaps = new List<CustomBeatmapInfo>();
             foreach (string packageSubFile in recursive? Directory.EnumerateFiles(packageFolder, "*.*", SearchOption.AllDirectories) : Directory.EnumerateFiles(packageFolder))
             {
-                ScheduleHelper.SafeLog($"    inner: {packageSubFile}");
+                ScheduleHelper.SafeLog($"    {packageSubFile.Substring(packageFolder.Length)}");
                 if (IsBeatmapFile(packageSubFile))
                 {
                     try
                     {
                         var customBmap = LoadLocalBeatmap(packageSubFile);
                         bmaps.Add(customBmap);
-                        ScheduleHelper.SafeLog("          (OSU!)");
+                        //ScheduleHelper.SafeLog("          (OSU!)");
                     }
                     catch (BeatmapException e)
                     {
@@ -128,7 +129,8 @@ namespace CustomBeatmaps.Util
                 }
             }
 
-            ScheduleHelper.SafeLog($"####### FULL PACKAGES LIST: #######\n{result.Join(delimiter:"\n")}");
+            ScheduleHelper.SafeLog($"LOADED {result.Count} PACKAGES");
+            // ScheduleHelper.SafeLog($"####### FULL PACKAGES LIST: #######\n{result.Join(delimiter:"\n")}");
             
             return result.ToArray();
         }

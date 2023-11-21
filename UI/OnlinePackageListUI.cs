@@ -34,6 +34,15 @@ namespace CustomBeatmaps.UI
                 RegenerateHeaders(true);
             };
         }
+
+        private static void RenderSearchbar()
+        {
+            Searchbar.Render(_searchQuery, searchTextInput =>
+            {
+                _searchQuery = searchTextInput;
+                RegenerateHeaders(false);
+            });
+        }
         
         public static void Render(Action onRenderAboveList)
         {
@@ -102,12 +111,7 @@ namespace CustomBeatmaps.UI
                         {
                             SortModePickerUI.Render(sortMode, setSortMode);
                         }, sortMode);
-                        string searchTextInput = GUILayout.TextArea(_searchQuery);
-                        if (searchTextInput != _searchQuery)
-                        {
-                            _searchQuery = searchTextInput;
-                            RegenerateHeaders(false);
-                        }
+                        RenderSearchbar();
                         PackageListUI.Render($"Server Packages", _headers, _selectedHeaderIndex, newVal => _selectedHeaderIndex = newVal);
                         AssistAreaUI.Render();
                     GUILayout.EndVertical();
@@ -239,6 +243,11 @@ namespace CustomBeatmaps.UI
                         }
                     );
                 GUILayout.EndHorizontal();
+            }
+            else
+            {
+                RenderSearchbar();
+                GUILayout.Label("(none found)");
             }
         }
 

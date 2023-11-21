@@ -6,7 +6,7 @@ namespace CustomBeatmaps.UI
 {
     public static class EnumTooltipPickerUI
     {
-        public static void Render<T>(T tab, Action<T> setTab, Func<T, string> toString, params GUILayoutOption[] layoutOptions) where T : Enum
+        public static void Render<T>(T tab, Action<T> setTab, Func<T, string> toString) where T : Enum
         {
             string[] names;
             if (toString == null)
@@ -20,16 +20,21 @@ namespace CustomBeatmaps.UI
                 for (int i = 0; i < names.Length; ++i)
                     names[i] = toString((T)vals.GetValue(i));
             }
-            T newOnline = (T) typeof(T).GetEnumValues().GetValue(GUILayout.Toolbar((int)(object)tab, names, layoutOptions));
-            if (!newOnline.Equals(tab))
+
+            int index = Toolbar.Render((int) (object) tab, names);
+            if (index != -1)
             {
-                setTab(newOnline);
+                T newOnline = (T) typeof(T).GetEnumValues().GetValue(index);
+                if (!newOnline.Equals(tab))
+                {
+                    setTab(newOnline);
+                }
             }
         }
 
-        public static void Render<T>(T tab, Action<T> setTab, params GUILayoutOption[] layoutOptions) where T : Enum
+        public static void Render<T>(T tab, Action<T> setTab) where T : Enum
         {
-            Render(tab, setTab, null, layoutOptions);
+            Render(tab, setTab, null);
         }
     }
 }

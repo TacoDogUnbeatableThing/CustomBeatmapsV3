@@ -22,11 +22,6 @@ namespace CustomBeatmaps.Patches
 
         private static string SelectedSong => _current != null? (string)SelectedWhiteLabelBeatmapInfo.GetValue(_current) : null;
 
-        /// <summary>
-        /// TODO:
-        /// - Find a camera angle that works (move camera around w/ wasd + rotate?)
-        /// - Add extra UI option
-        /// </summary>
         private static readonly WhiteLabelMainMenu.MenuState _customMenuState =
             (WhiteLabelMainMenu.MenuState) 6;
 

@@ -72,6 +72,7 @@ namespace CustomBeatmaps.UI
 
         private static void RenderListTop(Tab tab, Action<Tab> onSetTab)
         {
+            GUILayout.BeginHorizontal();
             EnumTooltipPickerUI.Render(tab, onSetTab, tabName =>
             {
                 switch (tabName)
@@ -91,6 +92,7 @@ namespace CustomBeatmaps.UI
                         throw new ArgumentOutOfRangeException(nameof(tabName), tabName, null);
                 }
             });
+            GUILayout.EndHorizontal();
             UserOnlineInfoBarUI.Render();
         }
     }

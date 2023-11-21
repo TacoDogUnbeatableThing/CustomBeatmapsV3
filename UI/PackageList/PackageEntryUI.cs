@@ -1,5 +1,6 @@
 ﻿using System;
 using CustomBeatmaps.CustomPackages;
+using CustomBeatmaps.Util;
 using UnityEngine;
 
 namespace CustomBeatmaps.UI.PackageList
@@ -48,14 +49,31 @@ namespace CustomBeatmaps.UI.PackageList
             // button rect for Text + Map + Song + New count
             Rect br = GUILayoutUtility.GetLastRect();
 
-            GUI.Label(new Rect(br.min + Vector2.right * 16, br.size), label);
+            Vector2 nameLeftCorner = br.min + Vector2.right * 16;
+
+            GUI.Label(new Rect(nameLeftCorner, br.size), label);
             GUI.Label(new Rect(br.xMax - MapCountRightPad, br.y, MapCountRightPad, br.height), $"{GetCount(header.MapCount, "Map")}");
             GUI.Label(new Rect(br.xMax - SongCountRightPad, br.y, SongCountRightPad, br.height), $"{GetCount(header.SongCount, "Song")}");
             if (header.New)
             {
                 GUI.Label(new Rect(br.xMax - NewTextRightPad, br.y, NewTextRightPad, br.height), "<color=#ffff00ff><i>NEW!</i></color>");
             }
-            GUI.Label(new Rect(br.xMax - CreatorRightPad, br.y, NewTextRightPad, br.height),$"by {header.Creator}");
+
+            // At low resolutions, the creator name INTERSECTS w/ the name
+            // Fix this by pushing it down
+            string creatorLabel = $"by {header.Creator}";
+            float creatorLeftTargetPos = br.xMax - CreatorRightPad;
+            Vector2 nameSize =
+                GUIHelper.CalculateSize(new GUIContent(label), GUI.skin.label, GUILayout.ExpandWidth(false));
+            float creatorLabelYPos = br.y;
+            //Debug.Log($"r: {nameSize},");
+            if (creatorLeftTargetPos < nameLeftCorner.x + nameSize.x)
+            {
+                creatorLabelYPos += nameSize.y;
+                // Allocate extra space
+                GUILayoutUtility.GetRect(0, nameSize.y);
+            }
+            GUI.Label(new Rect(creatorLeftTargetPos, creatorLabelYPos, NewTextRightPad, br.height), creatorLabel);
 
             if (status != BeatmapDownloadStatus.Downloaded)
             {

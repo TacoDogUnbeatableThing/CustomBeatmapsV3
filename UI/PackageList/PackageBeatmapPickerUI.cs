@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace CustomBeatmaps.UI.PackageList
@@ -57,8 +58,10 @@ namespace CustomBeatmaps.UI.PackageList
 
             if (uniqueNames.Count > 1)
             {
-                int newMapSelect = GUILayout.Toolbar(selectedNameIndex, uniqueNames.ToArray());
-                if (newMapSelect != selectedNameIndex)
+                GUILayout.BeginHorizontal();
+                int newMapSelect = Toolbar.Render(selectedNameIndex, uniqueNames.ToArray());
+                GUILayout.EndHorizontal();
+                if (newMapSelect != -1 && newMapSelect != selectedNameIndex)
                 {
                     // We have a new map name, find the first one with this name.
                     string newSelectionName = uniqueNames[newMapSelect];
@@ -80,11 +83,11 @@ namespace CustomBeatmaps.UI.PackageList
             if (selectedMapDifficulties.Count > 1)
             {
                 var bStyle = GUI.skin.button;
-                var bolderStyle = new GUIStyle(bStyle);
-                bolderStyle.fontSize = (int)(bolderStyle.fontSize * 1.5);
-                int newDifficultySelect = GUILayout.Toolbar(selectedDifficultyIndex, selectedMapDifficulties.ToArray(), bolderStyle);
-                GUI.skin.button = bStyle;
-                if (newDifficultySelect != selectedDifficultyIndex)
+                int bFontSize = (int)(bStyle.fontSize * 1.5);
+                GUILayout.BeginHorizontal();
+                int newDifficultySelect = Toolbar.Render(selectedDifficultyIndex, selectedMapDifficulties.Select(s => $"<size={bFontSize}>{s}</size>").ToArray());
+                GUILayout.EndHorizontal();
+                if (newDifficultySelect != -1 && newDifficultySelect != selectedDifficultyIndex)
                 {
                     // We have a new map name, find the first one with this name and difficulty.
                     string newDifficultyName = selectedMapDifficulties[newDifficultySelect];

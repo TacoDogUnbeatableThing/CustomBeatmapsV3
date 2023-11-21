@@ -29,9 +29,9 @@ namespace CustomBeatmaps.UI
             CustomBeatmaps.Memory.FlipMode = GUILayout.Toggle(CustomBeatmaps.Memory.FlipMode, "FLIP MODE");
 
             int prevSongSpeed = JeffBezosController.GetSongSpeed();
-            int newSongSpeed = GUILayout.Toolbar(prevSongSpeed,
+            int newSongSpeed = Toolbar.Render(prevSongSpeed,
                 new[] {"Regular", "Half Time", "Double Time"});
-            if (prevSongSpeed != newSongSpeed)
+            if (newSongSpeed != -1 && prevSongSpeed != newSongSpeed)
             {
                 JeffBezosController.SetSongSpeed(newSongSpeed);
                 FileStorage.profile.SaveBeatmapOptions();
@@ -58,12 +58,16 @@ namespace CustomBeatmaps.UI
             // Room options
             GUILayout.BeginHorizontal(GUILayout.ExpandWidth(false));
             GUILayout.Label("Stage:", GUILayout.Width(64));
-            CustomBeatmaps.Memory.SelectedRoom = GUILayout.Toolbar(CustomBeatmaps.Memory.SelectedRoom,
-                UnbeatableHelper.Rooms.Select(room => room.Name).ToArray(), GUILayout.ExpandWidth(false));
+            int newRoomSelected = Toolbar.Render(CustomBeatmaps.Memory.SelectedRoom,
+                UnbeatableHelper.Rooms.Select(room => room.Name).ToArray());
+            if (newRoomSelected != -1)
+            {
+                CustomBeatmaps.Memory.SelectedRoom = newRoomSelected;
+            }
             GUILayout.EndHorizontal();
 
             GUILayout.EndHorizontal();
-            
+
             GUILayout.EndScrollView();
         }
         private static int Toggle(int mode, string text, Action<int> setter)

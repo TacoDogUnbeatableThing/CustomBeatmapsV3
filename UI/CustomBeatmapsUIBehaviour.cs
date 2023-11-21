@@ -96,15 +96,23 @@ namespace CustomBeatmaps.UI
 
             Reacc.SetStore(_store);
 
+            // TODO: Incorporate scaling and fix the UI list bugs
+            // Currently this BREAKS the UI further down the list, might be a fixable thing
+            //float scale = GUIHelper.PerformScreenScale();
+            float scale = 1;
+
             float p = WindowPadding;
-            float w = Screen.width - p * 2,
-                h = Screen.height - p * 2;
+            float w = (Screen.width / scale) - p * 2,
+                h = (Screen.height / scale) - p * 2;
             GUILayout.Window(Reacc.GetUniqueId(), new Rect(p + _windowOffset.x, p + _windowOffset.y, w, h), id =>
             {
                 try
                 {
                     // Main UI
+                    // Does nothing
+                    //GUILayout.BeginVertical(GUILayout.MaxWidth(w));
                     CustomBeatmapsUI.Render();
+                    //GUILayout.EndVertical();
                 }
                 catch (ArgumentException e)
                 {

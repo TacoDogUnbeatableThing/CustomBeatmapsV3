@@ -44,11 +44,12 @@ namespace CustomBeatmaps.UI.Highscore
             _showLoginScreen = showLoginScreen;
             _getBeatmapKey = getBeatmapKey;
         }
-        
+
         private void Awake()
         {
             int p = 8;
-            _windowRect = new Rect(Screen.width - DEFAULT_WIDTH - p, Screen.height - DEFAULT_HEIGHT - p, DEFAULT_WIDTH,
+            float scale = GUIHelper.PerformScreenScale();
+            _windowRect = new Rect(Screen.width / scale - DEFAULT_WIDTH - p, Screen.height/ scale - DEFAULT_HEIGHT - p, DEFAULT_WIDTH,
                 DEFAULT_HEIGHT);
         }
         private void OnDestroy()
@@ -63,7 +64,6 @@ namespace CustomBeatmaps.UI.Highscore
                 Hide = !Hide;
             }
         }
-
         private void OnGUI()
         {
             if (!_opened || Hide)
@@ -71,6 +71,11 @@ namespace CustomBeatmaps.UI.Highscore
 
             if (CustomBeatmaps.ServerHighScoreManager.Loaded)
             {
+                Matrix4x4 prevMatrix = GUI.matrix;
+                float scale = GUIHelper.PerformScreenScale();
+                // Keep visible
+                _windowRect.x = Mathf.Clamp(_windowRect.x, 0, (Screen.width / scale) - _windowRect.width);
+                _windowRect.y = Mathf.Clamp(_windowRect.y, 0, (Screen.height - 64) / scale);
                 _windowRect = GUI.Window(0, _windowRect, windowId =>
                 {
                     // Make a very long rect that is 20 pixels tall.
@@ -100,6 +105,7 @@ namespace CustomBeatmaps.UI.Highscore
                     GUILayout.EndVertical();
 
                 }, "Online High Scores");
+                GUI.matrix = prevMatrix;
             }
         }
     }

@@ -17,7 +17,13 @@ namespace CustomBeatmaps.UI.PackageList
             });
 
             return GUILayout.Button($"<size=24>{labelBig}</size>\n{labelSmall}", GUILayout.Height(72), GUILayout.ExpandHeight(false)) 
-                   || (GUIHelper.CanDoInput() && (Input.GetKeyDown(KeyCode.F) || Input.GetKeyDown(KeyCode.KeypadEnter) || _rewired.GetButtonDown("Interact")));
+                   || (GUIHelper.CanDoInput() && (
+                       Input.GetKeyDown(KeyCode.F) ||
+                       Input.GetKeyDown(KeyCode.KeypadEnter) ||
+                       // Rewired counts mouse inputs... we don't want that
+                       (!Input.GetMouseButtonDown(0) && _rewired.GetButtonDown("Interact"))
+                       )
+                    );
         }
     }
 }

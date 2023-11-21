@@ -10,7 +10,7 @@ namespace CustomBeatmaps.UI.PackageList
             GUILayout.BeginHorizontal();
             GUILayout.FlexibleSpace();
             GUILayout.Label("Sort By", GUILayout.ExpandWidth(false));
-            EnumTooltipPickerUI.Render(sortMode, setSortMode, GUILayout.ExpandWidth(false));
+            EnumTooltipPickerUI.Render(sortMode, setSortMode);
             GUILayout.EndHorizontal();
         }
     }

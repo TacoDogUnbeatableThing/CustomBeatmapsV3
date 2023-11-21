@@ -21,7 +21,7 @@ namespace CustomBeatmaps.UI.PackageList
                 _rewired = ReInput.players.GetPlayer(0);
                 // The game does not use/set up these parameters so I set them up here
                 _rewired.controllers.maps.GetInputBehavior(0).buttonRepeatDelay = 0.5f;
-                _rewired.controllers.maps.GetInputBehavior(0).buttonRepeatRate = 8;
+                _rewired.controllers.maps.GetInputBehavior(0).buttonRepeatRate = 16;
             });
 
             GUILayout.Label(header);
@@ -77,7 +77,8 @@ namespace CustomBeatmaps.UI.PackageList
 
             // Keyboard Shortcuts: Navigate packages with arrow keys
 
-            if (GUIHelper.CanDoInput() && packageHeaders.Count > 1)
+            // NO scrolling
+            if (GUIHelper.CanDoInput() && packageHeaders.Count > 1 && Input.mouseScrollDelta.magnitude < 0.01)
             {
                 if (Input.GetKeyDown(KeyCode.DownArrow) || Input.GetKeyDown(KeyCode.S) || _rewired.GetNegativeButtonRepeating("Vertical"))
                 {

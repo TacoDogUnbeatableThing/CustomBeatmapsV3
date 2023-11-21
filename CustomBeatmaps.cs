@@ -14,7 +14,7 @@ using Debug = UnityEngine.Debug;
 
 namespace CustomBeatmaps
 {
-    [BepInPlugin("tacodog.unbeatable.custombeatmaps", "Custom Beatmaps V3", "3.3.4")]
+    [BepInPlugin("tacodog.unbeatable.custombeatmaps", "Custom Beatmaps V3", "3.3.5")]
     public class CustomBeatmaps : BaseUnityPlugin
     {
         public static ModConfig ModConfig { get; private set; }
@@ -98,6 +98,7 @@ namespace CustomBeatmaps
                 typeof(OneLifeModePatch),
                 typeof(FlipModePatch),
                 typeof(SimpleJankHighScoreSongReplacementPatch),
+                typeof(DisableRewiredMouseInputPatch)
             };
             foreach (var toPatch in classesToPatch)
             {
