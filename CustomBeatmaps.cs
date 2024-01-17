@@ -118,20 +118,14 @@ namespace CustomBeatmaps
             Logger.LogDebug($"Opening Disclaimer Disabled: {Memory.OpeningDisclaimerDisabled}");
             if (!Memory.OpeningDisclaimerDisabled)
             {
-                foreach (var obj in FindObjectsOfType(typeof(GameObject)))
-                {
-                    var gobject = (GameObject) obj;
-                    var ourselves = gobject.GetComponentInChildren<CustomBeatmaps>();
-                    if (ourselves == null)
-                    {
-                        DestroyImmediate(gobject);
-                    }
-                }
+                // Make the game freeze
+                Time.timeScale = 0;
 
                 var disclaimer = new GameObject().AddComponent<OpeningDisclaimerUIBehaviour>();
                 disclaimer.OnSelect += () =>
                 {
-                    // Reload game
+                    // Reload
+                    Time.timeScale = 1;
                     Memory.OpeningDisclaimerDisabled = true;
                     GameMemory.Save(MEMORY_LOCATION, Memory);
                     SceneManager.LoadScene(0);
