@@ -62,6 +62,14 @@ namespace CustomBeatmaps.UI
                 return;
             }
 
+            var loadState = CustomBeatmaps.LocalServerPackages.InitialLoadState;
+            if (loadState.Loading)
+            {
+                float p = (float) loadState.Loaded / loadState.Total;
+                ProgressBarUI.Render(p, $"Loaded {loadState.Loaded} / {loadState.Total}", GUILayout.ExpandWidth(true), GUILayout.Height(32));
+                return;
+            }
+
             if (!_loaded)
             {
                 RenderReloadHeader("Loading...");

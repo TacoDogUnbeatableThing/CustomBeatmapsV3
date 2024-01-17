@@ -34,7 +34,6 @@ namespace CustomBeatmaps.UI.Highscore
             if (!_opened || _closing)
                 return;
             Opened = false;
-            // TODO: Zooom and set _opened (and _closing) to false then
             _opened = false;
             _closing = true;
         }

@@ -28,6 +28,14 @@ namespace CustomBeatmaps.UI
 
             var localPackages = CustomBeatmaps.LocalUserPackages.Packages;
 
+            var loadState = CustomBeatmaps.LocalUserPackages.InitialLoadState;
+            if (loadState.Loading)
+            {
+                float p = (float) loadState.Loaded / loadState.Total;
+                ProgressBarUI.Render(p, $"Loaded {loadState.Loaded} / {loadState.Total}", GUILayout.ExpandWidth(true), GUILayout.Height(32));
+                return;
+            }
+
             // This is... kinda highly inefficient but whatever?
             UIConversionHelper.SortLocalPackages(localPackages, sortMode);
 

@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 using CustomBeatmaps.Util;
+using UnityEngine;
 
 namespace CustomBeatmaps.CustomPackages
 {
@@ -23,6 +25,14 @@ namespace CustomBeatmaps.CustomPackages
         private string _folder;
         private FileSystemWatcher _watcher;
 
+        public InitialLoadStateData InitialLoadState { get; private set; } = new InitialLoadStateData();
+        public class InitialLoadStateData
+        {
+            public bool Loading;
+            public int Loaded;
+            public int Total;
+        }
+        
         public LocalPackageManager(Action<BeatmapException> onLoadException)
         {
             _onLoadException = onLoadException;
@@ -32,21 +42,33 @@ namespace CustomBeatmaps.CustomPackages
         {
             if (_folder == null)
                 return;
-            lock (_packages)
+            new Thread(() =>
             {
-                ScheduleHelper.SafeLog($"RELOADING ALL PACKAGES FROM {_folder}");
-
-                _packages.Clear();
-                _packages.AddRange(CustomPackageHelper.LoadLocalPackages(_folder, _onLoadException));
-                lock (_downloadedFolders)
+                Thread.CurrentThread.IsBackground = true;
+                lock (_packages)
                 {
-                    _downloadedFolders.Clear();
-                    foreach (var package in _packages)
+                    InitialLoadState.Loading = true;
+                    InitialLoadState.Loaded = 0;
+                    InitialLoadState.Total = CustomPackageHelper.EstimatePackageCount(_folder);
+                    ScheduleHelper.SafeLog($"RELOADING ALL PACKAGES FROM {_folder}");
+
+                    _packages.Clear();
+                    var packages = CustomPackageHelper.LoadLocalPackages(_folder, loadedPackage =>
                     {
-                        _downloadedFolders.Add(Path.GetFullPath(package.FolderName));
+                        InitialLoadState.Loaded++;
+                    }, _onLoadException);
+                    _packages.AddRange(packages);
+                    lock (_downloadedFolders)
+                    {
+                        _downloadedFolders.Clear();
+                        foreach (var package in _packages)
+                        {
+                            _downloadedFolders.Add(Path.GetFullPath(package.FolderName));
+                        }
                     }
+                    InitialLoadState.Loading = false;
                 }
-            }
+            }).Start();
         }
 
         private void UpdatePackage(string folderPath)
@@ -103,6 +125,10 @@ namespace CustomBeatmaps.CustomPackages
         public List<CustomLocalPackage> Packages {
             get
             {
+                if (InitialLoadState.Loading)
+                {
+                    return new List<CustomLocalPackage>();
+                }
                 lock (_packages)
                 {
                     return _packages;

@@ -94,7 +94,12 @@ namespace CustomBeatmaps.Util
             return false;
         }
 
-        public static CustomLocalPackage[] LoadLocalPackages(string folderPath, Action<BeatmapException> onBeatmapFail=null)
+        public static int EstimatePackageCount(string folderPath)
+        {
+            return Directory.GetDirectories(folderPath).Length + Directory.GetFiles(folderPath).Length;
+        }
+
+        public static CustomLocalPackage[] LoadLocalPackages(string folderPath, Action<CustomLocalPackage> onLoadPackage = null, Action<BeatmapException> onBeatmapFail=null)
         {
             folderPath = Path.GetFullPath(folderPath);
 
@@ -106,6 +111,7 @@ namespace CustomBeatmaps.Util
                 CustomLocalPackage potentialNewPackage;
                 if (TryLoadLocalPackage(subDir, folderPath, out potentialNewPackage, false, onBeatmapFail))
                 {
+                    onLoadPackage?.Invoke(potentialNewPackage);
                     result.Add(potentialNewPackage);
                 }
             }
@@ -120,6 +126,7 @@ namespace CustomBeatmaps.Util
                         var customBmap = LoadLocalBeatmap(subFile);
                         var newPackage = new CustomLocalPackage();
                         newPackage.Beatmaps = new[] {customBmap};
+                        onLoadPackage?.Invoke(newPackage);
                         result.Add(newPackage);
                     }
                     catch (BeatmapException e)
