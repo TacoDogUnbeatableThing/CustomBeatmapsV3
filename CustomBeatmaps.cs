@@ -104,6 +104,7 @@ namespace CustomBeatmaps
             {
                 try
                 {
+                    Logger.LogDebug($"Patching {toPatch}");
                     Harmony.CreateAndPatchAll(toPatch);
                 }
                 catch (Exception e)
@@ -114,6 +115,7 @@ namespace CustomBeatmaps
             }
 
             // Disclaimer screen
+            Logger.LogDebug($"Opening Disclaimer Disabled: {Memory.OpeningDisclaimerDisabled}");
             if (!Memory.OpeningDisclaimerDisabled)
             {
                 foreach (var obj in FindObjectsOfType(typeof(GameObject)))
