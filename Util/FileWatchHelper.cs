@@ -15,7 +15,7 @@ namespace CustomBeatmaps.Util
                 Path = Path.GetDirectoryName(filePath),
                 NotifyFilter = NotifyFilters.DirectoryName |
                                NotifyFilters.FileName
-                               | NotifyFilters.LastWrite | NotifyFilters.Size,
+                               | NotifyFilters.LastWrite,
                 EnableRaisingEvents = true,
                 Filter = Path.GetFullPath(filePath),
                 IncludeSubdirectories = false
@@ -42,9 +42,9 @@ namespace CustomBeatmaps.Util
             var fileWatcher = new FileSystemWatcher
             {
                 Path = dirPath,
-                NotifyFilter = NotifyFilters.Attributes | NotifyFilters.CreationTime | NotifyFilters.DirectoryName |
+                NotifyFilter = NotifyFilters.CreationTime | NotifyFilters.DirectoryName |
                                NotifyFilters.FileName
-                               | NotifyFilters.LastWrite | NotifyFilters.Security | NotifyFilters.Size,
+                               | NotifyFilters.LastWrite,
                 EnableRaisingEvents = true,
                 Filter = "*",
                 IncludeSubdirectories = recursive
