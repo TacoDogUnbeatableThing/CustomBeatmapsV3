@@ -21,7 +21,7 @@ namespace CustomBeatmaps.Util
 
         public static void SafeLog(object log)
         {
-            SafeInvoke(() => Debug.Log(log));
+            SafeInvoke(() => Console.WriteLine(log));
         }
         /// <summary>
         /// Invokes when it is safe to do so within Unity's single thread.
