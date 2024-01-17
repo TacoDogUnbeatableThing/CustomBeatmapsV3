@@ -66,13 +66,16 @@ namespace CustomBeatmaps.UI.PackageList
             Vector2 nameSize =
                 GUIHelper.CalculateSize(new GUIContent(label), GUI.skin.label, GUILayout.ExpandWidth(false));
             float creatorLabelYPos = br.y;
+            float allocateHeight = 0;
             //Debug.Log($"r: {nameSize},");
             if (creatorLeftTargetPos < nameLeftCorner.x + nameSize.x)
             {
                 creatorLabelYPos += nameSize.y;
-                // Allocate extra space
-                GUILayoutUtility.GetRect(0, nameSize.y);
+                allocateHeight = Math.Max(allocateHeight, nameSize.y);
             }
+            // Allocate extra space
+            // FOR SOME REASON this is required...
+            GUILayoutUtility.GetRect(0, allocateHeight);
             GUI.Label(new Rect(creatorLeftTargetPos, creatorLabelYPos, NewTextRightPad, br.height), creatorLabel);
 
             if (status != BeatmapDownloadStatus.Downloaded)
