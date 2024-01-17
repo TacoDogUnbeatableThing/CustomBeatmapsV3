@@ -18,7 +18,7 @@ namespace CustomBeatmaps.Patches
                     __runOriginal = false;
                     __result = false;
                     break;
-                case "Vertical":
+                case "Vertical" when Input.mouseScrollDelta.magnitude > 0:
                 case "Horizontal" when Input.mouseScrollDelta.magnitude > 0:
                     __runOriginal = false;
                     __result = false;
