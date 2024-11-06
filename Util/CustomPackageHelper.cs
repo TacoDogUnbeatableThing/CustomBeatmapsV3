@@ -198,7 +198,7 @@ namespace CustomBeatmaps.Util
                 await FetchHelper.DownloadFile(downloadURL, tempDownloadFilePath);
 
                 // Extract
-                ZipFile.ExtractToDirectory(tempDownloadFilePath, targetFolder, true);
+                ZipHelper.ExtractToDirectory(tempDownloadFilePath, targetFolder, true);
                 // Delete old
                 File.Delete(tempDownloadFilePath);
             }

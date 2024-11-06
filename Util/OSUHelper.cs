@@ -88,8 +88,8 @@ namespace CustomBeatmaps.Util
             string zipTarget = $"{packageName}.zip";
             // Remove LOCAL_ just... to make it a bit more neat.
             if (zipTarget.StartsWith("LOCAL_")) zipTarget = zipTarget.Substring("LOCAL_".Length);
-            // THIS MAY FAIL due to invalid access. No clue why.
-            System.IO.Compression.ZipFile.CreateFromDirectory(temporaryFolderLocation, zipTarget);
+
+            ZipHelper.CreateFromDirectory(temporaryFolderLocation, zipTarget);
 
             // Delete temporary directory afterwards
             Directory.Delete(temporaryFolderLocation, true);
