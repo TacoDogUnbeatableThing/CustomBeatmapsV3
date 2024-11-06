@@ -4,6 +4,10 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 
+using File = Pri.LongPath.File;
+using Path = Pri.LongPath.Path;
+using Directory = Pri.LongPath.Directory;
+
 namespace CustomBeatmaps.Util
 {
     /// <summary>

@@ -3,6 +3,10 @@ using System.Collections.Generic;
 using System.IO;
 using CustomBeatmaps.CustomPackages;
 
+using File = Pri.LongPath.File;
+using Path = Pri.LongPath.Path;
+using Directory = Pri.LongPath.Directory;
+
 namespace CustomBeatmaps.Util
 {
     public static class OSUHelper

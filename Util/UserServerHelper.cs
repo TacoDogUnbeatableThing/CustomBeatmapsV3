@@ -6,6 +6,10 @@ using JetBrains.Annotations;
 using Newtonsoft.Json;
 using UnityEngine;
 
+using File = Pri.LongPath.File;
+using Path = Pri.LongPath.Path;
+using Directory = Pri.LongPath.Directory;
+
 namespace CustomBeatmaps.Util
 {
     public static class UserServerHelper

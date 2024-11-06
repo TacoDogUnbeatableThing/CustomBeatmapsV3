@@ -2,6 +2,9 @@
 using System.IO;
 using System.Linq;
 
+using File = Pri.LongPath.File;
+using Path = Pri.LongPath.Path;
+
 namespace CustomBeatmaps.CustomPackages
 {
     public class PlayedPackageManager

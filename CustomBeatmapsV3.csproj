@@ -120,5 +120,6 @@
 
     <ItemGroup>
       <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+      <PackageReference Include="Pri.LongPath" Version="2.0.53" />
     </ItemGroup>
 </Project>

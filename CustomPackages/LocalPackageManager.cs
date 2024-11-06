@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 using CustomBeatmaps.Util;
 using UnityEngine;
 
+using Path = Pri.LongPath.Path;
+using Directory = Pri.LongPath.Directory;
+
 namespace CustomBeatmaps.CustomPackages
 {
     /// <summary>
@@ -57,6 +60,7 @@ namespace CustomBeatmaps.CustomPackages
                     {
                         InitialLoadState.Loaded++;
                     }, _onLoadException);
+                    ScheduleHelper.SafeLog($"(step 2)");
                     _packages.AddRange(packages);
                     lock (_downloadedFolders)
                     {

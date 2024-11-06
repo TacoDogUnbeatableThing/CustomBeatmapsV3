@@ -71,7 +71,15 @@ namespace CustomBeatmaps
 
         private static void OnError(Exception ex)
         {
-            EventBus.ExceptionThrown?.Invoke(ex);
+            ScheduleHelper.SafeInvoke(() => Debug.LogException(ex));
+            try
+            {
+                EventBus.ExceptionThrown?.Invoke(ex);
+            } catch (Exception e)
+            {
+                // ???
+                ScheduleHelper.SafeInvoke(() => Debug.LogException(e));
+            }
         }
 
         private void Awake()

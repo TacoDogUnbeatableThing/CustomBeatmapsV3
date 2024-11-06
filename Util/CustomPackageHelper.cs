@@ -1,13 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.IO.Compression;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using CustomBeatmaps.CustomPackages;
-using HarmonyLib;
 using UnityEngine;
+
+using File = Pri.LongPath.File;
+using Path = Pri.LongPath.Path;
+using Directory = Pri.LongPath.Directory;
 
 namespace CustomBeatmaps.Util
 {
@@ -79,6 +81,11 @@ namespace CustomBeatmaps.Util
                         ScheduleHelper.SafeLog($"    BEATMAP FAIL: {e.Message}");
                         onBeatmapFail?.Invoke(e);
                     }
+                    catch (Exception e)
+                    {
+                        ScheduleHelper.SafeInvoke(() => Debug.LogException(e));
+                    }
+
                 }
             }
 
@@ -105,6 +112,8 @@ namespace CustomBeatmaps.Util
 
             List<CustomLocalPackage> result = new List<CustomLocalPackage>();
 
+            ScheduleHelper.SafeLog("step A");
+
             // Folders = packages
             foreach (string subDir in Directory.EnumerateDirectories(folderPath, "*.*", SearchOption.AllDirectories))
             {
@@ -115,6 +124,8 @@ namespace CustomBeatmaps.Util
                     result.Add(potentialNewPackage);
                 }
             }
+
+            ScheduleHelper.SafeLog("step B");
 
             // Files = packages too! For compatibility with V1 (cause why not)
             foreach (string subFile in Directory.GetFiles(folderPath))
@@ -198,7 +209,7 @@ namespace CustomBeatmaps.Util
                 await FetchHelper.DownloadFile(downloadURL, tempDownloadFilePath);
 
                 // Extract
-                ZipHelper.ExtractToDirectory(tempDownloadFilePath, targetFolder, true);
+                ZipHelper.ExtractToDirectory(tempDownloadFilePath, targetFolder);
                 // Delete old
                 File.Delete(tempDownloadFilePath);
             }

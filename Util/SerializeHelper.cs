@@ -1,7 +1,13 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
+
+// weird concurrency issues with this one
+// using File = Pri.LongPath.File;
+// using Path = Pri.LongPath.Path;
+// using Directory = Pri.LongPath.Directory;
 
 namespace CustomBeatmaps.Util
 {
@@ -10,10 +16,21 @@ namespace CustomBeatmaps.Util
     /// </summary>
     public static class SerializeHelper
     {
+        
+        private static object _avoidmultiwriteLock = new object();
 
         public static void SaveJSON<T>(string filePath, T data)
         {
-            File.WriteAllText(filePath, SerializeJSON(data, true));
+            try
+            {
+                lock (_avoidmultiwriteLock)
+                {
+                    File.WriteAllText(filePath, SerializeJSON(data, true));
+                }
+            } catch (Exception e)
+            {
+                throw new Exception($"Failed to save JSON file: {filePath}", e);
+            }
         }
 
         public static T LoadJSON<T>(string filePath)

@@ -20,7 +20,6 @@ namespace CustomBeatmaps.Util
                 onReload(toSet);
             };
             LoadedConfigs.Add(Path.GetFullPath(filePath), reload);
-            reload.Invoke();
             // Listen for file changes
             FileWatchHelper.WatchFileForModifications(filePath, () =>
             {
@@ -29,6 +28,7 @@ namespace CustomBeatmaps.Util
                     FilesChanged.Add(Path.GetFullPath(filePath));
                 }
             });
+            reload.Invoke();
         }
 
         /// <summary>
@@ -53,7 +53,7 @@ namespace CustomBeatmaps.Util
                 {
                     if (LoadedConfigs.ContainsKey(filePath))
                     {
-                        Debug.Log($"Config Changed Reload: {filePath}");
+                        ScheduleHelper.SafeLog($"Config Changed Reload: {filePath}");
                         LoadedConfigs[filePath]?.Invoke();
                     }
                 }

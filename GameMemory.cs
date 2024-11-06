@@ -2,6 +2,10 @@
 using CustomBeatmaps.UI;
 using CustomBeatmaps.Util;
 
+using File = Pri.LongPath.File;
+using Path = Pri.LongPath.Path;
+using Directory = Pri.LongPath.Directory;
+
 namespace CustomBeatmaps
 {
     public class GameMemory
